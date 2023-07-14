@@ -1,4 +1,4 @@
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 import UserRepository from '../repositories/userRepository'
 import { IUser, IResponse } from '../interfaces/interfaces';
 
@@ -8,7 +8,7 @@ export default class UserController {
     constructor() {
         this.repository = new UserRepository()
     }
-    public async login(req: Request, res: Response) {
+    async login(req: Request, res: Response) {
         const user = req.body;
         
         if(!user || !user.user || !user.password) {
@@ -23,6 +23,18 @@ export default class UserController {
         else {
             res.status(serverResponse.status).json({ error: serverResponse.errors })
         }
+    }
+
+    async getMessagesByDate(req: Request, res: Response) {
+        const date = req.body.date;
+        await this.repository.getConversations(date);
+
+    }
+
+    async getMessagesByUserId(req: Request, res: Response) {
+        const id = req.body.id;
+        const date = req.body.date;
+        await this.repository.getMessagesByUserId(date, id)
     }
 
 }
