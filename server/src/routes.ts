@@ -5,8 +5,8 @@ const router = Router();
 
 const user : UserController = new UserController();
 
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.post('/login', user.login.bind(user))
-router.get('/');
+router.get('/', user.getMessagesByDate.bind(user));
+router.get('/:id', user.getMessagesByUserId.bind(user))
 
 export default router;
