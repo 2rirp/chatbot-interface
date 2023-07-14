@@ -1,10 +1,10 @@
 export interface IUser {
-    username: string,
-    password: string
+  email: string;
+  password: string;
 }
 
 export interface IResponse<T> {
-    status: number;
-    data?: T;
-    errors?: any;
+  status: number;
+  data?: T;
+  errors?: any;
 }
