@@ -6,6 +6,7 @@ const router = Router();
 const user : UserController = new UserController();
 
 router.post('/login', user.login.bind(user))
+router.post('/createuser', )
 router.get('/', user.getMessagesByDate.bind(user));
 router.get('/:id', user.getMessagesByUserId.bind(user))
 
