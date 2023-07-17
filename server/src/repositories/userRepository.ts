@@ -4,6 +4,7 @@ import { IUser, IResponse } from "../interfaces/interfaces";
 
 export default class UserRepository {
   private db: dbConnect;
+  
   constructor() {
     this.db = new dbConnect();
   }
@@ -37,11 +38,31 @@ export default class UserRepository {
     }
   }
 
-  async createUser() {
+  async createNewUser(user: IUser) {
     try {
-        
+        const query = `INSERT INTO attendants (email, password, is_admin)
+        VALUES ($1, $2, $3)`;
+        const result = await this.db.pool.query(query, [user.email, user.password, user.is_admin]);
+
+        return result.rows[0];
     } catch (error) {
-        
+        throw error;
+    }
+  }
+
+  public async getUserByEmail(email: string) {
+    try {
+        const query = `SELECT * FROM attendants WHERE email = $1;`;
+        const result = await this.db.pool.query(query, [email]);
+
+        if(result.rowCount === 0) {
+            return true;
+        }
+        else
+            return false;
+    } catch (error) {
+        console.error('Failed to get user by email: ', error);
+        throw error;
     }
   }
 

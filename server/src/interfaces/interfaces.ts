@@ -1,6 +1,7 @@
 export interface IUser {
   email: string;
   password: string;
+  is_admin?: boolean;
 }
 
 export interface IResponse<T> {
