@@ -37,6 +37,14 @@ export default class UserRepository {
     }
   }
 
+  async createUser() {
+    try {
+        
+    } catch (error) {
+        
+    }
+  }
+
   async getConversations(date: string) {
     try {
       const queryText = `
