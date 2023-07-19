@@ -1,16 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import express from "express";
-import routes from "./routes";
+import App from "./app";
+
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: "./config/.env" });
 
-const app : express.Application = express();
-const port = process.env.PORT || 5000;
+const app = new App();
 
+const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || "localhost";
 
-app.use("/", routes);
-
-app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
+app.server.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
 });
