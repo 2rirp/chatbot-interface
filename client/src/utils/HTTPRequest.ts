@@ -8,7 +8,7 @@ export async function HTTPRequest<T>(
 ): Promise<APIResponse<T>> {
   const options: RequestInit = {
     method: method,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json",  "Access-Control-Allow-Origin": "*" },
     body: JSON.stringify(body),
   };
   try {
