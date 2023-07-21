@@ -9,6 +9,8 @@ export default function LoginPage() {
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  
 
   async function formSubmitted(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,17 +19,17 @@ export default function LoginPage() {
 
     const user: ILogin = { email, password };
 
-    setIsLoggedIn(true);
-    /* const response = await HTTPRequest(
-      "http://localhost:8000/login",
+     const response = await HTTPRequest(
+      "http://localhost:5000/login",
       "POST",
       user
     );
 
-    if (response.status === 200) {
+    if (response.status === 201) {
       setIsLoggedIn(true);
     } else {
-    } */
+      return
+    } 
   }
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
