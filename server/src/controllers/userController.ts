@@ -46,15 +46,4 @@ export default class UserController {
       next(error);
     }
   }
-
-  async getMessagesByDate(req: Request, res: Response) {
-    const date = req.body.date;
-    /* await this.repository.getConversations(date); */
-  }
-
-  async getMessagesByUserId(req: Request, res: Response) {
-    const id = req.body.id;
-    const date = req.body.date;
-    /* await this.repository.getMessagesByUserId(date, id); */
-  }
 }
