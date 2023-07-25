@@ -12,7 +12,6 @@ export default class BotUserController {
       const date: string = req.body.date;
       const users: UsersArray =
         await BotUserService.orderUsersByLastConversation(date);
-      console.log(users);
 
       res.status(200).json({
         error: null,

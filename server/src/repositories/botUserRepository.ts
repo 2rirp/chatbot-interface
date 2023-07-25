@@ -28,7 +28,6 @@ export default class BotUserRepository {
         last_conversation_created_at: row.last_conversation_created_at,
       }));
 
-      console.log(users);
       return users;
     } catch (error) {
       console.error("Failed to fetch conversations: ", error);
