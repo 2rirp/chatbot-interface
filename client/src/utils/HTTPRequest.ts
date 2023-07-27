@@ -1,16 +1,21 @@
-import { APIResponse } from "../interfaces/APIResponse.js";
-import { IUser } from "../interfaces/iuser.js";
+import { APIResponse } from "../interfaces/APIResponse";
 
 export async function HTTPRequest<T>(
   url: string,
   method: string,
-  body: Partial<IUser>
+  body?: any
 ): Promise<APIResponse<T>> {
   const options: RequestInit = {
     method: method,
-    headers: { "Content-Type": "application/json",  "Access-Control-Allow-Origin": "*" },
-    body: JSON.stringify(body),
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
   };
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
   try {
     const response = await fetch(url, options);
     const json = await response.json();
