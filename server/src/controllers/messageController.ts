@@ -8,10 +8,13 @@ export default class MessageController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.params.userId;
+      const botUserId = req.params.userId;
       const date = req.body.date;
 
-      const messages = await MessageServices.getMessagesByUserId(date, userId);
+      const messages = await MessageServices.getMessagesByUserId(
+        date,
+        botUserId
+      );
 
       res.status(201).json({
         error: null,

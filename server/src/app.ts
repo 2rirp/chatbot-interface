@@ -3,7 +3,7 @@ import http from "http";
 import handleAllErrors from "./middlewares/error-handler";
 import cookieParser from "cookie-parser";
 import routes from "./routes";
-import cors from 'cors';
+import cors from "cors";
 // import { Server } from "socket.io";
 
 export default class App {
@@ -22,7 +22,7 @@ export default class App {
     this.app.use(express.json());
     this.app.use(cookieParser());
     this.app.use(cors());
-    this.app.use("/", express.static("./client/dist"));
+    this.app.use("/", express.static("../client/dist"));
   }
 
   private router(): void {

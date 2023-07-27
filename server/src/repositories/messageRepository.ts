@@ -7,7 +7,7 @@ export default class MessageRepository {
   constructor() {
     this.db = new dbConnect();
   }
-  async getMessagesByUserId(date: string, userId: string) {
+  async getMessagesByUserId(date: string, botUserId: string) {
     try {
       const queryText = `
             SELECT * FROM messages m
@@ -16,7 +16,7 @@ export default class MessageRepository {
                     AND c.created_at < ($1::timestamp + INTERVAL '1 day')
                     AND c.user_id = $2 
             ) c ON c.id = m.conversation_id;`;
-      const result = await this.db.pool.query(queryText, [date, userId]);
+      const result = await this.db.pool.query(queryText, [date, botUserId]);
       return result.rows;
     } catch (error) {
       console.error("Failed to fetch messages by userId: ", error);
