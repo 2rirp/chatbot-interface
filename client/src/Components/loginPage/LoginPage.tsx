@@ -1,16 +1,20 @@
 import { useState } from "react";
-import Form from "../form/Form";
 import { ILogin } from "../../interfaces/ilogin";
 import { HTTPRequest } from "../../utils/HTTPRequest";
-import ChatList from "../chatList/Chatlist";
 import "./loginPage.css";
+import Modal from "../modal/Modal";
+import HomePage from "../homePage/HomePage";
+import Form from "../form/Form";
 
-export default function LoginPage() {
+interface LoginProps {
+  onLoginSuccess: (isLoggedIn: boolean) => void;
+}
+
+export default function LoginPage(props: LoginProps) {
+  const [modalIsOpen, setmodalIsOpen] = useState(false);
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  
 
   async function formSubmitted(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,7 +23,7 @@ export default function LoginPage() {
 
     const user: ILogin = { email, password };
 
-     const response = await HTTPRequest(
+    const response = await HTTPRequest(
       "http://localhost:5000/login",
       "POST",
       user
@@ -27,9 +31,14 @@ export default function LoginPage() {
 
     if (response.status === 201) {
       setIsLoggedIn(true);
+      props.onLoginSuccess(true);
     } else {
-      return
-    } 
+      setmodalIsOpen(true);
+    }
+  }
+
+  function closeModal() {
+    setmodalIsOpen(false);
   }
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,10 +51,11 @@ export default function LoginPage() {
 
   return (
     <div className="container">
+      {modalIsOpen && <Modal onClose={closeModal} />}
       <div className="loginBox">
         <h1 className="loginTitle">Login</h1>
         {isLoggedIn ? (
-          <ChatList />
+          <HomePage />
         ) : (
           <Form
             onSubmit={formSubmitted}
