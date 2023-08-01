@@ -10,9 +10,9 @@ export default class MessageRepository {
   async getMessagesByUserId(date: string, botUserId: string) {
     try {
       const queryText = `
-            SELECT * FROM messages m
+            SELECT m.id as message_id, m.content, m.conversation_id, m.created_at, m.message_from_bot FROM messages m
             INNER JOIN (
-                SELECT * FROM conversations c WHERE c.created_at >= $1::timestamp 
+                SELECT id, user_id FROM conversations c WHERE c.created_at >= $1::timestamp 
                     AND c.created_at < ($1::timestamp + INTERVAL '1 day')
                     AND c.user_id = $2 
             ) c ON c.id = m.conversation_id;`;

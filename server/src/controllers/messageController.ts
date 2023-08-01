@@ -9,7 +9,7 @@ export default class MessageController {
   ): Promise<void> {
     try {
       const botUserId = req.params.userId;
-      const date = req.body.date;
+      const date = req.params.date;
 
       const messages = await MessageServices.getMessagesByUserId(
         date,
