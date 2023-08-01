@@ -9,7 +9,7 @@ export default class BotUserController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const date: string = req.body.date;
+      const date: string = req.params.date;
       const users: UsersArray =
         await BotUserService.orderUsersByLastConversation(date);
 

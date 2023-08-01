@@ -1,4 +1,4 @@
-.chatlist-container {
+/* .chatlist-container {
     width: 22.5rem;
     display: flex;
     flex-direction: column;
@@ -36,3 +36,33 @@
     padding: 0;
 }
 
+ */
+
+/* .chatlist-container {
+  margin-top: 20px;
+}
+
+.chatlist ul {
+  list-style: none;
+  padding: 0;
+}
+
+.chatlist li {
+  cursor: pointer;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chatlist li:hover {
+  background-color: #f0f0f0;
+}
+
+.chatlist li:last-child {
+  margin-bottom: 0;
+}
+ */
