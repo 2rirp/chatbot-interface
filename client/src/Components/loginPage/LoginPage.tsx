@@ -3,7 +3,7 @@ import { ILogin } from "../../interfaces/ilogin";
 import { HTTPRequest } from "../../utils/HTTPRequest";
 import "./loginPage.css";
 import Modal from "../modal/Modal";
-import HomePage from "../homePage/HomePage";
+import ChatPage from "../chatPage/ChatPage";
 import Form from "../form/Form";
 
 interface LoginProps {
@@ -55,7 +55,7 @@ export default function LoginPage(props: LoginProps) {
       <div className="loginBox">
         <h1 className="loginTitle">Login</h1>
         {isLoggedIn ? (
-          <HomePage />
+          <ChatPage />
         ) : (
           <Form
             onSubmit={formSubmitted}

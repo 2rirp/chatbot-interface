@@ -1,13 +1,13 @@
 import { useState } from "react";
 import "./App.css";
-import HomePage from "./Components/homePage/HomePage";
+import ChatPage from "./Components/chatPage/ChatPage";
 import LoginPage from "./Components/loginPage/LoginPage";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("login");
 
   function handleLoginSuccess(isLoggedIn: boolean) {
-    setCurrentPage(isLoggedIn ? "home" : "login");
+    setCurrentPage(isLoggedIn ? "main" : "login");
   }
 
   return (
@@ -15,7 +15,7 @@ function App() {
       {currentPage === "login" && (
         <LoginPage onLoginSuccess={handleLoginSuccess} />
       )}
-      {currentPage === "home" && <HomePage />}
+      {currentPage === "main" && <ChatPage />}
     </div>
   );
 }
