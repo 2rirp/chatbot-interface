@@ -22,20 +22,17 @@ router.post(
 );
 
 router.get(
-  "/",
-  authenticate,
+  "/:date",
   botUserController.orderUsersByLastConversation.bind(botUserController)
 );
 
 router.get(
-  "/:userId",
-  authenticate,
+  "/:userId/messages/:date",
   messageController.getMessagesByUserId.bind(messageController)
 );
 
 router.get(
   "/conversations/dates",
-
   conversationController.getConversationsDates.bind(conversationController)
 );
 export default router;

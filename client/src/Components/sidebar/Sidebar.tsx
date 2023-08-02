@@ -55,13 +55,15 @@ function Sidebar(props: SidebarProps) {
   }, [selectedDate]);
 
   return (
-    <div className="sidebar-container">
-      <div className="sidebar-header">
-        <span className="attendant-name">Nome do atendente</span>
-        <MoreVertIcon className="menu-icon" />
-        <DateInput handleDateChange={handleDateChange} />
+    <div className="sidebar">
+      <div className="sidebar-container">
+        <div className="sidebar-header">
+          <span className="attendant-name">Nome do atendente</span>
+          <DateInput handleDateChange={handleDateChange} />
+          <MoreVertIcon className="menu-icon" />
+        </div>
+        <ChatList users={chatListData} onUserClick={handleUserClick} />
       </div>
-      <ChatList users={chatListData} onUserClick={handleUserClick} />
     </div>
   );
 }
