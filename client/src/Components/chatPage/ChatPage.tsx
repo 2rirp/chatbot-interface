@@ -3,6 +3,7 @@ import Chat from "../chat/Chat";
 import Sidebar from "../sidebar/Sidebar";
 import { useState } from "react";
 import { HTTPRequest } from "../../utils/HTTPRequest";
+import SignUpModal from "../signUpModal/SignUpModal";
 
 interface ChatDataItem {
   message_id: number;
@@ -26,6 +27,7 @@ interface ChatData {
 
 export default function ChatPage() {
   const [chatData, setChatData] = useState<ChatData["data"]>([]);
+  const [modalIsOpen, setmodalIsOpen] = useState(false);
 
   async function fetchChatData(userId: string, date: string) {
     try {
@@ -44,10 +46,18 @@ export default function ChatPage() {
     }
   }
 
+  function closeModal() {
+    setmodalIsOpen(false);
+  }
+  function openModal() {
+    setmodalIsOpen(true);
+  }
+
   return (
     <div className="chatPage">
+      {modalIsOpen && <SignUpModal onClose={closeModal} />}
       <div className="chatPage-container">
-        <Sidebar fetchChatData={fetchChatData} />
+        <Sidebar fetchChatData={fetchChatData} onIconClick={openModal}/>
         <Chat chatData={chatData} />
       </div>
     </div>

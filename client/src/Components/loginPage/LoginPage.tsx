@@ -18,8 +18,13 @@ export default function LoginPage(props: LoginProps) {
 
   async function formSubmitted(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const email = emailValue;
-    const password = passwordValue;
+    const email = emailValue.trim();
+    const password = passwordValue.trim();
+
+    if(email === '' || password === "") {
+      alert("Favor preencher todos os campos.");
+      return;
+    }
 
     const user: ILogin = { email, password };
 

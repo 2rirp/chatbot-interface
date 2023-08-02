@@ -17,19 +17,19 @@ router.post("/login", userController.login.bind(userController));
 
 router.post(
   "/createuser",
-  authenticate,
+  
   userController.createUser.bind(userController)
 );
 
 router.get(
   "/",
-  authenticate,
+ 
   botUserController.orderUsersByLastConversation.bind(botUserController)
 );
 
 router.get(
   "/:userId",
-  authenticate,
+  
   messageController.getMessagesByUserId.bind(messageController)
 );
 
