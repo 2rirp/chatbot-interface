@@ -5,6 +5,23 @@ import IUser from "../interfaces/iuser";
 import jwtLib from "jsonwebtoken";
 
 export default class UserController {
+  public async getMe(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const user = req.user;
+
+      res.status(200).json({
+        error: null,
+        data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userCredentials = {

@@ -11,7 +11,7 @@ export default class BotUserService {
   ): Promise<UsersArray> {
     try {
       const users: UsersArray = await this.repository.getConversations(date);
-      console.log(users);
+      /* console.log(users); */
 
       return users;
     } catch (error) {

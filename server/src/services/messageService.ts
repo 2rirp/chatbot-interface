@@ -9,7 +9,7 @@ export default class MessageServices {
         date,
         botUserId
       );
-      console.log(messages);
+      /* console.log(messages); */
 
       return messages;
     } catch (error) {

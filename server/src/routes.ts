@@ -13,26 +13,35 @@ const messageController: MessageController = new MessageController();
 const conversationController: ConversationController =
   new ConversationController();
 
-router.post("/login", userController.login.bind(userController));
+router.get(
+  "/api/users/me",
+  authenticate,
+  userController.getMe.bind(userController)
+);
+
+router.post("/api/users/login", userController.login.bind(userController));
 
 router.post(
-  "/createuser",
-
+  "/api/users/createuser",
+  authenticate,
   userController.createUser.bind(userController)
 );
 
 router.get(
-  "/:date",
+  "/api/:date",
+  authenticate,
   botUserController.orderUsersByLastConversation.bind(botUserController)
 );
 
 router.get(
-  "/:userId/messages/:date",
+  "/api/:userId/messages/:date",
+  authenticate,
   messageController.getMessagesByUserId.bind(messageController)
 );
 
 router.get(
-  "/conversations/dates",
+  "/api/conversations/dates",
+  authenticate,
   conversationController.getConversationsDates.bind(conversationController)
 );
 export default router;
