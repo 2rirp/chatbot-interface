@@ -1,4 +1,4 @@
 export interface ILogin {
-  email: string;
-  password: string;
+  email: FormDataEntryValue | null;
+  password: FormDataEntryValue | null;
 }
