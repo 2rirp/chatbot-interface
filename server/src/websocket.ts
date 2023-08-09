@@ -38,8 +38,22 @@ export default class Websocket {
     });
 
     socket.on(
+      "redirectToAttendant",
+      (botUserId: string, conversationId: number) => {
+        try {
+          this.io?.emit("botUserNeedsAttendant", {
+            botUserId,
+            conversationId,
+          });
+        } catch (error) {
+          console.error("Error redirecting to attendant " + error);
+        }
+      }
+    );
+
+    socket.on(
       "enterConversation",
-      (botUserId: string, conversationId: string, userId: string) => {
+      (botUserId: string, conversationId: number, userId: string) => {
         try {
           this.joinConversationRoom(socket, botUserId, conversationId, userId);
           console.log(
@@ -53,7 +67,7 @@ export default class Websocket {
 
     socket.on(
       "exitConversation",
-      (botUserId: string, conversationId: string, userId: string) => {
+      (botUserId: string, conversationId: number, userId: string) => {
         try {
           this.leaveConversationRoom(userId);
           console.log(
@@ -61,6 +75,20 @@ export default class Websocket {
           );
         } catch (error) {
           console.error("Error leaving conversation room: " + error);
+        }
+      }
+    );
+
+    socket.on(
+      "messageToAttendant",
+      (userId: string, conversationId: number, messageContent: string) => {
+        try {
+          this.broadcastToConversation(conversationId, "newMessage", {
+            content: messageContent,
+            message_from_bot: false,
+          });
+        } catch (error) {
+          console.error("Error receiving new message: " + error);
         }
       }
     );
@@ -89,7 +117,7 @@ export default class Websocket {
   private joinConversationRoom(
     socket: Socket,
     botUserId: string,
-    conversationId: string,
+    conversationId: number,
     userId: string
   ) {
     const connection = this.getConnection(userId);
@@ -120,5 +148,20 @@ export default class Websocket {
       this.connections[index].userId,
       this.connections[index].botUserId
     );
+  }
+
+  private broadcastToConversation(
+    conversationId: number,
+    eventName: string,
+    data: any
+  ) {
+    if (!this.io) return;
+
+    this.connections.forEach((conn: IConnection) => {
+      if (conn.conversationId === conversationId) {
+        console.log("websocket: sending message to conversation...");
+        conn.connection.emit(eventName, data);
+      }
+    });
   }
 }

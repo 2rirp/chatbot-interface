@@ -4,5 +4,5 @@ export default interface IConnection {
   connection: Socket;
   userId?: string | null;
   botUserId?: string | null;
-  conversationId?: string | null;
+  conversationId?: number | null;
 }
