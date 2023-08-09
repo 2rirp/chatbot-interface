@@ -16,4 +16,16 @@ export default class MessageServices {
       throw error;
     }
   }
+
+  public static async getMessagesByConversationId(conversationId: number) {
+    try {
+      const messages = await this.repository.getMessagesByConversationId(
+        conversationId
+      );
+
+      return messages;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

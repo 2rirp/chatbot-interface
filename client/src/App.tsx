@@ -3,6 +3,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import ChatPage from "./views/chatPage/ChatPage";
 import LoginPage from "./views/loginPage/LoginPage";
 import { RequireAuth } from "./components/requireAuth/RequireAuth";
+import RealTimePage from "./views/realTimePage/RealTimePage";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -10,7 +11,7 @@ export default function App() {
       path: "/",
       element: (
         <RequireAuth>
-          <ChatPage />
+          <RealTimePage />
         </RequireAuth>
       ),
     },
