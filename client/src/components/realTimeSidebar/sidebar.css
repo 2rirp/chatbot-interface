@@ -1,0 +1,23 @@
+.sidebar {
+  border-right: 1px solid #000;
+}
+
+.sidebar-container {
+  flex: 1;
+  background-color: #f8f9fa;
+  height: 100%;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  height: 30px;
+  padding: 10px;
+  justify-content: space-between;
+  color: #000;
+}
+
+.attendant-name {
+  font-weight: bold;
+}
