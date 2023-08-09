@@ -1,9 +1,8 @@
 import "./chatPage.css";
-import Chat from "../chat/Chat";
-import Sidebar from "../sidebar/Sidebar";
+import Chat from "../../components/chat/Chat";
+import Sidebar from "../../components/sidebar/Sidebar";
 import { useState } from "react";
-import { HTTPRequest } from "../../utils/HTTPRequest";
-import SignUpModal from "../signUpModal/SignUpModal";
+import SignUpModal from "../../components/signUpModal/SignUpModal";
 
 interface ChatDataItem {
   message_id: number;
@@ -19,30 +18,32 @@ interface ChatDataItem {
   save_cadastro: boolean | null;
 }
 
-interface ChatData {
-  error: null | string;
-  data: ChatDataItem[];
-  status: number;
-}
-
 export default function ChatPage() {
-  const [chatData, setChatData] = useState<ChatData["data"]>([]);
+  const [chatData, setChatData] = useState<Array<ChatDataItem>>([]);
   const [modalIsOpen, setmodalIsOpen] = useState(false);
 
   async function fetchChatData(userId: string, date: string) {
     try {
-      const response = await HTTPRequest<ChatData>(
-        `http://localhost:5000/${userId}/messages/${date}`,
-        "GET"
-      );
+      const response = await fetch(`/api/${userId}/messages/${date}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-      if (response.data) {
-        setChatData(response.data.data);
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        if (responseObj.data) {
+          setChatData(responseObj.data);
+        } else {
+          console.error("No chat data found:", responseObj.data);
+        }
       } else {
-        console.error("No chat data found:", response.data);
+        throw responseObj.error;
       }
-    } catch (error) {
-      console.error("Error fetching chat data:", error);
+    } catch (error: any) {
+      console.error(error.name, error.message);
     }
   }
 
@@ -57,7 +58,7 @@ export default function ChatPage() {
     <div className="chatPage">
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
       <div className="chatPage-container">
-        <Sidebar fetchChatData={fetchChatData} onIconClick={openModal}/>
+        <Sidebar fetchChatData={fetchChatData} onIconClick={openModal} />
         <Chat chatData={chatData} />
       </div>
     </div>

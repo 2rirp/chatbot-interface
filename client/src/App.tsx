@@ -1,23 +1,34 @@
-import { useState } from "react";
 import "./App.css";
-import ChatPage from "./Components/chatPage/ChatPage";
-import LoginPage from "./Components/loginPage/LoginPage";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import ChatPage from "./views/chatPage/ChatPage";
+import LoginPage from "./views/loginPage/LoginPage";
+import { RequireAuth } from "./components/requireAuth/RequireAuth";
 
-function App() {
-  const [currentPage, setCurrentPage] = useState("login");
+export default function App() {
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: (
+        <RequireAuth>
+          <ChatPage />
+        </RequireAuth>
+      ),
+    },
 
-  function handleLoginSuccess(isLoggedIn: boolean) {
-    setCurrentPage(isLoggedIn ? "main" : "login");
-  }
+    {
+      path: "/login",
+      element: <LoginPage />,
+    },
 
-  return (
-    <div className="App">
-      {currentPage === "login" && (
-        <LoginPage onLoginSuccess={handleLoginSuccess} />
-      )}
-      {currentPage === "main" && <ChatPage />}
-    </div>
-  );
+    {
+      path: "/chatpage",
+      element: (
+        <RequireAuth>
+          <ChatPage />
+        </RequireAuth>
+      ),
+    },
+  ]);
+
+  return <RouterProvider router={router} />;
 }
-
-export default App;

@@ -1,51 +1,58 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import DateInput from "../dateInput/DateInput";
 import ChatList from "../chatList/Chatlist";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import "./sidebar.css";
-import SignUpModal from "../signUpModal/SignUpModal";
-import { HTTPRequest } from "../../utils/HTTPRequest";
 import IconButton from "@mui/material/IconButton";
+import { UserContext } from "../../contexts/UserContext";
 
 interface ConversationData {
-  error: null | string;
   data: Array<{
     id: string;
     last_conversation_created_at: string;
   }>;
-  status: number;
 }
-
 
 interface SidebarProps {
   fetchChatData: (userId: string, date: string) => Promise<void>;
   onIconClick: () => void;
 }
+
 function Sidebar(props: SidebarProps) {
+  const userContext = useContext(UserContext);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [chatListData, setChatListData] = useState<ConversationData["data"]>(
     []
   );
-  const [modalIsOpen, setmodalIsOpen] = useState(false);
+
+  const user = {
+    username: userContext?.user?.name || "",
+  };
 
   async function fetchChatListData(date: string) {
     try {
-      const response = await HTTPRequest<ConversationData>(
-        `http://localhost:5000/${date}`,
-        "GET"
-      );
+      const response = await fetch(`/api/${date}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-      if (response.data && response.data.data) {
-        setChatListData(response.data.data);
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        if (responseObj.data) {
+          setChatListData(responseObj.data);
+        } else {
+          console.error("No chat list data found:", responseObj.data);
+        }
       } else {
-        console.error("No chat list data found:", response.data);
+        throw responseObj.error;
       }
     } catch (error) {
       console.error("Error fetching chat list data:", error);
     }
   }
-  
-
 
   function handleDateChange(date: string) {
     setSelectedDate(date);
@@ -62,14 +69,17 @@ function Sidebar(props: SidebarProps) {
   }, [selectedDate]);
 
   return (
-    <div className="sidebar-container">
+    <div className="sidebar">
       <div className="sidebar-header">
-        <span className="attendant-name">Nome do atendente</span>
-        <IconButton edge="end" aria-label="menu"onClick={props.onIconClick}><MoreVertIcon />
-                </IconButton>
+        <p className="attendant-name">{user.username}</p>
         <DateInput handleDateChange={handleDateChange} />
+        <IconButton edge="end" aria-label="menu" onClick={props.onIconClick}>
+          <MoreVertIcon className="menu-icon" />
+        </IconButton>
       </div>
-      <ChatList users={chatListData} onUserClick={handleUserClick} />
+      <div className="sidebar-container">
+        <ChatList users={chatListData} onUserClick={handleUserClick} />
+      </div>
     </div>
   );
 }

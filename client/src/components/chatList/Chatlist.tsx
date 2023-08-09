@@ -1,3 +1,4 @@
+import "./Chatlist.css";
 interface Chat {
   id: string;
   last_conversation_created_at: string;
