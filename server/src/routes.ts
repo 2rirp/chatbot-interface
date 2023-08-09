@@ -40,6 +40,12 @@ router.get(
 );
 
 router.get(
+  "/api/messages/:conversationId",
+  authenticate,
+  messageController.getMessagesByConversationId.bind(messageController)
+);
+
+router.get(
   "/api/conversations/dates",
   authenticate,
   conversationController.getConversationsDates.bind(conversationController)

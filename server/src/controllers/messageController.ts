@@ -24,4 +24,25 @@ export default class MessageController {
       next(error);
     }
   }
+
+  async getMessagesByConversationId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const conversationId = Number(req.params.conversationId);
+
+      const messages = await MessageServices.getMessagesByConversationId(
+        conversationId
+      );
+
+      res.status(201).json({
+        error: null,
+        data: messages,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

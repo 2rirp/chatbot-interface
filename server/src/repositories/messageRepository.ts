@@ -7,6 +7,7 @@ export default class MessageRepository {
   constructor() {
     this.db = new dbConnect();
   }
+
   async getMessagesByUserId(date: string, botUserId: string) {
     try {
       const queryText = `
@@ -20,6 +21,19 @@ export default class MessageRepository {
       return result.rows;
     } catch (error) {
       console.error("Failed to fetch messages by userId: ", error);
+      throw error;
+    }
+  }
+
+  async getMessagesByConversationId(conversationId: number) {
+    try {
+      const queryText = `
+            SELECT * FROM messages WHERE conversation_id = $1`;
+
+      const result = await this.db.pool.query(queryText, [conversationId]);
+      return result.rows;
+    } catch (error) {
+      console.error("Failed to fetch messages by conversationId: ", error);
       throw error;
     }
   }
