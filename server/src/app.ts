@@ -25,7 +25,8 @@ export default class App {
     this.app.use(express.json());
     this.app.use(cookieParser());
     /* this.app.use(cors()); */
-    this.app.use("/", express.static("./client/dist"));
+    /* this.app.use("/", express.static("./client/dist")); */
+    this.app.use("/", express.static("../client/dist"));
   }
 
   private router(): void {
@@ -35,7 +36,7 @@ export default class App {
 
   private fallback(): void {
     this.app.get("*", (req, res) => {
-      res.sendFile(path.resolve(__dirname, "../../client", "index.html"));
+      res.sendFile(path.resolve(__dirname, "../../client/dist", "index.html"));
     });
   }
 
