@@ -8,12 +8,13 @@ interface SignUpModalProps {
 
 export default function SignUpModal(props: SignUpModalProps) {
   const userContext = useContext(UserContext);
-
+  const [isFetching, setIsFetching] = useState(false);
   const [nameValue, setNameValue] = useState("");
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
   const [confirmPasswordValue, setConfirmPasswordValue] = useState("");
   const [adminValue, setAdminValue] = useState(false);
+  
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNameValue(e.target.value);
@@ -40,6 +41,8 @@ export default function SignUpModal(props: SignUpModalProps) {
   }
 
   async function compareCredentials() {
+    if(isFetching === true)
+      return;
     const name = nameValue.trim();
     const email = emailValue.trim();
     const password = passwordValue.trim();
@@ -67,6 +70,7 @@ export default function SignUpModal(props: SignUpModalProps) {
           String(newUser.password!),
           newUser.is_admin!
         );
+        setIsFetching(false);
       } else alert("As senhas devem ser iguais.");
     }
   }
@@ -84,7 +88,7 @@ export default function SignUpModal(props: SignUpModalProps) {
               name="name-input"
               onChange={handleNameChange}
             />
-            <label htmlFor="email-input">Email: </label>
+            <label htmlFor="email-input">Credenciais de acesso: </label>
             <input
               type="text"
               className="default-input"
