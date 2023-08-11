@@ -4,6 +4,7 @@ import SignUpModal from "../../components/signUpModal/SignUpModal";
 import RealTimeSidebar from "../../components/realTimeSidebar/RealTimeSidebar";
 import RealTimeChat from "../../components/realTimeChat/RealTimeChat";
 import { SocketContext } from "../../contexts/SocketContext";
+import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext";
 
 interface botUser {
@@ -27,6 +28,11 @@ export default function RealTimePage() {
   >([]);
   const [chatData, setChatData] = useState<Array<ChatDataItem>>([]);
   const [modalIsOpen, setmodalIsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const changeRoute = () => {
+    navigate("/chatpage");
+  };
 
   async function fetchRedirectedConversations() {
     try {
@@ -75,6 +81,15 @@ export default function RealTimePage() {
       }
     } catch (error: any) {
       console.error(error.name, error.message);
+    }
+  }
+
+  async function logout() {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+      return;
+    } catch (error: any) {
+      console.error(error);
     }
   }
 
@@ -134,7 +149,9 @@ export default function RealTimePage() {
         <RealTimeSidebar
           botUsersNeedingAttendants={botUsersNeedingAttendants}
           fetchChatData={fetchChatData}
-          onIconClick={openModal}
+          onRegisterClick={openModal}
+          onHistoryClick={changeRoute}
+          onLogoutClick={logout}
         />
         <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} />
       </div>
