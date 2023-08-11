@@ -86,7 +86,9 @@ export default function RealTimePage() {
 
   async function logout() {
     try {
-      await fetch("/api/logout", { method: "POST" });
+      navigate("/login");
+
+      await fetch("/api/users/logout", { method: "DELETE" });
       return;
     } catch (error: any) {
       console.error(error);
