@@ -9,7 +9,7 @@ export default class UserRepository {
   constructor() {
     this.db = new dbConnect();
   }
-  async login(user: IUser): Promise<IResponse<IUser>> {
+  async login(user: Partial<IUser>): Promise<IResponse<IUser>> {
     try {
       const queryText = `SELECT id FROM attendants WHERE user = $1 AND password = $2`;
       const result: QueryResult<IUser> = await this.db.pool.query(queryText, [
@@ -41,9 +41,10 @@ export default class UserRepository {
 
   async createNewUser(user: IUser) {
     try {
-      const query = `INSERT INTO attendants (email, password, is_admin)
-        VALUES ($1, $2, $3) RETURNING id, email, is_admin`;
+      const query = `INSERT INTO attendants (name, email, password, is_admin)
+        VALUES ($1, $2, $3, $4) RETURNING id, email, is_admin`;
       const result = await this.db.pool.query(query, [
+        user.name,
         user.email,
         user.password,
         user.is_admin,

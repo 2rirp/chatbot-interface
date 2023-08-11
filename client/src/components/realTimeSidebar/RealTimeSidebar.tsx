@@ -1,5 +1,5 @@
 import "./sidebar.css";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { SocketContext } from "../../contexts/SocketContext"; // Import your SocketContext
 import { UserContext } from "../../contexts/UserContext";
 // import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -16,33 +16,16 @@ interface RealTimeSidebarProps {
   onRegisterClick: () => void;
   onHistoryClick: () => void;
   onLogoutClick: () => Promise<void>;
+  botUsersNeedingAttendants: Array<botUser>;
 }
 
 function RealTimeSidebar(props: RealTimeSidebarProps) {
   const socketContext = useContext(SocketContext);
   const userContext = useContext(UserContext);
-  const [botUsersNeedingAttendants, setBotUsersNeedingAttendants] = useState<
-    Array<botUser>
-  >([]);
 
   const user = {
     username: userContext?.user?.name || "",
   };
-
-  useEffect(() => {
-    if (!socketContext?.socket) return;
-
-    socketContext.socket.on("botUserNeedsAttendant", (newBotUser: botUser) => {
-      setBotUsersNeedingAttendants((prevBotUsers) => [
-        ...prevBotUsers,
-        newBotUser,
-      ]);
-    });
-
-    return () => {
-      socketContext?.socket?.off("botUserNeedsAttendant");
-    };
-  }, [socketContext]);
 
   async function handleUserClick(botUser: botUser) {
     socketContext?.socket?.emit(
@@ -53,7 +36,6 @@ function RealTimeSidebar(props: RealTimeSidebarProps) {
     );
     await props.fetchChatData(botUser.conversationId);
   }
-  
 
   return (
     <div className="sidebar">
@@ -61,11 +43,16 @@ function RealTimeSidebar(props: RealTimeSidebarProps) {
         <p className="attendant-name">{user.username}</p>
         {/* <IconButton edge="end" aria-label="menu" onClick={props.onIconClick}>
           <MoreVertIcon className="menu-icon" />
-        </IconButton> */}<DropdownMenu handleRegister={props.onRegisterClick} handleHistory={props.onHistoryClick} handleLogout={props.onLogoutClick}/>
+        </IconButton> */}
+        <DropdownMenu
+          handleRegister={props.onRegisterClick}
+          handleHistory={props.onHistoryClick}
+          handleLogout={props.onLogoutClick}
+        />
       </div>
       <div className="sidebar-container">
         <ul>
-          {botUsersNeedingAttendants.map((botUser) => (
+          {props.botUsersNeedingAttendants.map((botUser) => (
             <li key={botUser.botUserId}>
               <div>
                 botUserId={botUser.botUserId}{" "}

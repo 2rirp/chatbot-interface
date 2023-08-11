@@ -19,4 +19,22 @@ export default class ConversationController {
       next(error);
     }
   }
+
+  async getRedirectedConversations(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const conversations =
+        await ConversationServices.getRedirectedConversations();
+
+      res.status(201).json({
+        error: null,
+        data: conversations,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

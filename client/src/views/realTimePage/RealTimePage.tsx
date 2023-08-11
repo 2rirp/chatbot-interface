@@ -5,6 +5,12 @@ import RealTimeSidebar from "../../components/realTimeSidebar/RealTimeSidebar";
 import RealTimeChat from "../../components/realTimeChat/RealTimeChat";
 import { SocketContext } from "../../contexts/SocketContext";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../contexts/UserContext";
+
+interface botUser {
+  botUserId: string;
+  conversationId: number;
+}
 
 interface ChatDataItem {
   id?: number;
@@ -16,12 +22,41 @@ interface ChatDataItem {
 
 export default function RealTimePage() {
   const socketContext = useContext(SocketContext);
+  const userContext = useContext(UserContext);
+  const [botUsersNeedingAttendants, setBotUsersNeedingAttendants] = useState<
+    Array<botUser>
+  >([]);
   const [chatData, setChatData] = useState<Array<ChatDataItem>>([]);
   const [modalIsOpen, setmodalIsOpen] = useState(false);
   const navigate = useNavigate();
-  
+
   const changeRoute = () => {
-    navigate("/chatpage")
+    navigate("/chatpage");
+  };
+
+  async function fetchRedirectedConversations() {
+    try {
+      const response = await fetch(`/api/conversations`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        if (responseObj.data) {
+          setBotUsersNeedingAttendants(responseObj.data);
+        } else {
+          console.error("No users data found:", responseObj.data);
+        }
+      } else {
+        throw responseObj.error;
+      }
+    } catch (error: any) {
+      console.error(error.name, error.message);
+    }
   }
 
   async function fetchChatData(conversationId: number) {
@@ -48,9 +83,12 @@ export default function RealTimePage() {
       console.error(error.name, error.message);
     }
   }
+
   async function logout() {
     try {
-      await fetch('/api/logout', { method: "POST" });
+      navigate("/login");
+
+      await fetch("/api/users/logout", { method: "DELETE" });
       return;
     } catch (error: any) {
       console.error(error);
@@ -58,18 +96,37 @@ export default function RealTimePage() {
   }
 
   useEffect(() => {
-    if (socketContext?.socket) {
-      socketContext.socket.on("newMessage", (newMessageData: ChatDataItem) => {
-        setChatData((prevChatData) => [...prevChatData, newMessageData]);
-      });
-
-      return () => {
-        socketContext?.socket?.off("newMessage");
-      };
+    async function fetchData() {
+      try {
+        await fetchRedirectedConversations();
+      } catch (error) {
+        console.error("Error fetching redirected conversations:", error);
+      }
     }
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!socketContext?.socket) return;
+
+    socketContext.socket.on("botUserNeedsAttendant", (newBotUser: botUser) => {
+      setBotUsersNeedingAttendants((prevBotUsers) => [
+        ...prevBotUsers,
+        newBotUser,
+      ]);
+    });
+
+    socketContext.socket.on("newMessage", (newMessageData: ChatDataItem) => {
+      setChatData((prevChatData) => [...prevChatData, newMessageData]);
+    });
+
+    return () => {
+      socketContext?.socket?.off("botUserNeedsAttendant");
+      socketContext?.socket?.off("newMessage");
+    };
   }, [socketContext]);
-  
-  
+
   function closeModal() {
     setmodalIsOpen(false);
   }
@@ -77,17 +134,28 @@ export default function RealTimePage() {
     setmodalIsOpen(true);
   }
 
+  const handleSendMessage = (message: string) => {
+    if (message.trim() !== "") {
+      socketContext?.socket?.emit(
+        "sendMessage",
+        message,
+        userContext?.user?.id
+      );
+    }
+  };
+
   return (
     <div className="chatPage">
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
       <div className="chatPage-container">
         <RealTimeSidebar
+          botUsersNeedingAttendants={botUsersNeedingAttendants}
           fetchChatData={fetchChatData}
           onRegisterClick={openModal}
           onHistoryClick={changeRoute}
           onLogoutClick={logout}
         />
-        <RealTimeChat chatData={chatData} />
+        <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} />
       </div>
     </div>
   );

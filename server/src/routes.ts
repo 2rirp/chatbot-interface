@@ -27,6 +27,8 @@ router.post(
   userController.createUser.bind(userController)
 );
 
+router.delete("/api/users/logout", userController.logout.bind(userController));
+
 router.get(
   "/api/:date",
   authenticate,
@@ -49,5 +51,11 @@ router.get(
   "/api/conversations/dates",
   authenticate,
   conversationController.getConversationsDates.bind(conversationController)
+);
+
+router.get(
+  "/api/conversations",
+  authenticate,
+  conversationController.getRedirectedConversations.bind(conversationController)
 );
 export default router;
