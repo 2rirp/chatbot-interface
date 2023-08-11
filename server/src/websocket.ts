@@ -28,7 +28,7 @@ export default class Websocket {
   }
 
   private handleEvents(socket: Socket) {
-    socket.on("login", (userId: string) => {
+    socket.on("login", (userId: number) => {
       try {
         this.setConnection(socket, userId);
         console.log("Client logged in");
@@ -53,7 +53,7 @@ export default class Websocket {
 
     socket.on(
       "enterConversation",
-      (botUserId: string, conversationId: number, userId: string) => {
+      (botUserId: string, conversationId: number, userId: number) => {
         try {
           this.joinConversationRoom(socket, botUserId, conversationId, userId);
           console.log(
@@ -67,7 +67,7 @@ export default class Websocket {
 
     socket.on(
       "exitConversation",
-      (botUserId: string, conversationId: number, userId: string) => {
+      (botUserId: string, conversationId: number, userId: number) => {
         try {
           this.leaveConversationRoom(userId);
           console.log(
@@ -81,7 +81,7 @@ export default class Websocket {
 
     socket.on(
       "messageToAttendant",
-      (userId: string, conversationId: number, messageContent: string) => {
+      (conversationId: number, messageContent: string) => {
         try {
           this.broadcastToConversation(conversationId, "newMessage", {
             content: messageContent,
@@ -99,11 +99,11 @@ export default class Websocket {
     });
   }
 
-  private setConnection(socket: Socket, userId: string): void {
+  private setConnection(socket: Socket, userId: number): void {
     this.connections.push({ connection: socket, userId: userId });
   }
 
-  private getConnection(userId: string): IConnection | undefined {
+  private getConnection(userId: number): IConnection | undefined {
     return this.connections.find((conn) => conn.userId === userId);
   }
 
@@ -118,10 +118,17 @@ export default class Websocket {
     socket: Socket,
     botUserId: string,
     conversationId: number,
-    userId: string
+    userId: number
   ) {
     const connection = this.getConnection(userId);
     if (connection) {
+      if (
+        connection.conversationId !== conversationId &&
+        connection.conversationId !== null
+      ) {
+        this.leaveConversationRoom(userId);
+      }
+
       connection.botUserId = botUserId;
       connection.conversationId = conversationId;
       connection.userId = userId;
@@ -135,7 +142,7 @@ export default class Websocket {
     }
   }
 
-  private leaveConversationRoom(userId: string) {
+  private leaveConversationRoom(userId: number) {
     const index = this.connections.findIndex((conn) => conn.userId === userId);
     console.log(
       "before",
