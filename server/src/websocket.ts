@@ -93,6 +93,30 @@ export default class Websocket {
       }
     );
 
+    socket.on("sendMessage", (message: string, userId: number) => {
+      try {
+        const connection = this.getConnection(userId);
+
+        if (connection) {
+          const { botUserId, conversationId } = connection;
+
+          socket.emit("sendWhatsAppMessage", {
+            message,
+            botUserId,
+            conversationId,
+          });
+
+          console.log(
+            "Message sent to bot: " + message,
+            botUserId,
+            conversationId
+          );
+        }
+      } catch (error) {
+        console.error("Error sending message: " + error);
+      }
+    });
+
     socket.on("disconnect", () => {
       this.removeConnection(socket);
       console.log("Client disconnected");
