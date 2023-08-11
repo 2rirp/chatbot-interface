@@ -27,7 +27,11 @@ router.post(
   userController.createUser.bind(userController)
 );
 
-router.delete("/api/users/logout", userController.logout.bind(userController));
+router.delete(
+  "/api/users/logout",
+  authenticate,
+  userController.logout.bind(userController)
+);
 
 router.get(
   "/api/:date",
