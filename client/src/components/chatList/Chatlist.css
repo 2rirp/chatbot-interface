@@ -48,7 +48,7 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.625rem;
   overflow-y: auto;
   
 }
@@ -57,9 +57,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #808080;
-  color: #fff;
+  background-color: #95c3ffb9;
+  color: #363636;
   border-radius: 0.35rem;
+  height: 2rem;
   padding: 8px 16px;
   cursor: pointer;
   user-select: none;
@@ -68,5 +69,6 @@
 }
 
 .chatlist li:hover {
-  background-color: #666666;
+  background-color: #647be0;
 }
+

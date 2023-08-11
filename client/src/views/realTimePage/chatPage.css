@@ -4,7 +4,7 @@
   radial-gradient(circle at bottom left, #d9d9f2, rgba(217, 217, 242, 0)), 
   radial-gradient(circle at bottom right, #91b3fc, rgba(217, 217, 242, 0));
   height: 100vh;
-  width: 100vw;
+  /* width: 100vw; */
   display: flex;
   align-items: center;
   justify-content: center;
