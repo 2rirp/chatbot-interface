@@ -38,7 +38,8 @@
 
  */
 .chatlist {
-  padding: 10px;
+  padding: 1rem;
+  height: 100%; 
 }
 
 .chatlist ul {
@@ -49,6 +50,7 @@
   flex-direction: column;
   gap: 10px;
   overflow-y: auto;
+  
 }
 
 .chatlist li {
@@ -57,11 +59,12 @@
   justify-content: center;
   background-color: #808080;
   color: #fff;
-  border-radius: 16px;
+  border-radius: 0.35rem;
   padding: 8px 16px;
   cursor: pointer;
   user-select: none;
   transition: background-color 0.2s ease;
+  
 }
 
 .chatlist li:hover {

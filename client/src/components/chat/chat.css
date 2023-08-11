@@ -3,9 +3,10 @@
   overflow: auto;
   background-color: #fff;
   padding: 0 5px;
+  max-height: 1080px;
 }
 
-.chat-container {
+.chat-container{
   display: flex;
   flex-direction: column;
 }
@@ -20,11 +21,13 @@
 .user-message {
   background-color: #cce6ff;
   align-self: flex-start;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
 }
 
 .bot-message {
   background-color: #f0f0f0;
   align-self: flex-end;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
 }
 
 .message p {

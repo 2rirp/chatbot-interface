@@ -1,5 +1,7 @@
 import { useState } from "react";
 import "./chat.css";
+import SendIcon from "@mui/icons-material/Send";
+import IconButton from "@mui/material/IconButton";
 
 interface Message {
   id?: number;
@@ -40,14 +42,17 @@ function RealTimeChat(props: ChatProps) {
           </div>
         ))}
       </div>
-      <div className="bottom-container">
+      <div className="chat-input-container">
         <input
           type="text"
           placeholder="Digite sua mensagem..."
           value={message}
           onChange={handleMessageChange}
+          className="chat-input"
         />
-        <button onClick={handleSendMessage}>Enviar</button>
+        <IconButton className="send-button" onClick={handleSendMessage}>
+          <SendIcon />
+        </IconButton>
       </div>
     </div>
   );

@@ -1,21 +1,27 @@
 .sidebar {
-  border-right: 1px solid #000;
+  border-right: .1em solid #b6b6b6dc;;
+  /* background-color: #cfcfcf9d; */
+  max-width: 700px;
+  height: 100%;
 }
 
 .sidebar-container {
   flex: 1;
-  background-color: #f8f9fa;
+  background-color: #cfcfcf9d;
   height: 100%;
+  max-height: 1080px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 
 .sidebar-header {
   display: flex;
   align-items: center;
-  background-color: #f0f0f0;
+  /* background-color: #11079e59; */
+  width: 20vw;
   height: 30px;
-  padding: 10px;
+  padding: 1.2rem;
   justify-content: space-between;
-  color: #000;
+  color: #000000;
 }
 
 .attendant-name {
