@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ILogin } from "../../interfaces/ilogin";
 import "./loginComponent.css";
@@ -10,11 +10,15 @@ import Button from "@mui/material/Button";
 export default function LoginComponent() {
   const userContext = useContext(UserContext);
   const navigate = useNavigate();
+  const [isFetching, setIsFetching] = useState(false);
 
   /*  const [modalIsOpen, setmodalIsOpen] = useState(false); */
 
   async function formSubmitted(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    
+    if(isFetching === true)
+      return;
     const data = new FormData(e.currentTarget);
 
     const credentials: ILogin = {
@@ -23,12 +27,12 @@ export default function LoginComponent() {
     };
 
     if (credentials.email === null || credentials.email === "") {
-      alert("Insira um email");
+      alert("Insira as credenciais de acesso.");
       return;
     }
 
     if (credentials.password === null || credentials.password === "") {
-      alert("Insira uma senha");
+      alert("Insira uma senha.");
       return;
     }
 
@@ -36,7 +40,7 @@ export default function LoginComponent() {
       String(credentials.email),
       String(credentials.password)
     );
-
+    setIsFetching(false);
     if (isLoggedIn) navigate("/");
   }
 
@@ -67,7 +71,7 @@ export default function LoginComponent() {
             required
             fullWidth
             id="email"
-            label="Endereço de e-mail"
+            label="Credenciais de acesso"
             name="email"
             autoComplete="email"
             autoFocus

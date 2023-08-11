@@ -1,4 +1,6 @@
 import "./chat.css";
+import SendIcon from '@mui/icons-material/Send';
+import IconButton from "@mui/material/IconButton";
 
 interface Message {
   id?: number;
@@ -25,9 +27,14 @@ function RealTimeChat(props: ChatProps) {
           >
             <p>{message.content}</p>
           </div>
-        ))}
+        ))} 
       </div>
-      <input type="text" />
+      <div className="chat-input-container">
+        <input type="text" className="chat-input"/>
+        <IconButton className="send-button">
+          <SendIcon/>
+        </IconButton>
+      </div>  
     </div>
   );
 }
