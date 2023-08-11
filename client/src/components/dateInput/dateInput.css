@@ -1,0 +1,20 @@
+input {
+    border-radius: .5rem;
+    border: .1em solid #75757581;
+    height: 2.5rem;
+    width: 9rem;
+    text-indent: 0.4rem;
+
+    font-size: 16px;
+    /* background-position: -12px; */
+
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    display: flex;
+    background-repeat:  no-repeat;
+    width: 20px;
+    height: 20px;
+    position: relative;
+    left: -5%;
+}

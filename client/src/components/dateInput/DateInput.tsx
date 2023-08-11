@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./dateInput.css"
 
 interface DateInputProps {
   handleDateChange: (date: string) => void;
