@@ -7,17 +7,17 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import PersonAdd from '@mui/icons-material/PersonAdd';
-import EventNoteIcon from '@mui/icons-material/EventNote';
+import ChatIcon from '@mui/icons-material/Chat';
 import Logout from '@mui/icons-material/Logout';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 interface IProps {
     handleRegister: () => void;
-    handleHistory: () => void;
+    handleChatpage: () => void;
     handleLogout: () => void;
 }
 
-export default function DropdownMenu(props: IProps) {
+export default function DropdownMenuHistory(props: IProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -26,9 +26,6 @@ export default function DropdownMenu(props: IProps) {
   const handleClose = () => {
     setAnchorEl(null);
   };
-//   const handleSelect = () => {
-//     console.log('Oie')
-//   };
   return (
     <React.Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
@@ -86,11 +83,11 @@ export default function DropdownMenu(props: IProps) {
           </ListItemIcon>
           Registrar usuário
         </MenuItem>
-        <MenuItem onClick={props.handleHistory}>
+        <MenuItem onClick={props.handleChatpage}>
           <ListItemIcon>
-            <EventNoteIcon fontSize="small" />
+            <ChatIcon fontSize="small" />
           </ListItemIcon>
-          Histórico de atendimentos
+          Chatpage
         </MenuItem>
         <MenuItem onClick={props.handleLogout}>
           <ListItemIcon>

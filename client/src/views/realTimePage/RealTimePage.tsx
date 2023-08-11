@@ -152,7 +152,7 @@ export default function RealTimePage() {
           botUsersNeedingAttendants={botUsersNeedingAttendants}
           fetchChatData={fetchChatData}
           onRegisterClick={openModal}
-          onHistoryClick={changeRoute}
+          onGoBackClick={changeRoute}
           onLogoutClick={logout}
         />
         <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} />

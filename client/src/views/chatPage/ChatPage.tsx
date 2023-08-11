@@ -3,6 +3,7 @@ import Chat from "../../components/chat/Chat";
 import Sidebar from "../../components/sidebar/Sidebar";
 import { useState } from "react";
 import SignUpModal from "../../components/signUpModal/SignUpModal";
+import { useNavigate } from "react-router-dom";
 
 interface ChatDataItem {
   message_id: number;
@@ -21,6 +22,22 @@ interface ChatDataItem {
 export default function ChatPage() {
   const [chatData, setChatData] = useState<Array<ChatDataItem>>([]);
   const [modalIsOpen, setmodalIsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const changeRoute = () => {
+    navigate("/");
+  };
+
+  async function logout() {
+    try {
+      navigate("/login");
+
+      await fetch("/api/users/logout", { method: "DELETE" });
+      return;
+    } catch (error: any) {
+      console.error(error);
+    }
+  }
 
   async function fetchChatData(userId: string, date: string) {
     try {
@@ -58,7 +75,10 @@ export default function ChatPage() {
     <div className="chatPage">
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
       <div className="chatPage-container">
-        <Sidebar fetchChatData={fetchChatData} onIconClick={openModal} />
+        <Sidebar fetchChatData={fetchChatData}
+          onRegisterClick={openModal}
+          onChatpageClick={changeRoute}
+          onLogoutClick={logout} />
         <Chat chatData={chatData} />
       </div>
     </div>
