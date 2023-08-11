@@ -50,4 +50,10 @@ router.get(
   authenticate,
   conversationController.getConversationsDates.bind(conversationController)
 );
+
+router.get(
+  "/api/conversations",
+  authenticate,
+  conversationController.getRedirectedConversations.bind(conversationController)
+);
 export default router;

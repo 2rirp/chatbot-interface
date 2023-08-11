@@ -12,4 +12,14 @@ export default class ConversationServices {
       throw error;
     }
   }
+
+  public static async getRedirectedConversations() {
+    try {
+      const conversations = await this.repository.getRedirectedConversations();
+
+      return conversations;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
