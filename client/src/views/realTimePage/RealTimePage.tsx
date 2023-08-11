@@ -4,6 +4,7 @@ import SignUpModal from "../../components/signUpModal/SignUpModal";
 import RealTimeSidebar from "../../components/realTimeSidebar/RealTimeSidebar";
 import RealTimeChat from "../../components/realTimeChat/RealTimeChat";
 import { SocketContext } from "../../contexts/SocketContext";
+import { useNavigate } from "react-router-dom";
 
 interface ChatDataItem {
   id?: number;
@@ -17,6 +18,11 @@ export default function RealTimePage() {
   const socketContext = useContext(SocketContext);
   const [chatData, setChatData] = useState<Array<ChatDataItem>>([]);
   const [modalIsOpen, setmodalIsOpen] = useState(false);
+  const navigate = useNavigate();
+  
+  const changeRoute = () => {
+    navigate("/chatpage")
+  }
 
   async function fetchChatData(conversationId: number) {
     try {
@@ -42,6 +48,14 @@ export default function RealTimePage() {
       console.error(error.name, error.message);
     }
   }
+  async function logout() {
+    try {
+      await fetch('/api/logout', { method: "POST" });
+      return;
+    } catch (error: any) {
+      console.error(error);
+    }
+  }
 
   useEffect(() => {
     if (socketContext?.socket) {
@@ -54,7 +68,8 @@ export default function RealTimePage() {
       };
     }
   }, [socketContext]);
-
+  
+  
   function closeModal() {
     setmodalIsOpen(false);
   }
@@ -68,7 +83,9 @@ export default function RealTimePage() {
       <div className="chatPage-container">
         <RealTimeSidebar
           fetchChatData={fetchChatData}
-          onIconClick={openModal}
+          onRegisterClick={openModal}
+          onHistoryClick={changeRoute}
+          onLogoutClick={logout}
         />
         <RealTimeChat chatData={chatData} />
       </div>
