@@ -3,6 +3,7 @@ import UserServices from "../services/userServices";
 import IResponse from "../interfaces/iresponse";
 import IUser from "../interfaces/iuser";
 import jwtLib from "jsonwebtoken";
+import ErrorHandler from "../errors";
 
 export default class UserController {
   public async getMe(
@@ -58,6 +59,27 @@ export default class UserController {
       res.status(200).json({
         error: null,
         data: `User with id ${createdUser.id} registered succesfully!`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async logout(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.user;
+
+      if (!user)
+        throw ErrorHandler.createError(
+          "UnauthorizedError",
+          "Token does not contain the user's data"
+        );
+
+      const username: string = user.name;
+
+      res.clearCookie("session");
+      return res.status(200).json({
+        message: `User '${username}' logged out successfully`,
       });
     } catch (error) {
       next(error);
