@@ -144,16 +144,24 @@ export default class Websocket {
 
   private leaveConversationRoom(userId: number) {
     const index = this.connections.findIndex((conn) => conn.userId === userId);
+
     console.log(
       "before",
       this.connections[index].userId,
-      this.connections[index].botUserId
+      this.connections[index].botUserId,
+      this.connections[index].conversationId
     );
-    if (index !== -1) this.connections[index].botUserId = null;
+
+    if (index !== -1) {
+      this.connections[index].botUserId = null;
+      this.connections[index].conversationId = null;
+    }
+
     console.log(
       "after",
       this.connections[index].userId,
-      this.connections[index].botUserId
+      this.connections[index].botUserId,
+      this.connections[index].conversationId
     );
   }
 
@@ -166,8 +174,14 @@ export default class Websocket {
 
     this.connections.forEach((conn: IConnection) => {
       if (conn.conversationId === conversationId) {
-        console.log("websocket: sending message to conversation...");
+        console.log(
+          `websocket: sending message to conversation ${conversationId}`
+        );
         conn.connection.emit(eventName, data);
+      } else {
+        console.log(
+          `websocket: failed sending message to conversation ${conversationId} because conn.conversationId is ${conn.conversationId}`
+        );
       }
     });
   }
