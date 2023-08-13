@@ -38,8 +38,8 @@ function RealTimeSidebar(props: RealTimeSidebarProps) {
   }
 
   return (
-    <div className="sidebar">
-      <div className="sidebar-header">
+    <div className="real-time-sidebar">
+      <div className="real-time-sidebar-header">
         <p className="attendant-name">{user.username}</p>
         {/* <IconButton edge="end" aria-label="menu" onClick={props.onIconClick}>
           <MoreVertIcon className="menu-icon" />
@@ -50,16 +50,14 @@ function RealTimeSidebar(props: RealTimeSidebarProps) {
           handleLogout={props.onLogoutClick}
         />
       </div>
-      <div className="sidebar-container">
+      <div className="real-time-sidebar-container">
         <ul>
           {props.botUsersNeedingAttendants.map((botUser) => (
-            <li key={botUser.botUserId}>
-              <div>
-                botUserId={botUser.botUserId}{" "}
-                <button onClick={() => handleUserClick(botUser)}>
-                  Click to chat
-                </button>
-              </div>
+            <li
+              key={botUser.botUserId}
+              onClick={() => handleUserClick(botUser)}
+            >
+              <div>{botUser.botUserId}</div>
             </li>
           ))}
         </ul>
