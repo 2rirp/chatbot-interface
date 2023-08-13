@@ -29,7 +29,7 @@ export default class ConversationController {
       const conversations =
         await ConversationServices.getRedirectedConversations();
 
-      res.status(201).json({
+      res.status(200).json({
         error: null,
         data: conversations,
       });

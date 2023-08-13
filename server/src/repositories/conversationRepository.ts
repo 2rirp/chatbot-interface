@@ -28,7 +28,7 @@ export default class ConversationRepository {
 
   async getRedirectedConversations() {
     try {
-      const queryText = `SELECT id, user_id FROM conversations WHERE status = 'talking_to_attendant'`;
+      const queryText = `SELECT user_id, id FROM conversations WHERE status = 'talking_to_attendant'`;
 
       const result = await this.db.pool.query(queryText);
 

@@ -12,6 +12,11 @@ interface botUser {
   conversationId: number;
 }
 
+interface FetchBotUser {
+  user_id: string;
+  id: number;
+}
+
 interface ChatDataItem {
   id?: number;
   content: string;
@@ -36,7 +41,7 @@ export default function RealTimePage() {
 
   async function fetchRedirectedConversations() {
     try {
-      const response = await fetch(`/api/conversations`, {
+      const response = await fetch(`/api/conversations/redirected`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -47,7 +52,11 @@ export default function RealTimePage() {
 
       if (response.ok) {
         if (responseObj.data) {
-          setBotUsersNeedingAttendants(responseObj.data);
+          const convertedData = responseObj.data.map((item: FetchBotUser) => ({
+            botUserId: item.user_id,
+            conversationId: item.id,
+          }));
+          setBotUsersNeedingAttendants(convertedData);
         } else {
           console.error("No users data found:", responseObj.data);
         }
@@ -155,6 +164,7 @@ export default function RealTimePage() {
           onHistoryClick={changeRoute}
           onLogoutClick={logout}
         />
+
         <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} />
       </div>
     </div>

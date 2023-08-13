@@ -58,7 +58,7 @@ router.get(
 );
 
 router.get(
-  "/api/conversations",
+  "/api/conversations/redirected",
   authenticate,
   conversationController.getRedirectedConversations.bind(conversationController)
 );
