@@ -1,21 +1,20 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Avatar from '@mui/material/Avatar';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import PersonAdd from '@mui/icons-material/PersonAdd';
-import EventNoteIcon from '@mui/icons-material/EventNote';
-import Logout from '@mui/icons-material/Logout';
+import * as React from "react";
+import Box from "@mui/material/Box";
+import Avatar from "@mui/material/Avatar";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import PersonAdd from "@mui/icons-material/PersonAdd";
+import EventNoteIcon from "@mui/icons-material/EventNote";
+import Logout from "@mui/icons-material/Logout";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 interface IProps {
-    handleRegister: () => void;
-    handleHistory: () => void;
-    handleLogout: () => Promise<void>;
+  handleRegister: () => void;
+  handleHistory: () => void;
+  handleLogout: () => Promise<void>;
 }
 
 export default function DropdownMenu(props: IProps) {
@@ -27,22 +26,24 @@ export default function DropdownMenu(props: IProps) {
   const handleClose = () => {
     setAnchorEl(null);
   };
-//   const handleSelect = () => {
-//     console.log('Oie')
-//   };
+  //   const handleSelect = () => {
+  //     console.log('Oie')
+  //   };
   return (
     <React.Fragment>
-      <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+      <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
         <Tooltip title="Opções">
           <IconButton
             onClick={handleClick}
             size="small"
             sx={{ ml: 2 }}
-            aria-controls={open ? 'account-menu' : undefined}
+            aria-controls={open ? "account-menu" : undefined}
             aria-haspopup="true"
-            aria-expanded={open ? 'true' : undefined}
+            aria-expanded={open ? "true" : undefined}
           >
-            <Avatar sx={{ width: 32, height: 32 }}><MoreVertIcon/></Avatar>
+            <Avatar sx={{ width: 32, height: 32 }}>
+              <MoreVertIcon />
+            </Avatar>
           </IconButton>
         </Tooltip>
       </Box>
@@ -55,32 +56,32 @@ export default function DropdownMenu(props: IProps) {
         PaperProps={{
           elevation: 0,
           sx: {
-            overflow: 'visible',
-            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+            overflow: "visible",
+            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
             mt: 1.5,
-            '& .MuiAvatar-root': {
+            "& .MuiAvatar-root": {
               width: 32,
               height: 32,
               ml: -0.5,
               mr: 1,
             },
-            '&:before': {
+            "&:before": {
               content: '""',
-              display: 'block',
-              position: 'absolute',
+              display: "block",
+              position: "absolute",
               top: 0,
               right: 14,
               width: 10,
               height: 10,
-              bgcolor: 'background.paper',
-              transform: 'translateY(-50%) rotate(45deg)',
+              bgcolor: "background.paper",
+              transform: "translateY(-50%) rotate(45deg)",
               zIndex: 0,
             },
           },
         }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-      >        
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      >
         <MenuItem onClick={props.handleRegister}>
           <ListItemIcon>
             <PersonAdd fontSize="small" />
