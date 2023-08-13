@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./chat.css";
+import "./realTimeChat.css";
 import SendIcon from "@mui/icons-material/Send";
 import IconButton from "@mui/material/IconButton";
 
