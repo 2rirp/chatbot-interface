@@ -14,8 +14,8 @@ interface botUser {
 interface RealTimeSidebarProps {
   fetchChatData: (conversationId: number) => Promise<void>;
   onRegisterClick: () => void;
-  onHistoryClick: () => void;
-  onLogoutClick: () => Promise<void>;
+  onGoBackClick: () => void;
+  onLogoutClick: () => void;
   botUsersNeedingAttendants: Array<botUser>;
 }
 
@@ -41,12 +41,9 @@ function RealTimeSidebar(props: RealTimeSidebarProps) {
     <div className="real-time-sidebar">
       <div className="real-time-sidebar-header">
         <p className="attendant-name">{user.username}</p>
-        {/* <IconButton edge="end" aria-label="menu" onClick={props.onIconClick}>
-          <MoreVertIcon className="menu-icon" />
-        </IconButton> */}
         <DropdownMenu
           handleRegister={props.onRegisterClick}
-          handleHistory={props.onHistoryClick}
+          handleHistory={props.onGoBackClick}
           handleLogout={props.onLogoutClick}
         />
       </div>

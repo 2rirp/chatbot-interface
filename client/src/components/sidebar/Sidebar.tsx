@@ -5,6 +5,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import "./sidebar.css";
 import IconButton from "@mui/material/IconButton";
 import { UserContext } from "../../contexts/UserContext";
+import DropdownMenuHistory from "../chat/dropdownMenuHistory/dropdownMenuHistory";
 
 interface ConversationData {
   data: Array<{
@@ -15,7 +16,9 @@ interface ConversationData {
 
 interface SidebarProps {
   fetchChatData: (userId: string, date: string) => Promise<void>;
-  onIconClick: () => void;
+  onRegisterClick: () => void;
+  onChatpageClick: () => void;
+  onLogoutClick: () => void;
 }
 
 function Sidebar(props: SidebarProps) {
@@ -73,9 +76,11 @@ function Sidebar(props: SidebarProps) {
       <div className="sidebar-header">
         <p className="attendant-name">{user.username}</p>
         <DateInput handleDateChange={handleDateChange} />
-        <IconButton edge="end" aria-label="menu" onClick={props.onIconClick}>
-          <MoreVertIcon className="menu-icon" />
-        </IconButton>
+        <DropdownMenuHistory
+          handleRegister={props.onRegisterClick}
+          handleChatpage={props.onChatpageClick}
+          handleLogout={props.onLogoutClick}
+        />
       </div>
       <div className="sidebar-container">
         <ChatList users={chatListData} onUserClick={handleUserClick} />
