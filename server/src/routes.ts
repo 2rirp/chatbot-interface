@@ -52,7 +52,7 @@ router.get(
 );
 
 router.post(
-  "/api/messages/:conversationId",
+  "/api/messages/:conversationId/:botUserId",
   authenticate,
   messageController.postMessage.bind(messageController)
 );

@@ -5,18 +5,14 @@ import { UserContext } from "../../contexts/UserContext";
 // import MoreVertIcon from "@mui/icons-material/MoreVert";
 // import IconButton from "@mui/material/IconButton";
 import DropdownMenu from "../dropdownMenu/dropdownMenu";
-
-interface botUser {
-  botUserId: string;
-  conversationId: number;
-}
+import IBotUser from "../../interfaces/ibotUser";
 
 interface RealTimeSidebarProps {
-  fetchChatData: (conversationId: number) => Promise<void>;
+  fetchChatData: (conversationId: number, botUserId: string) => Promise<void>;
   onRegisterClick: () => void;
   onGoBackClick: () => void;
   onLogoutClick: () => void;
-  botUsersNeedingAttendants: Array<botUser>;
+  botUsersNeedingAttendants: Array<IBotUser>;
 }
 
 function RealTimeSidebar(props: RealTimeSidebarProps) {
@@ -27,14 +23,14 @@ function RealTimeSidebar(props: RealTimeSidebarProps) {
     username: userContext?.user?.name || "",
   };
 
-  async function handleUserClick(botUser: botUser) {
+  async function handleUserClick(botUser: IBotUser) {
     socketContext?.socket?.emit(
       "enterConversation",
       botUser.botUserId,
       botUser.conversationId,
       userContext?.user?.id
     );
-    await props.fetchChatData(botUser.conversationId);
+    await props.fetchChatData(botUser.conversationId, botUser.botUserId);
   }
 
   return (

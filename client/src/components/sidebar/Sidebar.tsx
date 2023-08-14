@@ -1,9 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import DateInput from "../dateInput/DateInput";
 import ChatList from "../chatList/Chatlist";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import "./sidebar.css";
-import IconButton from "@mui/material/IconButton";
 import { UserContext } from "../../contexts/UserContext";
 import DropdownMenuHistory from "../chat/dropdownMenuHistory/dropdownMenuHistory";
 

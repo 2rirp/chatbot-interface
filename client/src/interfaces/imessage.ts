@@ -4,4 +4,5 @@ export default interface IMessage {
   conversation_id: number;
   created_at: string;
   message_from_bot: boolean;
+  botUserId?: string;
 }

@@ -66,6 +66,7 @@ export default class MessageController {
       const userId = user.id;
 
       const conversationId = Number(req.params.conversationId);
+      const botUserId = req.params.botUserId;
       const messageBody = req.body;
 
       const createdMessage: IMessage | undefined =
@@ -74,12 +75,13 @@ export default class MessageController {
           conversationId
         );
 
+      const websocketData = { ...createdMessage, botUserId };
       //websocket
       const websocket = Websocket.getIstance();
       websocket.broadcastToConversation(
         "newAttendantMessage",
         conversationId,
-        createdMessage,
+        websocketData,
         userId
       );
 

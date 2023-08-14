@@ -7,11 +7,7 @@ import { SocketContext } from "../../contexts/SocketContext";
 import { useNavigate } from "react-router-dom";
 /* import { UserContext } from "../../contexts/UserContext";*/
 import IMessage from "../../interfaces/imessage";
-
-interface botUser {
-  botUserId: string;
-  conversationId: number;
-}
+import IBotUser from "../../interfaces/ibotUser";
 
 interface FetchBotUser {
   user_id: string;
@@ -22,10 +18,11 @@ export default function RealTimePage() {
   const socketContext = useContext(SocketContext);
   /* const userContext = useContext(UserContext); */
   const [botUsersNeedingAttendants, setBotUsersNeedingAttendants] = useState<
-    Array<botUser>
+    Array<IBotUser>
   >([]);
   const [chatData, setChatData] = useState<Array<IMessage>>([]);
   const [currentConversationId, setCurrentConversationId] = useState<number>();
+  const [currentBotUserId, setCurrentBotUserId] = useState<string>("");
   const [modalIsOpen, setmodalIsOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -62,7 +59,7 @@ export default function RealTimePage() {
     }
   }
 
-  async function fetchChatData(conversationId: number) {
+  async function fetchChatData(conversationId: number, botUserId: string) {
     try {
       const response = await fetch(`/api/messages/${conversationId}`, {
         method: "GET",
@@ -76,6 +73,7 @@ export default function RealTimePage() {
       if (response.ok) {
         if (responseObj.data) {
           setCurrentConversationId(conversationId);
+          setCurrentBotUserId(botUserId);
           setChatData(responseObj.data);
         } else {
           console.error("No chat data found:", responseObj.data);
@@ -114,7 +112,7 @@ export default function RealTimePage() {
   useEffect(() => {
     if (!socketContext?.socket) return;
 
-    socketContext.socket.on("botUserNeedsAttendant", (newBotUser: botUser) => {
+    socketContext.socket.on("botUserNeedsAttendant", (newBotUser: IBotUser) => {
       setBotUsersNeedingAttendants((prevBotUsers) => [
         ...prevBotUsers,
         newBotUser,
@@ -149,15 +147,18 @@ export default function RealTimePage() {
   const handleSendMessage = async (messageContent: string) => {
     if (messageContent.trim() !== "") {
       try {
-        const response = await fetch(`/api/messages/${currentConversationId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            textContent: messageContent,
-          }),
-        });
+        const response = await fetch(
+          `/api/messages/${currentConversationId}/${currentBotUserId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              textContent: messageContent,
+            }),
+          }
+        );
 
         const responseObj = await response.json();
         if (response.ok) {

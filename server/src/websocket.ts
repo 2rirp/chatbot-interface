@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import IConnection from "./interfaces/connection";
+import IMessage from "./interfaces/imessage";
 
 export default class Websocket {
   private static instance: Websocket;
@@ -99,6 +100,14 @@ export default class Websocket {
     });
   }
 
+  private emitEventToBot(eventName: string, data: any) {
+    if (eventName === "newAttendantMessage") {
+      const { content, botUserId, conversation_id } = data;
+      console.log("Im here");
+      this.io?.emit("sendWhatsappMessage", content, botUserId, conversation_id);
+    }
+  }
+
   private setConnection(socket: Socket, userId: number): void {
     this.connections.push({ connection: socket, userId: userId });
   }
@@ -182,6 +191,7 @@ export default class Websocket {
           console.log(
             `websocket: sending message to conversation ${conversationId} excluding user ${excludeUserConnection}`
           );
+
           conn.connection.emit(eventName, data);
         }
       } else {
@@ -192,6 +202,10 @@ export default class Websocket {
           conn.connection.emit(eventName, data);
         }
       }
+
+      console.log("event is: " + eventName);
     });
+
+    this.emitEventToBot(eventName, data);
   }
 }
