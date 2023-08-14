@@ -1,3 +1,5 @@
+import ErrorHandler from "../errors";
+import IMessage from "../interfaces/imessage";
 import MessageRepository from "../repositories/messageRepository";
 
 export default class MessageServices {
@@ -24,6 +26,22 @@ export default class MessageServices {
       );
 
       return messages;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public static async createMessage(
+    message: string,
+    conversationId: number
+  ): Promise<IMessage | undefined> {
+    try {
+      const createdMessage = await this.repository.createMessage(
+        message,
+        conversationId
+      );
+
+      return createdMessage;
     } catch (error) {
       throw error;
     }

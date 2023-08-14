@@ -27,7 +27,11 @@ router.post(
   userController.createUser.bind(userController)
 );
 
-router.delete("/api/users/logout", userController.logout.bind(userController));
+router.delete(
+  "/api/users/logout",
+  authenticate,
+  userController.logout.bind(userController)
+);
 
 router.get(
   "/api/:date",
@@ -47,6 +51,12 @@ router.get(
   messageController.getMessagesByConversationId.bind(messageController)
 );
 
+router.post(
+  "/api/messages/:conversationId/:botUserId",
+  authenticate,
+  messageController.postMessage.bind(messageController)
+);
+
 router.get(
   "/api/conversations/dates",
   authenticate,
@@ -54,7 +64,7 @@ router.get(
 );
 
 router.get(
-  "/api/conversations",
+  "/api/conversations/redirected",
   authenticate,
   conversationController.getRedirectedConversations.bind(conversationController)
 );

@@ -1,5 +1,6 @@
 import { Query, QueryResult } from "pg";
 import dbConnect from "../database/dbConnect";
+import IMessage from "../interfaces/imessage";
 
 export default class MessageRepository {
   private db: dbConnect;
@@ -28,13 +29,39 @@ export default class MessageRepository {
   async getMessagesByConversationId(conversationId: number) {
     try {
       const queryText = `
-            SELECT * FROM messages WHERE conversation_id = $1`;
+            SELECT * FROM messages WHERE conversation_id = $1 ORDER BY id`;
 
       const result = await this.db.pool.query(queryText, [conversationId]);
       return result.rows;
     } catch (error) {
       console.error("Failed to fetch messages by conversationId: ", error);
       throw error;
+    }
+  }
+
+  async createMessage(
+    messageContent: string,
+    conversationId: number
+  ): Promise<IMessage | undefined> {
+    try {
+      const options = { timeZone: "America/Sao_Paulo" };
+      const date = new Date().toLocaleString("en-US", options);
+      const messageFromBot = true;
+
+      const queryText = `INSERT INTO messages (content, conversation_id, created_at, message_from_bot)
+            VALUES ($1, $2, $3, $4) RETURNING *`;
+
+      const result = await this.db.pool.query(queryText, [
+        messageContent,
+        conversationId,
+        date,
+        messageFromBot,
+      ]);
+
+      const createdMessage = result.rows[0];
+      return createdMessage;
+    } catch (error) {
+      console.log(error);
     }
   }
 }

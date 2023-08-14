@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import IConnection from "./interfaces/connection";
+import IMessage from "./interfaces/imessage";
 
 export default class Websocket {
   private static instance: Websocket;
@@ -83,7 +84,7 @@ export default class Websocket {
       "messageToAttendant",
       (conversationId: number, messageContent: string) => {
         try {
-          this.broadcastToConversation(conversationId, "newMessage", {
+          this.broadcastToConversation("newBotUserMessage", conversationId, {
             content: messageContent,
             message_from_bot: false,
           });
@@ -93,34 +94,18 @@ export default class Websocket {
       }
     );
 
-    socket.on("sendMessage", (message: string, userId: number) => {
-      try {
-        const connection = this.getConnection(userId);
-
-        if (connection) {
-          const { botUserId, conversationId } = connection;
-
-          socket.emit("sendWhatsAppMessage", {
-            message,
-            botUserId,
-            conversationId,
-          });
-
-          console.log(
-            "Message sent to bot: " + message,
-            botUserId,
-            conversationId
-          );
-        }
-      } catch (error) {
-        console.error("Error sending message: " + error);
-      }
-    });
-
     socket.on("disconnect", () => {
       this.removeConnection(socket);
       console.log("Client disconnected");
     });
+  }
+
+  private emitEventToBot(eventName: string, data: any) {
+    if (eventName === "newAttendantMessage") {
+      const { content, botUserId, conversation_id } = data;
+      console.log("Im here");
+      this.io?.emit("sendWhatsappMessage", content, botUserId, conversation_id);
+    }
   }
 
   private setConnection(socket: Socket, userId: number): void {
@@ -189,24 +174,38 @@ export default class Websocket {
     );
   }
 
-  private broadcastToConversation(
-    conversationId: number,
+  public broadcastToConversation(
     eventName: string,
-    data: any
+    conversationId: number,
+    data: any,
+    excludeUserConnection?: number
   ) {
     if (!this.io) return;
 
     this.connections.forEach((conn: IConnection) => {
-      if (conn.conversationId === conversationId) {
-        console.log(
-          `websocket: sending message to conversation ${conversationId}`
-        );
-        conn.connection.emit(eventName, data);
+      if (excludeUserConnection) {
+        if (
+          conn.conversationId === conversationId &&
+          conn.userId !== excludeUserConnection
+        ) {
+          console.log(
+            `websocket: sending message to conversation ${conversationId} excluding user ${excludeUserConnection}`
+          );
+
+          conn.connection.emit(eventName, data);
+        }
       } else {
-        console.log(
-          `websocket: failed sending message to conversation ${conversationId} because conn.conversationId is ${conn.conversationId}`
-        );
+        if (conn.conversationId === conversationId) {
+          console.log(
+            `websocket: sending message to all users in conversation ${conversationId}`
+          );
+          conn.connection.emit(eventName, data);
+        }
       }
+
+      console.log("event is: " + eventName);
     });
+
+    this.emitEventToBot(eventName, data);
   }
 }
