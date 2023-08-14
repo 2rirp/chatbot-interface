@@ -3,6 +3,7 @@ import MessageServices from "../services/messageService";
 import Websocket from "../websocket";
 import IMessage from "../interfaces/imessage";
 import ErrorHandler from "../errors";
+import IUser from "../interfaces/iuser";
 
 export default class MessageController {
   async getMessagesByUserId(
@@ -34,8 +35,9 @@ export default class MessageController {
     next: NextFunction
   ): Promise<void> {
     try {
+      const admin : IUser = req.user
       const conversationId = Number(req.params.conversationId);
-
+      if(admin.is_admin === true) {
       const messages = await MessageServices.getMessagesByConversationId(
         conversationId
       );
@@ -44,6 +46,12 @@ export default class MessageController {
         error: null,
         data: messages,
       });
+    } else {
+      throw ErrorHandler.createError(
+        "UnauthorizedError",
+        "User is not admin."
+      )
+    }
     } catch (error) {
       next(error);
     }
