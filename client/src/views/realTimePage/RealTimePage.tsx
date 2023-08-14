@@ -146,7 +146,13 @@ export default function RealTimePage() {
 
   const handleSendMessage = async (messageContent: string) => {
     if (messageContent.trim() !== "") {
-      try {
+      socketContext?.socket?.emit(
+        "sendMessage",
+        messageContent,
+        currentBotUserId,
+        currentConversationId
+      );
+      /* try {
         const response = await fetch(
           `/api/messages/${currentConversationId}/${currentBotUserId}`,
           {
@@ -171,6 +177,7 @@ export default function RealTimePage() {
         console.error(error.name, error.message);
         alert("Failed to send message: " + error.message);
       }
+    } */
     }
   };
 

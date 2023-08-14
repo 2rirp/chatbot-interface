@@ -94,19 +94,32 @@ export default class Websocket {
       }
     );
 
+    socket.on("sendMessage", (messageContent, botUserId, conversationId) => {
+      this.io?.emit(
+        "sendWhatsappMessage",
+        messageContent,
+        botUserId,
+        conversationId
+      );
+    });
+
+    socket.on("messageFromAttendant", (messageBody) => {
+      this.io?.emit("newAttendantMessage", messageBody);
+    });
+
     socket.on("disconnect", () => {
       this.removeConnection(socket);
       console.log("Client disconnected");
     });
   }
 
-  private emitEventToBot(eventName: string, data: any) {
+  /* private emitEventToBot(eventName: string, data: any) {
     if (eventName === "newAttendantMessage") {
       const { content, botUserId, conversation_id } = data;
       console.log("Im here");
       this.io?.emit("sendWhatsappMessage", content, botUserId, conversation_id);
     }
-  }
+  } */
 
   private setConnection(socket: Socket, userId: number): void {
     this.connections.push({ connection: socket, userId: userId });
@@ -206,6 +219,6 @@ export default class Websocket {
       console.log("event is: " + eventName);
     });
 
-    this.emitEventToBot(eventName, data);
+    /*     this.emitEventToBot(eventName, data);*/
   }
 }
