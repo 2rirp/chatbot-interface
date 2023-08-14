@@ -51,6 +51,12 @@ router.get(
   messageController.getMessagesByConversationId.bind(messageController)
 );
 
+router.post(
+  "/api/messages/:conversationId",
+  authenticate,
+  messageController.postMessage.bind(messageController)
+);
+
 router.get(
   "/api/conversations/dates",
   authenticate,

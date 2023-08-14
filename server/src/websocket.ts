@@ -189,23 +189,32 @@ export default class Websocket {
     );
   }
 
-  private broadcastToConversation(
-    conversationId: number,
+  public broadcastToConversation(
     eventName: string,
-    data: any
+    conversationId: number,
+    data: any,
+    excludeUserConnection?: number
   ) {
     if (!this.io) return;
 
     this.connections.forEach((conn: IConnection) => {
-      if (conn.conversationId === conversationId) {
-        console.log(
-          `websocket: sending message to conversation ${conversationId}`
-        );
-        conn.connection.emit(eventName, data);
+      if (excludeUserConnection) {
+        if (
+          conn.conversationId === conversationId &&
+          conn.userId !== excludeUserConnection
+        ) {
+          console.log(
+            `websocket: sending message to conversation ${conversationId} excluding user ${excludeUserConnection}`
+          );
+          conn.connection.emit(eventName, data);
+        }
       } else {
-        console.log(
-          `websocket: failed sending message to conversation ${conversationId} because conn.conversationId is ${conn.conversationId}`
-        );
+        if (conn.conversationId === conversationId) {
+          console.log(
+            `websocket: sending message to all users in conversation ${conversationId}`
+          );
+          conn.connection.emit(eventName, data);
+        }
       }
     });
   }
