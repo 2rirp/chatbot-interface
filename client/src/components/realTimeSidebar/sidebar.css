@@ -1,6 +1,7 @@
 .real-time-sidebar {
   background-color: #f0f0f09d;
   height: 100%;
+  flex: 1;
 }
 
 .real-time-sidebar-container {

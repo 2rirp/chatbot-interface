@@ -2,17 +2,10 @@ import { useState } from "react";
 import "./realTimeChat.css";
 import SendIcon from "@mui/icons-material/Send";
 import IconButton from "@mui/material/IconButton";
-
-interface Message {
-  id?: number;
-  content: string;
-  conversation_id: number;
-  created_at?: string;
-  message_from_bot: boolean | null;
-}
+import IMessage from "../../interfaces/imessage";
 
 interface ChatProps {
-  chatData: Message[];
+  chatData: Array<IMessage>;
   onSendMessage: (message: string) => void;
 }
 
@@ -29,8 +22,8 @@ function RealTimeChat(props: ChatProps) {
   };
 
   return (
-    <div className="chat">
-      <div className="chat-container">
+    <div className="real-time-chat">
+      <div className="real-time-chat-container">
         {props.chatData.map((message) => (
           <div
             key={message.id}
@@ -42,7 +35,7 @@ function RealTimeChat(props: ChatProps) {
           </div>
         ))}
       </div>
-      <div className="chat-input-container">
+      <div className="real-time-chat-input-container">
         <input
           type="text"
           placeholder="Digite sua mensagem..."
