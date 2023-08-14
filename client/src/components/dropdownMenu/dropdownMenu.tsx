@@ -10,6 +10,8 @@ import PersonAdd from "@mui/icons-material/PersonAdd";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import Logout from "@mui/icons-material/Logout";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { UserContext } from "../../contexts/UserContext";
+import { useContext } from "react";
 
 interface IProps {
   handleRegister: () => void;
@@ -20,6 +22,7 @@ interface IProps {
 export default function DropdownMenu(props: IProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const userContext = useContext(UserContext);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -82,18 +85,22 @@ export default function DropdownMenu(props: IProps) {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={props.handleRegister}>
-          <ListItemIcon>
-            <PersonAdd fontSize="small" />
-          </ListItemIcon>
-          Registrar usuário
-        </MenuItem>
-        <MenuItem onClick={props.handleHistory}>
-          <ListItemIcon>
-            <EventNoteIcon fontSize="small" />
-          </ListItemIcon>
-          Histórico de atendimentos
-        </MenuItem>
+        {userContext?.user?.is_admin && (
+          <>
+            <MenuItem onClick={props.handleRegister}>
+              <ListItemIcon>
+                <PersonAdd fontSize="small" />
+              </ListItemIcon>
+              Registrar usuário
+            </MenuItem>
+            <MenuItem onClick={props.handleHistory}>
+              <ListItemIcon>
+                <EventNoteIcon fontSize="small" />
+              </ListItemIcon>
+              Histórico de atendimentos
+            </MenuItem>
+          </>
+        )}
         <MenuItem onClick={props.handleLogout}>
           <ListItemIcon>
             <Logout fontSize="small" />
