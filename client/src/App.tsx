@@ -24,7 +24,7 @@ export default function App() {
     {
       path: "/chatpage",
       element: (
-        <RequireAuth>
+        <RequireAuth requireAdmin={true}>
           <ChatPage />
         </RequireAuth>
       ),
