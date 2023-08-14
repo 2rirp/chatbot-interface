@@ -5,7 +5,8 @@ import RealTimeSidebar from "../../components/realTimeSidebar/RealTimeSidebar";
 import RealTimeChat from "../../components/realTimeChat/RealTimeChat";
 import { SocketContext } from "../../contexts/SocketContext";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../contexts/UserContext";
+/* import { UserContext } from "../../contexts/UserContext";*/
+import IMessage from "../../interfaces/imessage";
 
 interface botUser {
   botUserId: string;
@@ -17,21 +18,14 @@ interface FetchBotUser {
   id: number;
 }
 
-interface ChatDataItem {
-  id?: number;
-  content: string;
-  conversation_id: number;
-  created_at?: string;
-  message_from_bot: boolean;
-}
-
 export default function RealTimePage() {
   const socketContext = useContext(SocketContext);
-  const userContext = useContext(UserContext);
+  /* const userContext = useContext(UserContext); */
   const [botUsersNeedingAttendants, setBotUsersNeedingAttendants] = useState<
     Array<botUser>
   >([]);
-  const [chatData, setChatData] = useState<Array<ChatDataItem>>([]);
+  const [chatData, setChatData] = useState<Array<IMessage>>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<number>();
   const [modalIsOpen, setmodalIsOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -81,6 +75,7 @@ export default function RealTimePage() {
 
       if (response.ok) {
         if (responseObj.data) {
+          setCurrentConversationId(conversationId);
           setChatData(responseObj.data);
         } else {
           console.error("No chat data found:", responseObj.data);
@@ -126,30 +121,55 @@ export default function RealTimePage() {
       ]);
     });
 
-    socketContext.socket.on("newMessage", (newMessageData: ChatDataItem) => {
+    socketContext.socket.on("newBotUserMessage", (newMessageData: IMessage) => {
       setChatData((prevChatData) => [...prevChatData, newMessageData]);
     });
 
+    socketContext.socket.on(
+      "newAttendantMessage",
+      (newMessageData: IMessage) => {
+        setChatData((prevChatData) => [...prevChatData, newMessageData]);
+      }
+    );
     return () => {
       socketContext?.socket?.off("botUserNeedsAttendant");
-      socketContext?.socket?.off("newMessage");
+      socketContext?.socket?.off("newBotUserMessage");
+      socketContext?.socket?.off("newAttendantMessage");
     };
   }, [socketContext]);
 
   function closeModal() {
     setmodalIsOpen(false);
   }
+
   function openModal() {
     setmodalIsOpen(true);
   }
 
-  const handleSendMessage = (message: string) => {
-    if (message.trim() !== "") {
-      socketContext?.socket?.emit(
-        "sendMessage",
-        message,
-        userContext?.user?.id
-      );
+  const handleSendMessage = async (messageContent: string) => {
+    if (messageContent.trim() !== "") {
+      try {
+        const response = await fetch(`/api/messages/${currentConversationId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            textContent: messageContent,
+          }),
+        });
+
+        const responseObj = await response.json();
+        if (response.ok) {
+          const newMessage = responseObj.data;
+          setChatData((prev) => [...prev, newMessage]);
+        } else {
+          throw responseObj.error;
+        }
+      } catch (error: any) {
+        console.error(error.name, error.message);
+        alert("Failed to send message: " + error.message);
+      }
     }
   };
 
