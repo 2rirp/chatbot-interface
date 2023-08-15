@@ -25,6 +25,7 @@ export default function RealTimePage() {
   const [currentBotUserId, setCurrentBotUserId] = useState<string>("");
   const [modalIsOpen, setmodalIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(false);
+  const [visibility, setVisibility] = useState("none");
   const navigate = useNavigate();
 
   const changeRoute = () => {
@@ -76,6 +77,7 @@ export default function RealTimePage() {
           setCurrentConversationId(conversationId);
           setCurrentBotUserId(botUserId);
           setChatData(responseObj.data);
+          setVisibility("flex");
         } else {
           console.error("No chat data found:", responseObj.data);
         }
@@ -187,7 +189,13 @@ export default function RealTimePage() {
           user: currentBotUserId
         })
       }) 
-       return; 
+      if(deactivatedConversation.ok) {
+          setBotUsersNeedingAttendants(
+            prev => botUsersNeedingAttendants.filter(user => user.conversationId !== currentConversationId)
+          );
+      } else {
+          alert("Erro ao encerrar a conversa.");
+      }
     } catch (error: any) {
       console.error(error.name, error.message)
     }
@@ -206,7 +214,7 @@ export default function RealTimePage() {
           onLogoutClick={logout}
         />
 
-        <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} onEndConversation={deactivateCurrentConversation} userId={currentBotUserId}/>
+        <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} onEndConversation={deactivateCurrentConversation} userId={currentBotUserId} showButton={visibility}/>
       </div>
     </div>
   );

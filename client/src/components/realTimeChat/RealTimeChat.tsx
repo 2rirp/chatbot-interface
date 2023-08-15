@@ -8,6 +8,7 @@ interface ChatProps {
   chatData: Array<IMessage>;
   onSendMessage: (message: string) => void;
   onEndConversation: ()=>void;
+  showButton: string;
   userId: string;
 }
 
@@ -30,7 +31,9 @@ function RealTimeChat(props: ChatProps) {
           <h3>{props.userId}</h3>
         </div>
         <div className="end-conversation-button-container">
-          <button className="end-conversation" onClick={props.onEndConversation}>Encerrar conversa</button>
+          <button className="end-conversation-button"
+          style={{display: props.showButton}}
+          onClick={props.onEndConversation}>Encerrar conversa</button>
         </div>
       </div>
       <div className="real-time-chat-container">
