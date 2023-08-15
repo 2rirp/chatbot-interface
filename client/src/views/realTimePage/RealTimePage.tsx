@@ -177,6 +177,22 @@ export default function RealTimePage() {
     }
   };
 
+  async function deactivateCurrentConversation() {
+    try {
+      const deactivatedConversation = await fetch(`/api/conversations/end`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json"},
+        body: JSON.stringify({
+          conversation: currentConversationId,
+          user: currentBotUserId
+        })
+      }) 
+       return; 
+    } catch (error: any) {
+      console.error(error.name, error.message)
+    }
+  }
+
   return (
     <div className="chatPage">
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
@@ -190,7 +206,7 @@ export default function RealTimePage() {
           onLogoutClick={logout}
         />
 
-        <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} />
+        <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} onEndConversation={deactivateCurrentConversation} userId={currentBotUserId}/>
       </div>
     </div>
   );

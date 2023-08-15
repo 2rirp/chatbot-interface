@@ -7,6 +7,8 @@ import IMessage from "../../interfaces/imessage";
 interface ChatProps {
   chatData: Array<IMessage>;
   onSendMessage: (message: string) => void;
+  onEndConversation: ()=>void;
+  userId: string;
 }
 
 function RealTimeChat(props: ChatProps) {
@@ -23,6 +25,14 @@ function RealTimeChat(props: ChatProps) {
 
   return (
     <div className="real-time-chat">
+      <div className='real-time-chat-header'> 
+        <div className="user-identification-container">
+          <h3>{props.userId}</h3>
+        </div>
+        <div className="end-conversation-button-container">
+          <button className="end-conversation" onClick={props.onEndConversation}>Encerrar conversa</button>
+        </div>
+      </div>
       <div className="real-time-chat-container">
         {props.chatData.map((message) => (
           <div

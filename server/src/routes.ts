@@ -68,4 +68,10 @@ router.get(
   authenticate,
   conversationController.getRedirectedConversations.bind(conversationController)
 );
+
+router.post(
+  "/api/conversations/end",
+  authenticate,
+  conversationController.deactivateConversation.bind(conversationController)
+);
 export default router;
