@@ -24,6 +24,7 @@ export default function RealTimePage() {
   const [currentConversationId, setCurrentConversationId] = useState<number>();
   const [currentBotUserId, setCurrentBotUserId] = useState<string>("");
   const [modalIsOpen, setmodalIsOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(false);
   const navigate = useNavigate();
 
   const changeRoute = () => {
@@ -138,10 +139,12 @@ export default function RealTimePage() {
 
   function closeModal() {
     setmodalIsOpen(false);
+    setActiveDropdown(false);
   }
 
   function openModal() {
     setmodalIsOpen(true);
+    setActiveDropdown(true)
   }
 
   const handleSendMessage = async (messageContent: string) => {
@@ -179,6 +182,7 @@ export default function RealTimePage() {
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
       <div className="chatPage-container">
         <RealTimeSidebar
+          isActive={activeDropdown}
           botUsersNeedingAttendants={botUsersNeedingAttendants}
           fetchChatData={fetchChatData}
           onRegisterClick={openModal}

@@ -22,6 +22,7 @@ interface ChatDataItem {
 export default function ChatPage() {
   const [chatData, setChatData] = useState<Array<ChatDataItem>>([]);
   const [modalIsOpen, setmodalIsOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(false);
   const navigate = useNavigate();
 
   const changeRoute = () => {
@@ -66,9 +67,11 @@ export default function ChatPage() {
 
   function closeModal() {
     setmodalIsOpen(false);
+    setActiveDropdown(false);
   }
   function openModal() {
     setmodalIsOpen(true);
+    setActiveDropdown(true);
   }
 
   return (
@@ -76,6 +79,7 @@ export default function ChatPage() {
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
       <div className="chatPage-container">
         <Sidebar fetchChatData={fetchChatData}
+          isActive={activeDropdown}
           onRegisterClick={openModal}
           onChatpageClick={changeRoute}
           onLogoutClick={logout} />
