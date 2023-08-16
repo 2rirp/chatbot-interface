@@ -24,6 +24,8 @@ export default function RealTimePage() {
   const [currentConversationId, setCurrentConversationId] = useState<number>();
   const [currentBotUserId, setCurrentBotUserId] = useState<string>("");
   const [modalIsOpen, setmodalIsOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(false);
+  const [visibility, setVisibility] = useState("none");
   const navigate = useNavigate();
 
   const changeRoute = () => {
@@ -75,6 +77,7 @@ export default function RealTimePage() {
           setCurrentConversationId(conversationId);
           setCurrentBotUserId(botUserId);
           setChatData(responseObj.data);
+          setVisibility("flex");
         } else {
           console.error("No chat data found:", responseObj.data);
         }
@@ -138,10 +141,12 @@ export default function RealTimePage() {
 
   function closeModal() {
     setmodalIsOpen(false);
+    setActiveDropdown(false);
   }
 
   function openModal() {
     setmodalIsOpen(true);
+    setActiveDropdown(true)
   }
 
   const handleSendMessage = async (messageContent: string) => {
@@ -174,11 +179,34 @@ export default function RealTimePage() {
     }
   };
 
+  async function deactivateCurrentConversation() {
+    try {
+      const deactivatedConversation = await fetch(`/api/conversations/end`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json"},
+        body: JSON.stringify({
+          conversation: currentConversationId,
+          user: currentBotUserId
+        })
+      }) 
+      if(deactivatedConversation.ok) {
+          setBotUsersNeedingAttendants(
+            prev => botUsersNeedingAttendants.filter(user => user.conversationId !== currentConversationId)
+          );
+      } else {
+          alert("Erro ao encerrar a conversa.");
+      }
+    } catch (error: any) {
+      console.error(error.name, error.message)
+    }
+  }
+
   return (
     <div className="chatPage">
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
       <div className="chatPage-container">
         <RealTimeSidebar
+          isActive={activeDropdown}
           botUsersNeedingAttendants={botUsersNeedingAttendants}
           fetchChatData={fetchChatData}
           onRegisterClick={openModal}
@@ -186,7 +214,7 @@ export default function RealTimePage() {
           onLogoutClick={logout}
         />
 
-        <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} />
+        <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} onEndConversation={deactivateCurrentConversation} userId={currentBotUserId} showButton={visibility}/>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ interface RealTimeSidebarProps {
   onRegisterClick: () => void;
   onGoBackClick: () => void;
   onLogoutClick: () => void;
+  isActive: boolean;
   botUsersNeedingAttendants: Array<IBotUser>;
 }
 
@@ -38,6 +39,7 @@ function RealTimeSidebar(props: RealTimeSidebarProps) {
       <div className="real-time-sidebar-header">
         <p className="attendant-name">{user.username}</p>
         <DropdownMenu
+        isActive={props.isActive}
           handleRegister={props.onRegisterClick}
           handleHistory={props.onGoBackClick}
           handleLogout={props.onLogoutClick}
