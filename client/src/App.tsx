@@ -2,8 +2,9 @@ import "./App.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import ChatPage from "./views/chatPage/ChatPage";
 import LoginPage from "./views/loginPage/LoginPage";
-import { RequireAuth } from "./components/requireAuth/RequireAuth";
+import { RequireAuth } from "./components/AuthComponents/RequireAuth";
 import RealTimePage from "./views/realTimePage/RealTimePage";
+import { RequireAdminAuth } from "./components/AuthComponents/RequireAdminAuth";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -24,8 +25,10 @@ export default function App() {
     {
       path: "/chatpage",
       element: (
-        <RequireAuth requireAdmin={true}>
-          <ChatPage />
+        <RequireAuth>
+          <RequireAdminAuth>
+            <ChatPage />
+          </RequireAdminAuth>
         </RequireAuth>
       ),
     },
