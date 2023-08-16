@@ -22,4 +22,13 @@ export default class ConversationServices {
       throw error;
     }
   }
+
+  public static async deactivateConversation(conversationId: string, userId: string) {
+    try {
+      const conversation = await this.repository.deactivateConversation(conversationId, userId);
+      return conversation;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

@@ -17,6 +17,7 @@ interface SidebarProps {
   onRegisterClick: () => void;
   onChatpageClick: () => void;
   onLogoutClick: () => void;
+  isActive: boolean;
 }
 
 function Sidebar(props: SidebarProps) {
@@ -75,6 +76,7 @@ function Sidebar(props: SidebarProps) {
         <p className="attendant-name">{user.username}</p>
         <DateInput handleDateChange={handleDateChange} />
         <DropdownMenuHistory
+          isActive={props.isActive}
           handleRegister={props.onRegisterClick}
           handleChatpage={props.onChatpageClick}
           handleLogout={props.onLogoutClick}

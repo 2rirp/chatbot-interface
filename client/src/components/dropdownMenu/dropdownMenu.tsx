@@ -17,6 +17,7 @@ interface IProps {
   handleRegister: () => void;
   handleHistory: () => void;
   handleLogout: () => void;
+  isActive: boolean;
 }
 
 export default function DropdownMenu(props: IProps) {
@@ -43,6 +44,7 @@ export default function DropdownMenu(props: IProps) {
             aria-controls={open ? "account-menu" : undefined}
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
+            disabled={props.isActive}
           >
             <Avatar sx={{ width: 32, height: 32 }}>
               <MoreVertIcon />

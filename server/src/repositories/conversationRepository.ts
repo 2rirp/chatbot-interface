@@ -41,4 +41,24 @@ export default class ConversationRepository {
       throw error;
     }
   }
+
+  async deactivateConversation(conversationId: string, userId: string) {
+    try {
+      const result = await this.db.pool.query(
+        `
+            UPDATE conversations
+            SET status = 'inactive'
+            WHERE id = $1 AND user_id = $2`,
+        [conversationId, userId]
+      );
+
+      return result.rows[0];
+    } catch (error) {
+      console.error(
+        "Failed to deactivate conversation: ",
+        error
+      );
+      throw error;
+    }
+  }
 }

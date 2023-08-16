@@ -37,4 +37,23 @@ export default class ConversationController {
       next(error);
     }
   }
+  
+  async deactivateConversation(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const conversationId = req.body.conversation;
+      const userId = req.body.user;
+      const conversation = await ConversationServices.deactivateConversation(conversationId, userId)
+      
+      res.status(200).json({
+        error: null,
+        data: conversation,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
