@@ -26,6 +26,8 @@ export default function RealTimePage() {
   const [modalIsOpen, setmodalIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [visibility, setVisibility] = useState("none");
+  const [hasFetchedChatData, setHasFetchedChatData] = useState(false);
+
   const navigate = useNavigate();
 
   const changeRoute = () => {
@@ -78,6 +80,7 @@ export default function RealTimePage() {
           setCurrentBotUserId(botUserId);
           setChatData(responseObj.data);
           setVisibility("flex");
+          setHasFetchedChatData(true);
         } else {
           console.error("No chat data found:", responseObj.data);
         }
@@ -194,14 +197,19 @@ export default function RealTimePage() {
           onGoBackClick={changeRoute}
           onLogoutClick={logout}
         />
-
-        <RealTimeChat
-          chatData={chatData}
-          onSendMessage={handleSendMessage}
-          onEndConversation={deactivateCurrentConversation}
-          userId={currentBotUserId}
-          showButton={visibility}
-        />
+        {hasFetchedChatData ? (
+          <RealTimeChat
+            chatData={chatData}
+            onSendMessage={handleSendMessage}
+            onEndConversation={deactivateCurrentConversation}
+            userId={currentBotUserId}
+            showButton={visibility}
+          />
+        ) : (
+          <div className="centered-message-container">
+            <p className="centered-message">Nenhum usuário selecionado.</p>
+          </div>
+        )}
       </div>
     </div>
   );
