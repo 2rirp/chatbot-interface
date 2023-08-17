@@ -88,22 +88,24 @@ export default function DropdownMenu(props: IProps) {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         {userContext?.user?.is_admin && (
-          <>
-            <MenuItem onClick={props.handleRegister}>
-              <ListItemIcon>
-                <PersonAdd fontSize="small" />
-              </ListItemIcon>
-              Registrar usuário
-            </MenuItem>
-            <MenuItem onClick={props.handleHistory}>
-              <ListItemIcon>
-                <EventNoteIcon fontSize="small" />
-              </ListItemIcon>
-              Histórico de atendimentos
-            </MenuItem>
-          </>
+          <MenuItem key="register" onClick={props.handleRegister}>
+            <ListItemIcon>
+              <PersonAdd fontSize="small" />
+            </ListItemIcon>
+            Registrar usuário
+          </MenuItem>
         )}
-        <MenuItem onClick={props.handleLogout}>
+
+        {userContext?.user?.is_admin && (
+          <MenuItem key="history" onClick={props.handleHistory}>
+            <ListItemIcon>
+              <EventNoteIcon fontSize="small" />
+            </ListItemIcon>
+            Histórico de atendimentos
+          </MenuItem>
+        )}
+
+        <MenuItem key="logout" onClick={props.handleLogout}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
