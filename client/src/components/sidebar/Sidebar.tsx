@@ -83,7 +83,11 @@ function Sidebar(props: SidebarProps) {
         />
       </div>
       <div className="sidebar-container">
-        <ChatList users={chatListData} onUserClick={handleUserClick} />
+        {chatListData.length > 0 ? (
+          <ChatList users={chatListData} onUserClick={handleUserClick} />
+        ) : (
+          <p className="no-users-message">Não há usuários em atendimento.</p>
+        )}
       </div>
     </div>
   );

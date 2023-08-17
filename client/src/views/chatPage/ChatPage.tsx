@@ -23,6 +23,7 @@ export default function ChatPage() {
   const [chatData, setChatData] = useState<Array<ChatDataItem>>([]);
   const [modalIsOpen, setmodalIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(false);
+  const [hasFetchedChatData, setHasFetchedChatData] = useState(false);
   const navigate = useNavigate();
 
   const changeRoute = () => {
@@ -54,6 +55,7 @@ export default function ChatPage() {
       if (response.ok) {
         if (responseObj.data) {
           setChatData(responseObj.data);
+          setHasFetchedChatData(true);
         } else {
           console.error("No chat data found:", responseObj.data);
         }
@@ -78,12 +80,20 @@ export default function ChatPage() {
     <div className="chatPage">
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
       <div className="chatPage-container">
-        <Sidebar fetchChatData={fetchChatData}
+        <Sidebar
+          fetchChatData={fetchChatData}
           isActive={activeDropdown}
           onRegisterClick={openModal}
           onChatpageClick={changeRoute}
-          onLogoutClick={logout} />
-        <Chat chatData={chatData} />
+          onLogoutClick={logout}
+        />
+        {hasFetchedChatData ? (
+          <Chat chatData={chatData} />
+        ) : (
+          <div className="centered-message-container">
+            <p className="centered-message">Nenhum usuário selecionado.</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,39 +1,61 @@
 .chatPage {
-  /* background-color: #efefef; */
+  background-image: radial-gradient(
+      ellipse at top center,
+      #eef2d9,
+      rgba(217, 217, 242, 0)
+    ),
+    radial-gradient(circle at bottom left, #d9d9f2, rgba(217, 217, 242, 0)),
+    radial-gradient(circle at bottom right, #91b3fc, rgba(217, 217, 242, 0));
   height: 100vh;
-  width: 100vw;
+  /* width: 100vw; */
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: rgba(58, 45, 133, 0.2) 0px 60px 40px -7px;
 }
 
 .chatPage-container {
-  /* border: 1px solid #000; */
+  border: 0.1em solid #b6b6b6dc;
+  background-color: #f8f9fa;
   border-radius: 10px;
+  height: 98%;
   width: 98%;
   max-width: 1500px;
-  height: 98%;
+  max-height: 1080px;
   display: flex;
   overflow: hidden;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 60px 40px -7px;
 }
 
-  /* Firefox */
-  * {
-    scrollbar-width: auto;
-    scrollbar-color: #4593f8b9 #dadada;
-  }
+/* Firefox */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: #4593f8b9 #dadada;
+}
 
-  /* Chrome, Edge, and Safari */
-  *::-webkit-scrollbar {
-    width: 20px;
-  }
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 20px;
+}
 
-  *::-webkit-scrollbar-track {
-    background: #f0f0f0;
-  }
+*::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
 
-  *::-webkit-scrollbar-thumb {
-    background-color: #6babffb9;
-    border-radius: 5px;
-    border: 3px solid #f0f0f0;
-  }
+*::-webkit-scrollbar-thumb {
+  background-color: #6babffb9;
+  border-radius: 5px;
+  border: 3px solid #f0f0f0;
+}
+
+.centered-message-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.centered-message-container p {
+  font-size: 1.5rem;
+  color: #363636;
+}
