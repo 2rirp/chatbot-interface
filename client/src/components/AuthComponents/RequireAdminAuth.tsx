@@ -11,7 +11,7 @@ interface Props {
 export function RequireAdminAuth(props: Props) {
   const userContext = useContext(UserContext);
 
-  if (userContext?.user?.is_admin !== null) {
+  if (userContext?.user?.is_admin) {
     return <SocketProvider>{props.children}</SocketProvider>;
   }
 
