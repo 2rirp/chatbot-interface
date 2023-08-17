@@ -55,18 +55,18 @@ export default class UserController {
     try {
       const user: IUser = req.body;
       const admin = req.user;
-      if(admin.is_admin === true) {
-      const createdUser = await UserServices.createNewUser(user);
-      res.status(200).json({
-        error: null,
-        data: `User with id ${createdUser.id} registered succesfully!`,
-      });
-    } else {
-      throw ErrorHandler.createError(
-        "UnauthorizedError",
-        "User is not admin."
-      );
-    }
+      if (admin.is_admin === true) {
+        const createdUser = await UserServices.createNewUser(user);
+        res.status(200).json({
+          error: null,
+          data: `User with id ${createdUser.id} registered succesfully!`,
+        });
+      } else {
+        throw ErrorHandler.createError(
+          "UnauthorizedError",
+          "User is not admin."
+        );
+      }
     } catch (error) {
       next(error);
     }

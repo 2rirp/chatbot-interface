@@ -16,7 +16,7 @@ interface FetchBotUser {
 
 export default function RealTimePage() {
   const socketContext = useContext(SocketContext);
-  /* const userContext = useContext(UserContext); */
+  /*  const userContext = useContext(UserContext); */
   const [botUsersNeedingAttendants, setBotUsersNeedingAttendants] = useState<
     Array<IBotUser>
   >([]);
@@ -146,7 +146,7 @@ export default function RealTimePage() {
 
   function openModal() {
     setmodalIsOpen(true);
-    setActiveDropdown(true)
+    setActiveDropdown(true);
   }
 
   const handleSendMessage = async (messageContent: string) => {
@@ -157,32 +157,6 @@ export default function RealTimePage() {
         currentBotUserId,
         currentConversationId
       );
-      /* try {
-        const response = await fetch(
-          `/api/messages/${currentConversationId}/${currentBotUserId}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              textContent: messageContent,
-            }),
-          }
-        );
-
-        const responseObj = await response.json();
-        if (response.ok) {
-          const newMessage = responseObj.data;
-          setChatData((prev) => [...prev, newMessage]);
-        } else {
-          throw responseObj.error;
-        }
-      } catch (error: any) {
-        console.error(error.name, error.message);
-        alert("Failed to send message: " + error.message);
-      }
-    } */
     }
   };
 
@@ -190,21 +164,21 @@ export default function RealTimePage() {
     try {
       const deactivatedConversation = await fetch(`/api/conversations/end`, {
         method: "POST",
-        headers: { "Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           conversation: currentConversationId,
-          user: currentBotUserId
-        })
-      }) 
-      if(deactivatedConversation.ok) {
-          setBotUsersNeedingAttendants(
-            prev => botUsersNeedingAttendants.filter(user => user.conversationId !== currentConversationId)
-          );
+          user: currentBotUserId,
+        }),
+      });
+      if (deactivatedConversation.ok) {
+        setBotUsersNeedingAttendants((prev) =>
+          prev.filter((user) => user.conversationId !== currentConversationId)
+        );
       } else {
-          alert("Erro ao encerrar a conversa.");
+        alert("Erro ao encerrar a conversa.");
       }
     } catch (error: any) {
-      console.error(error.name, error.message)
+      console.error(error.name, error.message);
     }
   }
 
@@ -221,7 +195,13 @@ export default function RealTimePage() {
           onLogoutClick={logout}
         />
 
-        <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} onEndConversation={deactivateCurrentConversation} userId={currentBotUserId} showButton={visibility}/>
+        <RealTimeChat
+          chatData={chatData}
+          onSendMessage={handleSendMessage}
+          onEndConversation={deactivateCurrentConversation}
+          userId={currentBotUserId}
+          showButton={visibility}
+        />
       </div>
     </div>
   );
