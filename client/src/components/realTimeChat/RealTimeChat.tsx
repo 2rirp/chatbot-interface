@@ -15,13 +15,27 @@ interface ChatProps {
 function RealTimeChat(props: ChatProps) {
   const [message, setMessage] = useState("");
 
-  const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMessageChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     setMessage(event.target.value);
   };
 
   const handleSendMessage = () => {
-    props.onSendMessage(message);
-    setMessage("");
+    if (message.trim() !== "") {
+      /*  const messageWithNewlines = message.replace(/\n/g, "\\n"); */
+      props.onSendMessage(message);
+      /*       console.log("Sent the message: " + messageWithNewlines);
+       */ setMessage("");
+    }
+  };
+
+  const handleInputKeyPress = (
+    event: React.KeyboardEvent<HTMLTextAreaElement>
+  ) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      handleSendMessage();
+    }
   };
 
   return (
@@ -53,12 +67,14 @@ function RealTimeChat(props: ChatProps) {
         ))}
       </div>
       <div className="real-time-chat-input-container">
-        <input
-          type="text"
+        <textarea
+          /* type="text" */
           placeholder="Digite sua mensagem..."
           value={message}
           onChange={handleMessageChange}
+          onKeyDown={handleInputKeyPress}
           className="chat-input"
+          rows={2}
         />
         <IconButton className="send-button" onClick={handleSendMessage}>
           <SendIcon />
