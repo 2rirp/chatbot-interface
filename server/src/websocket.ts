@@ -104,7 +104,11 @@ export default class Websocket {
     });
 
     socket.on("messageFromAttendant", (messageBody) => {
-      this.io?.emit("newAttendantMessage", messageBody);
+      this.broadcastToConversation(
+        "newAttendantMessage",
+        messageBody.conversation_id,
+        messageBody
+      );
     });
 
     socket.on("disconnect", () => {
@@ -217,6 +221,7 @@ export default class Websocket {
       }
 
       console.log("event is: " + eventName);
+      console.log("data is: " + data);
     });
 
     /*     this.emitEventToBot(eventName, data);*/
