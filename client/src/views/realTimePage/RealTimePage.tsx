@@ -16,7 +16,7 @@ interface FetchBotUser {
 
 export default function RealTimePage() {
   const socketContext = useContext(SocketContext);
-  /* const userContext = useContext(UserContext); */
+  /*  const userContext = useContext(UserContext); */
   const [botUsersNeedingAttendants, setBotUsersNeedingAttendants] = useState<
     Array<IBotUser>
   >([]);
@@ -26,6 +26,8 @@ export default function RealTimePage() {
   const [modalIsOpen, setmodalIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [visibility, setVisibility] = useState("none");
+  const [hasFetchedChatData, setHasFetchedChatData] = useState(false);
+
   const navigate = useNavigate();
 
   const changeRoute = () => {
@@ -78,6 +80,7 @@ export default function RealTimePage() {
           setCurrentBotUserId(botUserId);
           setChatData(responseObj.data);
           setVisibility("flex");
+          setHasFetchedChatData(true);
         } else {
           console.error("No chat data found:", responseObj.data);
         }
@@ -146,36 +149,17 @@ export default function RealTimePage() {
 
   function openModal() {
     setmodalIsOpen(true);
-    setActiveDropdown(true)
+    setActiveDropdown(true);
   }
 
   const handleSendMessage = async (messageContent: string) => {
     if (messageContent.trim() !== "") {
-      try {
-        const response = await fetch(
-          `/api/messages/${currentConversationId}/${currentBotUserId}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              textContent: messageContent,
-            }),
-          }
-        );
-
-        const responseObj = await response.json();
-        if (response.ok) {
-          const newMessage = responseObj.data;
-          setChatData((prev) => [...prev, newMessage]);
-        } else {
-          throw responseObj.error;
-        }
-      } catch (error: any) {
-        console.error(error.name, error.message);
-        alert("Failed to send message: " + error.message);
-      }
+      socketContext?.socket?.emit(
+        "sendMessage",
+        messageContent,
+        currentBotUserId,
+        currentConversationId
+      );
     }
   };
 
@@ -183,21 +167,21 @@ export default function RealTimePage() {
     try {
       const deactivatedConversation = await fetch(`/api/conversations/end`, {
         method: "POST",
-        headers: { "Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           conversation: currentConversationId,
-          user: currentBotUserId
-        })
-      }) 
-      if(deactivatedConversation.ok) {
-          setBotUsersNeedingAttendants(
-            prev => botUsersNeedingAttendants.filter(user => user.conversationId !== currentConversationId)
-          );
+          user: currentBotUserId,
+        }),
+      });
+      if (deactivatedConversation.ok) {
+        setBotUsersNeedingAttendants((prev) =>
+          prev.filter((user) => user.conversationId !== currentConversationId)
+        );
       } else {
-          alert("Erro ao encerrar a conversa.");
+        alert("Erro ao encerrar a conversa.");
       }
     } catch (error: any) {
-      console.error(error.name, error.message)
+      console.error(error.name, error.message);
     }
   }
 
@@ -213,8 +197,19 @@ export default function RealTimePage() {
           onGoBackClick={changeRoute}
           onLogoutClick={logout}
         />
-
-        <RealTimeChat chatData={chatData} onSendMessage={handleSendMessage} onEndConversation={deactivateCurrentConversation} userId={currentBotUserId} showButton={visibility}/>
+        {hasFetchedChatData ? (
+          <RealTimeChat
+            chatData={chatData}
+            onSendMessage={handleSendMessage}
+            onEndConversation={deactivateCurrentConversation}
+            userId={currentBotUserId}
+            showButton={visibility}
+          />
+        ) : (
+          <div className="centered-message-container">
+            <p className="centered-message">Nenhum usuário selecionado.</p>
+          </div>
+        )}
       </div>
     </div>
   );

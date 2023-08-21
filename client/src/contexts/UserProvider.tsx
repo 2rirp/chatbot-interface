@@ -6,7 +6,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<IUser | null>(null);
-  /* const [isloading, setIsLoading] = useState(true); */
+  /* const [isLoading, setIsLoading] = useState(true); */
 
   /* const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
@@ -22,7 +22,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         const userData = await response.json();
         setUser(userData.data);
       }
-      /* setIsLoading(false); */
+      /*  setIsLoading(false);
+      console.log(user); */
     };
 
     fetchCurrentUser();

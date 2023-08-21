@@ -1,10 +1,13 @@
 .chatPage {
-  background-image:
-  radial-gradient(ellipse at top center, #eef2d9, rgba(217, 217, 242, 0)), 
-  radial-gradient(circle at bottom left, #d9d9f2, rgba(217, 217, 242, 0)), 
-  radial-gradient(circle at bottom right, #91b3fc, rgba(217, 217, 242, 0));
+  background-image: radial-gradient(
+      ellipse at top center,
+      #eef2d9,
+      rgba(217, 217, 242, 0)
+    ),
+    radial-gradient(circle at bottom left, #d9d9f2, rgba(217, 217, 242, 0)),
+    radial-gradient(circle at bottom right, #91b3fc, rgba(217, 217, 242, 0));
   height: 100vh;
-  /* width: 100vw; */
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,11 +15,26 @@
 }
 
 .chatPage-container {
-  border: .1em solid #b6b6b6dc;
+  border: 0.1em solid #b6b6b6dc;
+  background-color: #f8f9fa;
   border-radius: 10px;
+  height: 98%;
+  width: 98%;
   max-width: 1500px;
   max-height: 1080px;
   display: flex;
   overflow: hidden;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 60px 40px -7px;
+}
+
+.centered-message-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.centered-message-container p {
+  font-size: 1.5rem;
+  color: #363636;
 }

@@ -39,23 +39,27 @@ function RealTimeSidebar(props: RealTimeSidebarProps) {
       <div className="real-time-sidebar-header">
         <p className="attendant-name">{user.username}</p>
         <DropdownMenu
-        isActive={props.isActive}
+          isActive={props.isActive}
           handleRegister={props.onRegisterClick}
           handleHistory={props.onGoBackClick}
           handleLogout={props.onLogoutClick}
         />
       </div>
       <div className="real-time-sidebar-container">
-        <ul>
-          {props.botUsersNeedingAttendants.map((botUser) => (
-            <li
-              key={botUser.botUserId}
-              onClick={() => handleUserClick(botUser)}
-            >
-              <div>{botUser.botUserId}</div>
-            </li>
-          ))}
-        </ul>
+        {props.botUsersNeedingAttendants.length > 0 ? (
+          <ul>
+            {props.botUsersNeedingAttendants.map((botUser) => (
+              <li
+                key={botUser.botUserId}
+                onClick={() => handleUserClick(botUser)}
+              >
+                <div>{botUser.botUserId}</div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="no-users-message">Não há usuários em atendimento.</p>
+        )}
       </div>
     </div>
   );
