@@ -1,11 +1,11 @@
 import { Server, Socket } from "socket.io";
 import IConnection from "./interfaces/connection";
-import IMessage from "./interfaces/imessage";
 
 export default class Websocket {
   private static instance: Websocket;
   private io: Server | null = null;
   private connections: Array<IConnection> = [];
+  private unreadConversations: Array<number> = [];
 
   private constructor() {}
 
@@ -32,6 +32,11 @@ export default class Websocket {
     socket.on("login", (userId: number) => {
       try {
         this.setConnection(socket, userId);
+        this.broadcastToUser(
+          "loadUnreadConversations",
+          userId,
+          this.unreadConversations
+        );
         console.log("Client logged in");
       } catch (error) {
         console.error("Error setting connection: " + error);
@@ -166,6 +171,7 @@ export default class Websocket {
         userId,
       });
     }
+    this.removeUnfollowedConversation(conversationId);
   }
 
   private leaveConversationRoom(userId: number) {
@@ -199,31 +205,70 @@ export default class Websocket {
   ) {
     if (!this.io) return;
 
-    this.connections.forEach((conn: IConnection) => {
-      if (excludeUserConnection) {
-        if (
-          conn.conversationId === conversationId &&
-          conn.userId !== excludeUserConnection
-        ) {
-          console.log(
-            `websocket: sending message to conversation ${conversationId} excluding user ${excludeUserConnection}`
-          );
+    const isAnyUserConnected = this.connections.some(
+      (conn: IConnection) => conn.conversationId === conversationId
+    );
 
-          conn.connection.emit(eventName, data);
+    if (isAnyUserConnected) {
+      this.connections.forEach((conn: IConnection) => {
+        if (excludeUserConnection) {
+          if (
+            conn.conversationId === conversationId &&
+            conn.userId !== excludeUserConnection
+          ) {
+            console.log(
+              `websocket: sending message to conversation ${conversationId} excluding user ${excludeUserConnection}`
+            );
+
+            conn.connection.emit(eventName, data);
+          }
+        } else {
+          if (conn.conversationId === conversationId) {
+            console.log(
+              `websocket: sending message to all users in conversation ${conversationId}`
+            );
+            conn.connection.emit(eventName, data);
+          }
         }
-      } else {
-        if (conn.conversationId === conversationId) {
-          console.log(
-            `websocket: sending message to all users in conversation ${conversationId}`
-          );
-          conn.connection.emit(eventName, data);
-        }
-      }
 
-      console.log("event is: " + eventName);
-      console.log("data is: " + data);
-    });
-
+        console.log("event is: " + eventName);
+      });
+    } else {
+      this.addUnfollowedConversation(conversationId);
+    }
     /*     this.emitEventToBot(eventName, data);*/
+  }
+
+  public broadcastToUser(eventName: string, userId: number, data: any) {
+    if (!this.io) return;
+
+    this.connections.forEach((conn: IConnection) => {
+      if (conn.userId === userId) {
+        conn.connection.emit(eventName, data);
+        console.log(`websocket: sending to user ${userId}`);
+      }
+    });
+  }
+
+  public broadcastToEveryone(eventName: string, data: any) {
+    if (!this.io) return;
+
+    this.io.emit(eventName, data);
+    console.log(`websocket: notifying all attendants`);
+  }
+
+  public addUnfollowedConversation(conversationId: number) {
+    if (!this.unreadConversations.includes(conversationId)) {
+      this.unreadConversations.push(conversationId);
+      this.broadcastToEveryone("newUnreadConversation", conversationId);
+    }
+  }
+
+  public removeUnfollowedConversation(conversationId: number) {
+    const index = this.unreadConversations.indexOf(conversationId);
+    if (index !== -1) {
+      this.unreadConversations.splice(index, 1);
+      this.broadcastToEveryone("removeFromUnreadConversations", conversationId);
+    }
   }
 }

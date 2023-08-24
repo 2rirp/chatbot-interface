@@ -31,7 +31,7 @@
 .real-time-sidebar-container li {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
   background-color: #95c3ffb9;
 
   color: #363636;
@@ -45,6 +45,15 @@
 
 .real-time-sidebar-container li:hover {
   background-color: #647be0;
+}
+
+.unread-conversation::after {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: rgb(0, 190, 28);
+  border-radius: 50%;
 }
 
 .real-time-sidebar-header {

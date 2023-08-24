@@ -27,6 +27,9 @@ export default function RealTimePage() {
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [visibility, setVisibility] = useState("none");
   const [hasFetchedChatData, setHasFetchedChatData] = useState(false);
+  const [unreadConversations, setUnreadConversations] = useState<Array<number>>(
+    []
+  );
 
   const navigate = useNavigate();
 
@@ -135,10 +138,36 @@ export default function RealTimePage() {
         setChatData((prevChatData) => [...prevChatData, newMessageData]);
       }
     );
+
+    socketContext.socket.on(
+      "loadUnreadConversations",
+      (unfollowedConversations: Array<number>) => {
+        setUnreadConversations(unfollowedConversations);
+      }
+    );
+
+    socketContext.socket.on(
+      "newUnreadConversation",
+      (conversationId: number) => {
+        setUnreadConversations((prev) => [...prev, conversationId]);
+      }
+    );
+
+    socketContext.socket.on(
+      "removeFromUnreadConversations",
+      (conversationId: number) => {
+        setUnreadConversations((prev) =>
+          prev.filter((id) => id !== conversationId)
+        );
+      }
+    );
     return () => {
       socketContext?.socket?.off("botUserNeedsAttendant");
       socketContext?.socket?.off("newBotUserMessage");
       socketContext?.socket?.off("newAttendantMessage");
+      socketContext?.socket?.off("loadUnreadConversations");
+      socketContext?.socket?.off("newUnreadConversation");
+      socketContext?.socket?.off("removeFromUnreadConversations");
     };
   }, [socketContext]);
 
@@ -196,6 +225,7 @@ export default function RealTimePage() {
           onRegisterClick={openModal}
           onGoBackClick={changeRoute}
           onLogoutClick={logout}
+          unreadConversations={unreadConversations}
         />
         {hasFetchedChatData ? (
           <RealTimeChat
