@@ -14,6 +14,7 @@ interface RealTimeSidebarProps {
   onLogoutClick: () => void;
   isActive: boolean;
   botUsersNeedingAttendants: Array<IBotUser>;
+  unreadConversations: Array<number>;
 }
 
 function RealTimeSidebar(props: RealTimeSidebarProps) {
@@ -52,6 +53,11 @@ function RealTimeSidebar(props: RealTimeSidebarProps) {
               <li
                 key={botUser.botUserId}
                 onClick={() => handleUserClick(botUser)}
+                className={
+                  props.unreadConversations.includes(botUser.conversationId)
+                    ? "unread-conversation"
+                    : ""
+                }
               >
                 <div>{botUser.botUserId}</div>
               </li>
