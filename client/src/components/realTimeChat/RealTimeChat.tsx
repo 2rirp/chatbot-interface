@@ -62,6 +62,26 @@ function RealTimeChat(props: ChatProps) {
               message.message_from_bot ? "bot-message" : "user-message"
             }`}
           >
+            {message.media_url && (
+              <div className="media-container">
+                {message.media_type === "image" ? (
+                  <img
+                    src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                    alt="Media"
+                  />
+                ) : message.media_type === "video" ? (
+                  <video controls>
+                    <source
+                      src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                      type="video/mp4"
+                    />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <p>Unsupported media format</p>
+                )}{" "}
+              </div>
+            )}
             <p>{message.content}</p>
           </div>
         ))}

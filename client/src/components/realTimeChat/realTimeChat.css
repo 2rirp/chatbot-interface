@@ -75,6 +75,13 @@
   max-width: 700px;
 }
 
+.media-container {
+  width: auto;
+  height: 250px;
+  display: flex;
+  justify-content: center;
+}
+
 .user-message {
   background-color: #cce6ff;
   align-self: flex-start;

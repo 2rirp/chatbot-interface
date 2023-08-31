@@ -27,6 +27,10 @@ export default class App {
     /* this.app.use(cors()); */
     /* this.app.use("/", express.static("./client/dist")); */
     this.app.use("/", express.static("../client/dist"));
+    this.app.use(
+      "/media",
+      express.static(path.join(__dirname, "../../../../chatbot/test", "media"))
+    );
   }
 
   private router(): void {
