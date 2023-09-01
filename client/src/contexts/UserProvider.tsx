@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, { useEffect, useState } from "react";
 import { UserContext } from "./UserContext";
 import IUser from "../interfaces/iuser";
@@ -48,7 +52,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } catch (error: any) {
       console.error(error.name, error.message);
-      alert("Erro");
+      if(error.message === "Incorrect e-mail and/or password") {
+        alert("Credenciais incorretas.");
+      }
+      else {
+        alert(`Erro não identificado: ${error}`)
+      }
       return false;
     }
   };
@@ -84,6 +93,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } catch (error: any) {
       console.error(error.name, error.message);
+      if(error.message === 'Email já está em uso!') {
+        alert(error.message);
+      } else {
+        alert(`Erro não identificado: ${error}`);
+      }
       return false;
     }
   };
