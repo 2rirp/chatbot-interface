@@ -10,6 +10,7 @@
   background-color: #ffffff93;
   padding: 0 0 0.3em;
 }
+
 .real-time-chat-header {
   display: flex;
   justify-content: space-between;
@@ -20,6 +21,7 @@
   align-items: center;
   overflow: hidden;
 }
+
 .user-identification-container {
   display: flex;
   /* width: 100%; */
@@ -52,6 +54,7 @@
   padding: 8px 16px;
   cursor: pointer;
 }
+
 .end-conversation-button:hover {
   background-color: #dd404db9;
 }
@@ -77,9 +80,26 @@
 
 .media-container {
   width: auto;
-  height: 250px;
+  max-height: 350px;
   display: flex;
   justify-content: center;
+}
+
+.media-container img,
+video,
+object {
+  height: 250px;
+}
+
+.media-container a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.media-container div {
+  display: flex;
+  flex-direction: column;
+  font-size: larger;
 }
 
 .user-message {
