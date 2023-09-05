@@ -252,11 +252,28 @@ export default class Websocket {
     });
   }
 
-  public broadcastToEveryone(eventName: string, data: any) {
+  public broadcastToEveryone(
+    eventName: string,
+    data: any,
+    excludeUserConnection?: number
+  ) {
     if (!this.io) return;
 
-    this.io.emit(eventName, data);
-    console.log(`websocket: notifying all attendants`);
+    if (excludeUserConnection) {
+      this.connections.forEach((conn: IConnection) => {
+        if (conn.userId !== excludeUserConnection) {
+          console.log(
+            `websocket: broadcasting to everyone excluding user ${excludeUserConnection}`
+          );
+
+          conn.connection.emit(eventName, data);
+        }
+      });
+    } else {
+      this.io.emit(eventName, data);
+
+      console.log(`websocket: notifying all attendants`);
+    }
   }
 
   public addUnfollowedConversation(conversationId: number) {
