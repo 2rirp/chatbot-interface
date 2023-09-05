@@ -7,6 +7,11 @@ import routes from "./routes";
 import cors from "cors";
 import { Server } from "socket.io";
 import Websocket from "./websocket";
+import dotenv from "dotenv";
+
+dotenv.config({ path: "./config/.env" });
+
+const MEDIA_PATH = process.env.MEDIA_PATH;
 
 export default class App {
   public app: express.Application;
@@ -27,6 +32,10 @@ export default class App {
     /* this.app.use(cors()); */
     /* this.app.use("/", express.static("./client/dist")); */
     this.app.use("/", express.static("../client/dist"));
+    this.app.use(
+      "/media",
+      express.static(path.join(__dirname, String(MEDIA_PATH), "media"))
+    );
   }
 
   private router(): void {

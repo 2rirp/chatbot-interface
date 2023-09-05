@@ -1,11 +1,11 @@
 import "./chatPage.css";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import SignUpModal from "../../components/signUpModal/SignUpModal";
 import RealTimeSidebar from "../../components/realTimeSidebar/RealTimeSidebar";
 import RealTimeChat from "../../components/realTimeChat/RealTimeChat";
 import { SocketContext } from "../../contexts/SocketContext";
 import { useNavigate } from "react-router-dom";
-/* import { UserContext } from "../../contexts/UserContext";*/
+import { UserContext } from "../../contexts/UserContext";
 import IMessage from "../../interfaces/imessage";
 import IBotUser from "../../interfaces/ibotUser";
 
@@ -16,7 +16,7 @@ interface FetchBotUser {
 
 export default function RealTimePage() {
   const socketContext = useContext(SocketContext);
-  /*  const userContext = useContext(UserContext); */
+  const userContext = useContext(UserContext);
   const [botUsersNeedingAttendants, setBotUsersNeedingAttendants] = useState<
     Array<IBotUser>
   >([]);
@@ -30,6 +30,8 @@ export default function RealTimePage() {
   const [unreadConversations, setUnreadConversations] = useState<Array<number>>(
     []
   );
+  const currentConversationIdRef = useRef(currentConversationId);
+  const currentBotUserIdRef = useRef(currentBotUserId);
 
   const navigate = useNavigate();
 
@@ -119,6 +121,11 @@ export default function RealTimePage() {
   }, []);
 
   useEffect(() => {
+    currentConversationIdRef.current = currentConversationId;
+    currentBotUserIdRef.current = currentBotUserId;
+  }, [currentConversationId, currentBotUserId]);
+
+  useEffect(() => {
     if (!socketContext?.socket) return;
 
     socketContext.socket.on("botUserNeedsAttendant", (newBotUser: IBotUser) => {
@@ -161,6 +168,34 @@ export default function RealTimePage() {
         );
       }
     );
+
+    socketContext.socket.on(
+      "removeFromAttendance",
+      (conversationId: number) => {
+        console.log(
+          conversationId +
+            " and " +
+            currentConversationIdRef.current +
+            " and " +
+            currentBotUserIdRef.current
+        );
+
+        if (currentConversationId === conversationId) {
+          socketContext?.socket?.emit(
+            "exitConversation",
+            currentBotUserId,
+            currentConversationId,
+            userContext?.user?.id
+          );
+
+          setHasFetchedChatData(false);
+        }
+
+        setBotUsersNeedingAttendants((prev) =>
+          prev.filter((user) => user.conversationId !== conversationId)
+        );
+      }
+    );
     return () => {
       socketContext?.socket?.off("botUserNeedsAttendant");
       socketContext?.socket?.off("newBotUserMessage");
@@ -168,6 +203,7 @@ export default function RealTimePage() {
       socketContext?.socket?.off("loadUnreadConversations");
       socketContext?.socket?.off("newUnreadConversation");
       socketContext?.socket?.off("removeFromUnreadConversations");
+      socketContext?.socket?.off("removeFromAttendance");
     };
   }, [socketContext]);
 
@@ -206,6 +242,15 @@ export default function RealTimePage() {
         setBotUsersNeedingAttendants((prev) =>
           prev.filter((user) => user.conversationId !== currentConversationId)
         );
+
+        socketContext?.socket?.emit(
+          "exitConversation",
+          currentBotUserId,
+          currentConversationId,
+          userContext?.user?.id
+        );
+
+        setHasFetchedChatData(false);
       } else {
         alert("Erro ao encerrar a conversa.");
       }

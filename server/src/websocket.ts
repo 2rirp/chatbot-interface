@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import IConnection from "./interfaces/connection";
+import IMessage from "./interfaces/imessage";
 
 export default class Websocket {
   private static instance: Websocket;
@@ -87,12 +88,13 @@ export default class Websocket {
 
     socket.on(
       "messageToAttendant",
-      (conversationId: number, messageContent: string) => {
+      (conversationId: number, message: IMessage) => {
         try {
-          this.broadcastToConversation("newBotUserMessage", conversationId, {
-            content: messageContent,
-            message_from_bot: false,
-          });
+          this.broadcastToConversation(
+            "newBotUserMessage",
+            conversationId,
+            message
+          );
         } catch (error) {
           console.error("Error receiving new message: " + error);
         }
@@ -250,11 +252,28 @@ export default class Websocket {
     });
   }
 
-  public broadcastToEveryone(eventName: string, data: any) {
+  public broadcastToEveryone(
+    eventName: string,
+    data: any,
+    excludeUserConnection?: number
+  ) {
     if (!this.io) return;
 
-    this.io.emit(eventName, data);
-    console.log(`websocket: notifying all attendants`);
+    if (excludeUserConnection) {
+      this.connections.forEach((conn: IConnection) => {
+        if (conn.userId !== excludeUserConnection) {
+          console.log(
+            `websocket: broadcasting to everyone excluding user ${excludeUserConnection}`
+          );
+
+          conn.connection.emit(eventName, data);
+        }
+      });
+    } else {
+      this.io.emit(eventName, data);
+
+      console.log(`websocket: notifying all attendants`);
+    }
   }
 
   public addUnfollowedConversation(conversationId: number) {

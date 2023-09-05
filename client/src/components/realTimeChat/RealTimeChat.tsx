@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./realTimeChat.css";
 import SendIcon from "@mui/icons-material/Send";
 import IconButton from "@mui/material/IconButton";
+import DownloadIcon from "@mui/icons-material/Download";
 import IMessage from "../../interfaces/imessage";
 
 interface ChatProps {
@@ -14,6 +15,8 @@ interface ChatProps {
 
 function RealTimeChat(props: ChatProps) {
   const [message, setMessage] = useState("");
+  const [userAtBottom, setUserAtBottom] = useState(true);
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
   const handleMessageChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
@@ -38,6 +41,23 @@ function RealTimeChat(props: ChatProps) {
     }
   };
 
+  useEffect(() => {
+    const chatContainer = chatContainerRef.current;
+    if (chatContainer) {
+      const wasAtBottom =
+        chatContainer.scrollTop + chatContainer.clientHeight >=
+        chatContainer.scrollHeight;
+
+      setUserAtBottom(wasAtBottom);
+      console.log(
+        `ScrollTop: ${chatContainer.scrollTop}, ClientHeight: ${chatContainer.clientHeight}, ScrollHeight: ${chatContainer.scrollHeight}`
+      );
+      if (userAtBottom) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }
+  }, [props.chatData]);
+
   return (
     <div className="real-time-chat">
       <div className="real-time-chat-header">
@@ -54,7 +74,7 @@ function RealTimeChat(props: ChatProps) {
           </button>
         </div>
       </div>
-      <div className="real-time-chat-container">
+      <div className="real-time-chat-container" ref={chatContainerRef}>
         {props.chatData.map((message) => (
           <div
             key={message.id}
@@ -62,7 +82,74 @@ function RealTimeChat(props: ChatProps) {
               message.message_from_bot ? "bot-message" : "user-message"
             }`}
           >
-            <p>{message.content}</p>
+            {message.media_url && (
+              <div className="media-container">
+                {message.media_type.startsWith("image") ? (
+                  <img
+                    src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                    alt="Media"
+                  />
+                ) : message.media_type.startsWith("video") ? (
+                  <video controls>
+                    <source
+                      src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                      type="video/mp4"
+                    />
+                    Este navegador não suporta exibição de vídeo.
+                  </video>
+                ) : message.media_type.startsWith("document") ? (
+                  <div>
+                    <object
+                      data={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                      type="application/pdf"
+                    >
+                      <p>
+                        Este navegador não suporta PDFs. Por favor baixe o PDF
+                        para poder visualizá-lo.
+                      </p>
+                    </object>
+
+                    <IconButton>
+                      Baixar arquivo
+                      <a
+                        href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                      >
+                        <DownloadIcon />
+                      </a>
+                    </IconButton>
+                  </div>
+                ) : message.media_type.startsWith("audio") ? (
+                  <audio controls>
+                    <source
+                      src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                      type={message.media_type}
+                    />
+                    Este navegador não suporta exibição de audio.
+                  </audio>
+                ) : message.media_type.startsWith("application") ? (
+                  <IconButton>
+                    Baixar arquivo
+                    <a
+                      href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                    >
+                      <DownloadIcon />
+                    </a>
+                  </IconButton>
+                ) : (
+                  <p>
+                    Midía não suportada. Por favor, entre em contato com o
+                    suporte.
+                  </p>
+                )}
+              </div>
+            )}
+            {message.content !== "" && <p>{message.content}</p>}
           </div>
         ))}
       </div>
