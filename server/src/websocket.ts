@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import IConnection from "./interfaces/connection";
+import IMessage from "./interfaces/imessage";
 
 export default class Websocket {
   private static instance: Websocket;
@@ -87,12 +88,13 @@ export default class Websocket {
 
     socket.on(
       "messageToAttendant",
-      (conversationId: number, messageContent: string) => {
+      (conversationId: number, message: IMessage) => {
         try {
-          this.broadcastToConversation("newBotUserMessage", conversationId, {
-            content: messageContent,
-            message_from_bot: false,
-          });
+          this.broadcastToConversation(
+            "newBotUserMessage",
+            conversationId,
+            message
+          );
         } catch (error) {
           console.error("Error receiving new message: " + error);
         }
