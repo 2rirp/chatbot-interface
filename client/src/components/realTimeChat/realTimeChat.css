@@ -131,6 +131,7 @@ object {
 }
 
 .chat-input {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   width: 90%;
   outline: none;
   /* height: 70%; */
@@ -139,10 +140,13 @@ object {
   box-shadow: rgba(29, 51, 61, 0.12) 0px 2px 4px 0px,
     rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
   font-size: 18px;
-  text-indent: 1.5rem;
+  /* text-indent: 1.5rem; */
   background: #dce7f5b9;
-  font-weight: 500;
+  font-weight: 400;
   border: 0.1em solid #75757581;
+  padding: 0.8rem;
   text-align: start;
-  resize: none;
+  resize: vertical;
+  max-height: 25rem;
+  min-height: 2rem;
 }
