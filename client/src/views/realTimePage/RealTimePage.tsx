@@ -21,7 +21,8 @@ export default function RealTimePage() {
     Array<IBotUser>
   >([]);
   const [chatData, setChatData] = useState<Array<IMessage>>([]);
-  const [currentConversationId, setCurrentConversationId] = useState<number>();
+  const [currentConversationId, setCurrentConversationId] =
+    useState<number>(NaN);
   const [currentBotUserId, setCurrentBotUserId] = useState<string>("");
   const [modalIsOpen, setmodalIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -180,11 +181,11 @@ export default function RealTimePage() {
             currentBotUserIdRef.current
         );
 
-        if (currentConversationId === conversationId) {
+        if (currentConversationIdRef.current === conversationId) {
           socketContext?.socket?.emit(
             "exitConversation",
-            currentBotUserId,
-            currentConversationId,
+            currentBotUserIdRef.current,
+            currentConversationIdRef.current,
             userContext?.user?.id
           );
 
