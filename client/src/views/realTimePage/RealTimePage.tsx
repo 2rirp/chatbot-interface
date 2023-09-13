@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext";
 import IMessage from "../../interfaces/imessage";
 import IBotUser from "../../interfaces/ibotUser";
+import AlertDialog from "../../components/chat/alertDialog/alertDialog";
 
 interface FetchBotUser {
   user_id: string;
@@ -32,6 +33,7 @@ export default function RealTimePage() {
   );
   const currentConversationIdRef = useRef(currentConversationId);
   const currentBotUserIdRef = useRef(currentBotUserId);
+  const [deleteUser, setDeleteUser] = useState(false);
 
   const navigate = useNavigate();
 
@@ -227,6 +229,7 @@ export default function RealTimePage() {
       );
     }
   };
+
 
   async function deactivateCurrentConversation() {
     try {
