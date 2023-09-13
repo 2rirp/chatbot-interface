@@ -41,6 +41,14 @@ function RealTimeChat(props: ChatProps) {
     }
   };
 
+  const formatTimestamp = (timestamp: string) => {
+    const [_datePart, timePart] = timestamp.split("T");
+
+    const [hour, minute, _second] = timePart.split(":");
+
+    return `${hour}:${minute}`;
+  };
+
   useEffect(() => {
     const chatContainer = chatContainerRef.current;
     if (chatContainer) {
@@ -150,6 +158,11 @@ function RealTimeChat(props: ChatProps) {
               </div>
             )}
             {message.content !== "" && <p>{message.content}</p>}
+            <div className="message-bottom">
+              <div className="message-timestamp">
+                <span>{formatTimestamp(message.created_at)}</span>
+              </div>
+            </div>
           </div>
         ))}
       </div>

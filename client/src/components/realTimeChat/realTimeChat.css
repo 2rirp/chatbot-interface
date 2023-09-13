@@ -72,10 +72,25 @@
 }
 
 .message {
+  display: flex;
+  flex-direction: column;
   padding: 10px;
   border-radius: 8px;
   margin: 5px 0;
   max-width: 700px;
+}
+
+.message-bottom {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  padding: 0 5px;
+}
+
+.message-timestamp {
+  font-size: small;
+  color: gray;
 }
 
 .media-container {
