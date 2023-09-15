@@ -1,5 +1,5 @@
 import "./sidebar.css";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { SocketContext } from "../../contexts/SocketContext"; // Import your SocketContext
 import { UserContext } from "../../contexts/UserContext";
 // import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -20,6 +20,7 @@ interface RealTimeSidebarProps {
 function RealTimeSidebar(props: RealTimeSidebarProps) {
   const socketContext = useContext(SocketContext);
   const userContext = useContext(UserContext);
+  const [search, setSearch] = useState("");
 
   const user = {
     username: userContext?.user?.name || "",
@@ -34,6 +35,24 @@ function RealTimeSidebar(props: RealTimeSidebarProps) {
     );
     await props.fetchChatData(botUser.conversationId, botUser.botUserId);
   }
+  const handleSearchBarChange =(
+    event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value); 
+    filterUsers(search, props.botUsersNeedingAttendants)
+    
+  };
+
+  function filterUsers(searchString: string, list: Array<IBotUser>) {
+    const filteredUsers = list.filter((item) => {
+      if (searchString === '') {
+          return item;
+      }
+      else {
+          return item.botUserId.toLowerCase().includes(searchString)
+      }
+    })
+    console.log(filteredUsers)
+  }
 
   return (
     <div className="real-time-sidebar">
@@ -47,6 +66,7 @@ function RealTimeSidebar(props: RealTimeSidebarProps) {
         />
       </div>
       <div className="real-time-sidebar-container">
+        <input type="text" onChange={handleSearchBarChange}/>
         {props.botUsersNeedingAttendants.length > 0 ? (
           <ul>
             {props.botUsersNeedingAttendants.map((botUser) => (

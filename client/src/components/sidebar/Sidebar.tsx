@@ -71,6 +71,17 @@ function Sidebar(props: SidebarProps) {
     }
   }, [selectedDate]);
 
+  // function filterUsers(searchString: string, list: any[]) {
+
+  //   const filteredList = list.filter((item) => {
+  //     if (searchString === '') {
+  //         return item;
+  //     }
+  //     else {
+  //         return item.id.toLowerCase().includes(searchString)
+  //     }
+  //   })
+  // }
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -85,6 +96,7 @@ function Sidebar(props: SidebarProps) {
         />
       </div>
       <div className="sidebar-container">
+        <input type="text" />
         {chatListData.length > 0 ? (
           <ChatList users={chatListData} onUserClick={handleUserClick} />
         ) : (
