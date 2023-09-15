@@ -1,5 +1,5 @@
 import * as React from "react";
-import Box from "@mui/material/Box";
+
 import Avatar from "@mui/material/Avatar";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -10,11 +10,14 @@ import PersonAdd from "@mui/icons-material/PersonAdd";
 import ChatIcon from "@mui/icons-material/Chat";
 import Logout from "@mui/icons-material/Logout";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import Box from "@mui/material/Box";
 
 interface IProps {
   handleRegister: () => void;
   handleChatpage: () => void;
   handleLogout: () => void;
+  handleReportPage: () => void;
   isActive: boolean;
 }
 
@@ -92,6 +95,12 @@ export default function DropdownMenuHistory(props: IProps) {
             <ChatIcon fontSize="small" />
           </ListItemIcon>
           Chatpage
+        </MenuItem>
+        <MenuItem key="relatorio" onClick={props.handleReportPage}>
+          <ListItemIcon>
+            <AssessmentIcon fontSize="small" />
+          </ListItemIcon>
+          Relatório
         </MenuItem>
         <MenuItem key="logout" onClick={props.handleLogout}>
           <ListItemIcon>

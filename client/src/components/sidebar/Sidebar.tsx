@@ -17,6 +17,7 @@ interface SidebarProps {
   onRegisterClick: () => void;
   onChatpageClick: () => void;
   onLogoutClick: () => void;
+  onReportClick: () => void;
   isActive: boolean;
 }
 
@@ -80,6 +81,7 @@ function Sidebar(props: SidebarProps) {
           handleRegister={props.onRegisterClick}
           handleChatpage={props.onChatpageClick}
           handleLogout={props.onLogoutClick}
+          handleReportPage={props.onReportClick}
         />
       </div>
       <div className="sidebar-container">
