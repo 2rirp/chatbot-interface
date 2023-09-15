@@ -1,5 +1,4 @@
 import ReportsRepository from '../repositories/reportsRepository'
-import dateFormatter from '../utils/dateFormatter'
 
 
 export default class reportsService {

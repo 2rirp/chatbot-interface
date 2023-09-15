@@ -1,17 +1,14 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Checkbox } from "@mui/material";
+
+import { useEffect, useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import Avatar from '@mui/material/Avatar';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from "react-router-dom";
+import  Button  from "@mui/material/Button";
 import DateInput from "../../components/dateInput/DateInput";
-// import DataTable from "./Table/DataTable";
 import "./reportPage.css";
-import { useEffect, useState } from "react";
 import DataTable from "../../components/DataTable/DataTable";
+
 
 export interface IResponse {
     data?: string;
@@ -19,11 +16,6 @@ export interface IResponse {
     redirected?: string,
     emitidas?: string;
     percentage?: any;
-}
-interface IOptions {
-    total: boolean;
-    distinct: boolean;
-
 }
 
 export default function ReportPage() {
@@ -119,37 +111,14 @@ export default function ReportPage() {
         <div className="table-container">
             
         </div>
+        <div className="date-inputs">
             <DateInput handleDateChange={handleDateChange}/>
-            <button onClick={()=>fetchData()}>FETCH</button>
-            <Checkbox/>
-            
+            </div>
+            <div className="button-inputs">
+                <Button onClick={()=>fetchData()} variant="text">FETCH</Button>
+            </div>
 <div className="fetched-container">
   {hasFetchedData ? (
-    // fetchedData.map((item, index) => (
-    //   <div key={index}>
-    //     {item.conversations && (
-    //       <div className="data-container">
-    //         <h3>Conversas iniciadas</h3>
-    //          Quantidade:
-    //         {item.conversations.quantidade}
-    //       </div>
-    //     )}
-    //     {item.redirected && (
-    //       <div className="data-container">
-    //         <h3>Redirecionadas</h3>
-    //         Quantidade:
-    //         {item.redirected.redirected}
-    //       </div>
-    //     )}
-    //     {item.registrations && (
-    //       <div className="data-container">
-    //         <h3>Emitidas</h3>
-    //         Quantidade:
-    //         {item.registrations.emitidas}
-    //       </div>
-    //     )}
-    //   </div>
-    // ))
     <DataTable fetchedData={fetchedData} />
   ) : (
     <div className="centered-message-container">

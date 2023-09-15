@@ -18,6 +18,10 @@
     height: 5.2rem;
     width: 100%;
 }
+.date-inputs {
+    display: flex;
+    align-items: center;
+}
 
 .fetched-container {
     display: flex;

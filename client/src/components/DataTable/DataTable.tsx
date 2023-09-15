@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -10,8 +9,8 @@ import { IResponse } from '../../views/reportPage/ReportPage';
 interface IProps {
     fetchedData : IResponse[];
 }
-function createData(data, quantidade, redirected, emitidas, percentage) {
-    percentage = emitidas / quantidade * 100
+function createData(data : string, quantidade : string, redirected : string, emitidas : string, percentage : number) {
+    percentage = Number(emitidas) / Number(quantidade) * 100
     const fixed = percentage.toFixed(2);
   return { data, quantidade, redirected, emitidas, fixed };
 }
@@ -20,9 +19,9 @@ export default function DataTable(props: IProps) {
     const rows = props.fetchedData.map((item) => {
         return createData(
             item.data || '',
-            item.quantidade || 0,
-            item.redirected || 0,
-            item.emitidas || 0,
+            item.quantidade || "0",
+            item.redirected || "0",
+            item.emitidas || "0",
             item.percentage || 0,
         );
     })
