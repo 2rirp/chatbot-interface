@@ -54,7 +54,7 @@ ORDER BY data;`
         MAX(emitidas) AS emitidas
  FROM (
      SELECT TO_CHAR(DATE_TRUNC('day', created_at), 'YYYY-MM-DD') AS data,
-            COUNT(CASE WHEN menu = 'Menu 1' THEN user_id END) AS redirected,
+            COUNT(CASE WHEN menu = 'option_2' THEN user_id END) AS redirected,
             COUNT(user_id) AS quantidade,
             NULL AS emitidas
      FROM conversations

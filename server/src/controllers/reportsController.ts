@@ -11,7 +11,7 @@ export default class ReportsController {
     ) : Promise<void> {
         try {
             const admin : IUser = req.user;
-             const date = req.params.date;
+            const date = req.params.date;
             // console.log(date)
                
             if(admin.is_admin === true) {
@@ -23,9 +23,7 @@ export default class ReportsController {
                 });  
             //const redirected = await reportsService.getRedirectedReports(date);
             //const registrations = await reportsService.getRegistrationReports(date);
-            //console.log("conversations: ",conversations, /*"redirected: ", redirected, "registrations: ", registrations*/)
-
-            
+            //console.log("conversations: ",conversations, /*"redirected: ", redirected, "registrations: ", registrations*/)  
         } else {
             throw ErrorHandler.createError(
               "UnauthorizedError",

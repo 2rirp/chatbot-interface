@@ -27,6 +27,10 @@ export default function ReportPage() {
 
     async function fetchDataByDate(date: string) {
         try {
+            if(selectedDate === '') {
+                alert('Nenhuma data selecionada.');
+                return;
+            }
                 const obj = await fetch(`/api/reports/${date}`, {
                 method: "GET",
                 // body: {
@@ -82,11 +86,11 @@ export default function ReportPage() {
     function handleDateChange(date: string) {
         setDate(date);
       }
-      useEffect(() => {
-        if (selectedDate !== "") {
-            fetchDataByDate(selectedDate);
-          }
-      }, [selectedDate])
+    //   useEffect(() => {
+    //     if (selectedDate !== "") {
+    //         fetchDataByDate(selectedDate);
+    //       }
+    //   }, [selectedDate])
 
     return (
         <>
@@ -113,9 +117,11 @@ export default function ReportPage() {
         </div>
         <div className="date-inputs">
             <DateInput handleDateChange={handleDateChange}/>
+            
             </div>
             <div className="button-inputs">
-                <Button onClick={()=>fetchData()} variant="text">FETCH</Button>
+                <Button onClick={()=>fetchDataByDate(selectedDate)} variant='text'>Buscar por data</Button>
+                <Button onClick={()=>fetchData()} variant="text">Visualizar todas</Button>
             </div>
 <div className="fetched-container">
   {hasFetchedData ? (
