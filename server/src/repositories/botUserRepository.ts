@@ -12,7 +12,7 @@ export default class BotUserRepository {
   async getConversations(date: string): Promise<UsersArray> {
     try {
       const queryText = `
-            SELECT u.id, c.last_conversation_created_at
+            SELECT u.id AS "botUserId", c.last_conversation_created_at
             FROM users u
             INNER JOIN (
                 SELECT user_id, MAX(created_at) AS last_conversation_created_at
@@ -24,7 +24,7 @@ export default class BotUserRepository {
       const result = await this.db.pool.query(queryText, [date]);
 
       const users: UsersArray = result.rows.map((row: User) => ({
-        id: row.id,
+        botUserId: row.botUserId,
         last_conversation_created_at: row.last_conversation_created_at,
       }));
 
