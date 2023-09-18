@@ -15,8 +15,8 @@ function TextFormatter({ text }: TextFormatterProps) {
   const formatText = (text: string) => {
     let formattedText = text.split(formattingRegex);
 
-    console.log(text);
-    console.log(formattedText);
+    /* console.log(text);
+    console.log(formattedText); */
     return formattedText;
   };
 

@@ -1,34 +1,31 @@
 import "./chatPage.css";
-import Chat from "../../components/chat/Chat";
-import Sidebar from "../../components/sidebar/Sidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 import SignUpModal from "../../components/signUpModal/SignUpModal";
 import { useNavigate } from "react-router-dom";
-
-interface ChatDataItem {
-  message_id: number;
-  content: string;
-  conversation_id: number;
-  created_at: string;
-  message_from_bot: boolean | null;
-  user_id: string;
-  menu: string;
-  status: string;
-  error_counter: number;
-  numero_protocolo: string | null;
-  save_cadastro: boolean | null;
-}
+import IBotUser from "../../interfaces/ibotUser";
+import Sidebar from "../../components/sidebar/Sidebar";
+import Chat from "../../components/chat/Chat";
+import IMessage from "../../interfaces/imessage";
 
 export default function ChatPage() {
-  const [chatData, setChatData] = useState<Array<ChatDataItem>>([]);
+  const [chatData, setChatData] = useState<Array<IMessage>>([]);
   const [modalIsOpen, setmodalIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [hasFetchedChatData, setHasFetchedChatData] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [userList, setUserList] = useState<Array<IBotUser>>([]);
+  const [currentBotUserId, setCurrentBotUserId] = useState<string>("");
+  const currentPage = "history-page";
   const navigate = useNavigate();
 
   const changeRoute = () => {
     navigate("/");
   };
+
+  function handleDateChange(date: string) {
+    setSelectedDate(date);
+  }
 
   async function logout() {
     try {
@@ -41,9 +38,9 @@ export default function ChatPage() {
     }
   }
 
-  async function fetchChatData(userId: string, date: string) {
+  async function fetchUserListByDate(date: string) {
     try {
-      const response = await fetch(`/api/${userId}/messages/${date}`, {
+      const response = await fetch(`/api/${date}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -51,9 +48,39 @@ export default function ChatPage() {
       });
 
       const responseObj = await response.json();
+      console.log(responseObj);
 
       if (response.ok) {
         if (responseObj.data) {
+          setUserList(responseObj.data);
+        } else {
+          console.error("No user list data found:", responseObj.data);
+        }
+      } else {
+        throw responseObj.error;
+      }
+    } catch (error) {
+      console.error("Error fetching user list data:", error);
+    }
+  }
+
+  async function fetchChatDataByDate(botUserId: string) {
+    try {
+      const response = await fetch(
+        `/api/${botUserId}/messages/${selectedDate}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        if (responseObj.data) {
+          setCurrentBotUserId(botUserId);
           setChatData(responseObj.data);
           setHasFetchedChatData(true);
         } else {
@@ -76,20 +103,35 @@ export default function ChatPage() {
     setActiveDropdown(true);
   }
 
+  useEffect(() => {
+    if (selectedDate !== "") {
+      console.log(selectedDate);
+      fetchUserListByDate(selectedDate);
+    }
+  }, [selectedDate]);
+
   return (
-    <div className="chatPage">
+    <div className="page">
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
-      <div className="chatPage-container">
+      <div className="page-container">
         <Sidebar
-          fetchChatData={fetchChatData}
+          currentPage={currentPage}
           isActive={activeDropdown}
+          onDataChange={handleDateChange}
+          botUsersList={userList}
+          fetchChatDataByDate={fetchChatDataByDate}
           onRegisterClick={openModal}
-          onChatpageClick={changeRoute}
-          onReportClick={()=>navigate('/relatorio')}
+          onChatPageClick={changeRoute}
+          onReportClick={() => navigate("/relatorio")}
           onLogoutClick={logout}
         />
+
         {hasFetchedChatData ? (
-          <Chat chatData={chatData} />
+          <Chat
+            currentPage={currentPage}
+            chatData={chatData}
+            userId={currentBotUserId}
+          />
         ) : (
           <div className="centered-message-container">
             <p className="centered-message">Nenhum usuário selecionado.</p>

@@ -1,4 +1,4 @@
-.chatPage {
+.page {
   background-image: radial-gradient(
       ellipse at top center,
       #eef2d9,
@@ -14,7 +14,7 @@
   box-shadow: rgba(58, 45, 133, 0.2) 0px 60px 40px -7px;
 }
 
-.chatPage-container {
+.page-container {
   border: 0.1em solid #b6b6b6dc;
   background-color: #f8f9fa;
   border-radius: 10px;

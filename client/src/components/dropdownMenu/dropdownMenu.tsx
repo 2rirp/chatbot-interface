@@ -6,6 +6,8 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import PersonAdd from "@mui/icons-material/PersonAdd";
+import ChatIcon from "@mui/icons-material/Chat";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import Logout from "@mui/icons-material/Logout";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -14,9 +16,12 @@ import { useContext } from "react";
 import Box from "@mui/material/Box";
 
 interface IProps {
+  currentPage: string;
   handleRegister: () => void;
-  handleHistory: () => void;
+  handleChatpage?: () => void;
+  handleHistoryPage?: () => void;
   handleLogout: () => void;
+  handleReportPage: () => void;
   isActive: boolean;
 }
 
@@ -96,14 +101,30 @@ export default function DropdownMenu(props: IProps) {
           </MenuItem>
         )}
 
-        {userContext?.user?.is_admin && (
-          <MenuItem key="history" onClick={props.handleHistory}>
+        {props.currentPage === "real-time-page" && (
+          <MenuItem key="history" onClick={props.handleHistoryPage}>
             <ListItemIcon>
               <EventNoteIcon fontSize="small" />
             </ListItemIcon>
             Histórico de atendimentos
           </MenuItem>
         )}
+
+        {props.currentPage === "history-page" && (
+          <MenuItem key="chat" onClick={props.handleChatpage}>
+            <ListItemIcon>
+              <ChatIcon fontSize="small" />
+            </ListItemIcon>
+            Chatpage
+          </MenuItem>
+        )}
+
+        <MenuItem key="relatorio" onClick={props.handleReportPage}>
+          <ListItemIcon>
+            <AssessmentIcon fontSize="small" />
+          </ListItemIcon>
+          Relatório
+        </MenuItem>
 
         <MenuItem key="logout" onClick={props.handleLogout}>
           <ListItemIcon>
