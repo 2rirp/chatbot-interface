@@ -1,5 +1,5 @@
 export interface User {
-  id: string;
+  botUserId: string;
   last_conversation_created_at: Date;
 }
 

@@ -1,8 +1,8 @@
 import "./chatPage.css";
 import { useContext, useEffect, useRef, useState } from "react";
 import SignUpModal from "../../components/signUpModal/SignUpModal";
-import RealTimeSidebar from "../../components/realTimeSidebar/RealTimeSidebar";
-import RealTimeChat from "../../components/realTimeChat/RealTimeChat";
+import Sidebar from "../../components/sidebar/Sidebar";
+import Chat from "../../components/chat/Chat";
 import { SocketContext } from "../../contexts/SocketContext";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext";
@@ -22,15 +22,16 @@ export default function RealTimePage() {
     Array<IBotUser>
   >([]);
   const [chatData, setChatData] = useState<Array<IMessage>>([]);
-  const [currentConversationId, setCurrentConversationId] = useState<number>();
+  const [currentConversationId, setCurrentConversationId] =
+    useState<number>(NaN);
   const [currentBotUserId, setCurrentBotUserId] = useState<string>("");
   const [modalIsOpen, setmodalIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(false);
-  const [visibility, setVisibility] = useState("none");
   const [hasFetchedChatData, setHasFetchedChatData] = useState(false);
   const [unreadConversations, setUnreadConversations] = useState<Array<number>>(
     []
   );
+  const currentPage = "real-time-page";
   const currentConversationIdRef = useRef(currentConversationId);
   const currentBotUserIdRef = useRef(currentBotUserId);
   // const [deleteUser, setDeleteUser] = useState(false);
@@ -86,7 +87,6 @@ export default function RealTimePage() {
           setCurrentConversationId(conversationId);
           setCurrentBotUserId(botUserId);
           setChatData(responseObj.data);
-          setVisibility("flex");
           setHasFetchedChatData(true);
         } else {
           console.error("No chat data found:", responseObj.data);
@@ -182,11 +182,11 @@ export default function RealTimePage() {
             currentBotUserIdRef.current
         );
 
-        if (currentConversationId === conversationId) {
+        if (currentConversationIdRef.current === conversationId) {
           socketContext?.socket?.emit(
             "exitConversation",
-            currentBotUserId,
-            currentConversationId,
+            currentBotUserIdRef.current,
+            currentConversationIdRef.current,
             userContext?.user?.id
           );
 
@@ -230,7 +230,6 @@ export default function RealTimePage() {
     }
   };
 
-
   async function deactivateCurrentConversation() {
     try {
       const deactivatedConversation = await fetch(`/api/conversations/end`, {
@@ -263,25 +262,27 @@ export default function RealTimePage() {
   }
 
   return (
-    <div className="chatPage">
+    <div className="page">
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
-      <div className="chatPage-container">
-        <RealTimeSidebar
+      <div className="page-container">
+        <Sidebar
+          currentPage={currentPage}
           isActive={activeDropdown}
-          botUsersNeedingAttendants={botUsersNeedingAttendants}
+          botUsersList={botUsersNeedingAttendants}
           fetchChatData={fetchChatData}
           onRegisterClick={openModal}
-          onGoBackClick={changeRoute}
+          onHistoryPageClick={changeRoute}
+          onReportClick={() => navigate("/relatorio")}
           onLogoutClick={logout}
           unreadConversations={unreadConversations}
         />
         {hasFetchedChatData ? (
-          <RealTimeChat
+          <Chat
+            currentPage={currentPage}
             chatData={chatData}
             onSendMessage={handleSendMessage}
             onEndConversation={deactivateCurrentConversation}
             userId={currentBotUserId}
-            showButton={visibility}
           />
         ) : (
           <div className="centered-message-container">
