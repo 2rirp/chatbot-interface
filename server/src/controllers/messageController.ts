@@ -12,26 +12,18 @@ export default class MessageController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const admin: IUser = req.user;
       const botUserId = req.params.userId;
       const date = req.params.date;
 
-      if (admin.is_admin === true) {
-        const messages = await MessageServices.getMessagesByUserId(
-          date,
-          botUserId
-        );
+      const messages = await MessageServices.getMessagesByUserId(
+        date,
+        botUserId
+      );
 
-        res.status(200).json({
-          error: null,
-          data: messages,
-        });
-      } else {
-        throw ErrorHandler.createError(
-          "UnauthorizedError",
-          "User is not admin."
-        );
-      }
+      res.status(200).json({
+        error: null,
+        data: messages,
+      });
     } catch (error) {
       next(error);
     }
