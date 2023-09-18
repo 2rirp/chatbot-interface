@@ -1,0 +1,25 @@
+.copyable-text {
+  white-space: pre-wrap;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.strike {
+  text-decoration: line-through;
+}
+
+.monospace {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.1875rem;
+  vertical-align: baseline;
+  letter-spacing: normal;
+  word-spacing: 0;
+  white-space: pre-wrap;
+}

@@ -4,6 +4,7 @@ import SendIcon from "@mui/icons-material/Send";
 import IconButton from "@mui/material/IconButton";
 import DownloadIcon from "@mui/icons-material/Download";
 import IMessage from "../../interfaces/imessage";
+import TextFormatter from "../textFormatter/TextFormatter";
 
 interface ChatProps {
   chatData: Array<IMessage>;
@@ -157,7 +158,11 @@ function RealTimeChat(props: ChatProps) {
                 )}
               </div>
             )}
-            {message.content !== "" && <p>{message.content}</p>}
+            {message.content !== "" && (
+              <div className="message-content">
+                <TextFormatter text={message.content} />
+              </div>
+            )}
             <div className="message-bottom">
               <div className="message-timestamp">
                 <span>{formatTimestamp(message.created_at)}</span>
