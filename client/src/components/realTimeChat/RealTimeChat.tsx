@@ -4,6 +4,7 @@ import SendIcon from "@mui/icons-material/Send";
 import IconButton from "@mui/material/IconButton";
 import DownloadIcon from "@mui/icons-material/Download";
 import IMessage from "../../interfaces/imessage";
+import AlertDialog from "../chat/alertDialog/alertDialog";
 import TextFormatter from "../textFormatter/TextFormatter";
 
 interface ChatProps {
@@ -74,13 +75,13 @@ function RealTimeChat(props: ChatProps) {
           <h3>{props.userId}</h3>
         </div>
         <div className="end-conversation-button-container">
-          <button
+          {/* <button
             className="end-conversation-button"
             style={{ display: props.showButton }}
             onClick={props.onEndConversation}
-          >
-            Encerrar conversa
-          </button>
+          > */}
+          <AlertDialog handleDeactivate={props.onEndConversation} />
+          {/* </button> */}
         </div>
       </div>
       <div className="real-time-chat-container" ref={chatContainerRef}>
