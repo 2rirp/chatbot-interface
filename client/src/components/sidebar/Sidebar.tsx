@@ -17,6 +17,7 @@ interface SidebarProps {
   onRegisterClick: () => void;
   onChatpageClick: () => void;
   onLogoutClick: () => void;
+  onReportClick: () => void;
   isActive: boolean;
 }
 
@@ -70,6 +71,17 @@ function Sidebar(props: SidebarProps) {
     }
   }, [selectedDate]);
 
+  // function filterUsers(searchString: string, list: any[]) {
+
+  //   const filteredList = list.filter((item) => {
+  //     if (searchString === '') {
+  //         return item;
+  //     }
+  //     else {
+  //         return item.id.toLowerCase().includes(searchString)
+  //     }
+  //   })
+  // }
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -80,9 +92,11 @@ function Sidebar(props: SidebarProps) {
           handleRegister={props.onRegisterClick}
           handleChatpage={props.onChatpageClick}
           handleLogout={props.onLogoutClick}
+          handleReportPage={props.onReportClick}
         />
       </div>
       <div className="sidebar-container">
+        <input type="text" />
         {chatListData.length > 0 ? (
           <ChatList users={chatListData} onUserClick={handleUserClick} />
         ) : (

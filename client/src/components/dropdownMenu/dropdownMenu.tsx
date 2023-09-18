@@ -1,5 +1,4 @@
 import * as React from "react";
-import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -12,6 +11,7 @@ import Logout from "@mui/icons-material/Logout";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { UserContext } from "../../contexts/UserContext";
 import { useContext } from "react";
+import Box from "@mui/material/Box";
 
 interface IProps {
   handleRegister: () => void;

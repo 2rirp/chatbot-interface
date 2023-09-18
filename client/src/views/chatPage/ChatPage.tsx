@@ -85,6 +85,7 @@ export default function ChatPage() {
           isActive={activeDropdown}
           onRegisterClick={openModal}
           onChatpageClick={changeRoute}
+          onReportClick={()=>navigate('/relatorio')}
           onLogoutClick={logout}
         />
         {hasFetchedChatData ? (

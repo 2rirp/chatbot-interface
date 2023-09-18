@@ -3,6 +3,7 @@ import UserController from "./controllers/userController";
 import BotUserController from "./controllers/botUserController";
 import MessageController from "./controllers/messageController";
 import ConversationController from "./controllers/conversationController";
+import ReportsController from "./controllers/reportsController"
 import authenticate from "./middlewares/authenticator";
 
 const router = Router();
@@ -10,6 +11,7 @@ const router = Router();
 const userController: UserController = new UserController();
 const botUserController: BotUserController = new BotUserController();
 const messageController: MessageController = new MessageController();
+const reportsController: ReportsController = new ReportsController();
 const conversationController: ConversationController =
   new ConversationController();
 
@@ -74,4 +76,16 @@ router.post(
   authenticate,
   conversationController.deactivateConversation.bind(conversationController)
 );
+
+router.get(
+  "/api/r/reports/all",
+  authenticate,
+  reportsController.getReports.bind(reportsController)
+)
+router.get(
+  "/api/reports/:date",
+  authenticate,
+  reportsController.getReportsByDate.bind(reportsController)
+)
+
 export default router;
