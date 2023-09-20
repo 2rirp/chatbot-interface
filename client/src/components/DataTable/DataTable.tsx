@@ -3,12 +3,18 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
+import DensityMediumOutlinedIcon from '@mui/icons-material/DensityMediumOutlined';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { IResponse } from '../../views/reportPage/ReportPage';
+import IconButton from '@mui/material/IconButton';
+
+
 interface IProps {
     fetchedData : IResponse[];
+    modal: (date: string) => void;
 }
+
 function createData(data : string, quantidade : string, redirected : string, emitidas : string, percentage : number) {
     percentage = Number(emitidas) / Number(quantidade) * 100
     const fixed = percentage.toFixed(2);
@@ -24,9 +30,11 @@ export default function DataTable(props: IProps) {
             item.emitidas || "0",
             item.percentage || 0,
         );
-    })
+    });
+
+    
   
-;
+
   return (
     <TableContainer component={Paper} >
       <Table sx={{ minWidth: 650, fontSize: "30px" }} aria-label="simple table">
@@ -47,6 +55,9 @@ export default function DataTable(props: IProps) {
             >
               <TableCell component="th" scope="row">
                 {row.data}
+                <IconButton key={row.data} onClick={ () => props.modal(row.data)}>
+                  <DensityMediumOutlinedIcon></DensityMediumOutlinedIcon>
+                </IconButton>
               </TableCell>
               <TableCell align="right">{row.quantidade}</TableCell>
               <TableCell align="right">{row.redirected}</TableCell>

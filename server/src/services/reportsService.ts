@@ -15,6 +15,17 @@ export default class reportsService {
             throw error;
         }
     }
+
+    public static async getUserReportsByDate(date: string) {
+        try {
+            const users = await this.repository.getAllUsersByDate(date);
+            if(users)
+                return users;
+            
+        } catch (error) {
+            throw error;
+        }
+    }
     public static async getAllConversationReports() {
         try {
             const conversations = await this.repository.getAllConversationReports();
@@ -25,22 +36,4 @@ export default class reportsService {
             throw error;
         }
     }
-
-    // public static async getRedirectedReports(date: string) {
-    //     try {
-    //         const redirect = await this.repository.getRedirectedConversations(date);
-    //         return redirect;
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    // }
-
-    // public static async getRegistrationReports(date: string) {
-    //     try {
-    //         const registration = await this.repository.getRegistrations(date);
-    //         return registration;
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    // }
 }

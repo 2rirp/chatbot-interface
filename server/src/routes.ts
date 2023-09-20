@@ -81,11 +81,16 @@ router.get(
   "/api/r/reports/all",
   authenticate,
   reportsController.getReports.bind(reportsController)
-)
+);
+
+router.get(
+  "/api/reports/users/:date",
+  authenticate,
+  reportsController.getUsersByDate.bind(reportsController)
+);
 router.get(
   "/api/reports/:date",
   authenticate,
   reportsController.getReportsByDate.bind(reportsController)
-)
-
+);
 export default router;

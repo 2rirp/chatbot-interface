@@ -113,4 +113,19 @@ ORDER BY data;`
         throw error;
     }
   }
+
+  async getAllUsersByDate(date: string) {
+    try {
+      const queryText = `SELECT TO_CHAR(created_at, 'HH24:MI') AS date, id, user_id, status
+      FROM conversations
+      WHERE created_at >= $1::timestamp
+        AND created_at < ($1::timestamp + INTERVAL '1 day')
+      ORDER BY created_at;`;
+      const result = await this.db.pool.query(queryText, [date]);
+      return result.rows;
+    } catch (error) {
+      console.error('failed to get all user reports: ', error)
+      throw error;
+    }
+  }
 }
