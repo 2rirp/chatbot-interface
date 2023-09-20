@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
@@ -7,6 +10,7 @@ import Button from "@mui/material/Button";
 import DateInput from "../../components/dateInput/DateInput";
 import "./reportPage.css";
 import DataTable from "../../components/DataTable/DataTable";
+import Modal from "../../components/DataTable/modal/modal";
 
 export interface IResponse {
   data?: string;
@@ -16,9 +20,19 @@ export interface IResponse {
   percentage?: any;
 }
 
+interface IReportUsers {
+  id: number;
+  date?: string;
+  user_id?: string;
+  status?: string;
+}
+
 export default function ReportPage() {
   const [selectedDate, setDate] = useState<string>("");
   const [fetchedData, setFetchedData] = useState<Array<IResponse>>([]);
+  const [usersData, setUsersData] = useState<Array<IReportUsers>>([]);
+  const [modalIsOpen, setmodalIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [hasFetchedData, setHasFetchedData] = useState(false);
   const navigate = useNavigate();
 
@@ -30,9 +44,6 @@ export default function ReportPage() {
       }
       const obj = await fetch(`/api/reports/${date}`, {
         method: "GET",
-        // body: {
-        //     options: options
-        // },
         headers: {
           "Content-Type": "application/json",
         },
@@ -57,9 +68,6 @@ export default function ReportPage() {
     try {
       const obj = await fetch(`/api/r/reports/all`, {
         method: "GET",
-        // body: {
-        //     options: options
-        // },
         headers: {
           "Content-Type": "application/json",
         },
@@ -80,19 +88,51 @@ export default function ReportPage() {
       console.error(error);
     }
   }
+  async function fetchUsers(date: string) {
+    try {
+      const users = await fetch(`/api/reports/users/${date}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      setIsLoading(true);
+        const response = await users.json();
+      if(users.ok) {
+        if(response.data) {
+          console.log("Response.data: ", response.data)
+          setUsersData(response.data);
+        } 
+      } else {
+        console.log(response.error)
+        throw response.error
+      }
+      
+    } catch (error) {
+      console.error(error);
+    }
+    
+  }
+
 
   function handleDateChange(date: string) {
     setDate(date);
   }
-  //   useEffect(() => {
-  //     if (selectedDate !== "") {
-  //         fetchDataByDate(selectedDate);
-  //       }
-  //   }, [selectedDate])
+  function closeModal() {
+    setmodalIsOpen(false);
+  }
+
+  async function openModal(date: string) {
+    const data = await fetchUsers(date);
+    console.log("usersData: ", usersData, "\n\nData: ", data)
+    setmodalIsOpen(true);
+  }
 
   return (
     <>
       <div className="container">
+        {modalIsOpen && 
+        <Modal onClose={closeModal} data={usersData}/>}
         <div className="header-container">
           <div className="header">
             <div className="button-div">
@@ -121,7 +161,7 @@ export default function ReportPage() {
         </div>
         <div className="fetched-container">
           {hasFetchedData ? (
-            <DataTable fetchedData={fetchedData} />
+            <DataTable fetchedData={fetchedData} modal={openModal} />
           ) : (
             <div className="centered-message-container">
               <p className="centered-message">Nenhum relatório encontrado.</p>

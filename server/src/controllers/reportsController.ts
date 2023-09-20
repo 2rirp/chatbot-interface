@@ -21,9 +21,6 @@ export default class ReportsController {
                         data: reports
                         
                 });  
-            //const redirected = await reportsService.getRedirectedReports(date);
-            //const registrations = await reportsService.getRegistrationReports(date);
-            //console.log("conversations: ",conversations, /*"redirected: ", redirected, "registrations: ", registrations*/)  
         } else {
             throw ErrorHandler.createError(
               "UnauthorizedError",
@@ -55,6 +52,31 @@ export default class ReportsController {
             //console.log("conversations: ",conversations, /*"redirected: ", redirected, "registrations: ", registrations*/)
 
             
+        } else {
+            throw ErrorHandler.createError(
+              "UnauthorizedError",
+              "User is not admin."
+            );
+          }
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    public async getUsersByDate(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) : Promise<void> {
+        try {
+            const admin : IUser = req.user;
+            const date = req.params.date;
+            if(admin.is_admin === true) {
+                    const users = await reportsService.getUserReportsByDate(date);
+                    res.status(200).json({
+                        error: null,
+                        data: users       
+                });      
         } else {
             throw ErrorHandler.createError(
               "UnauthorizedError",
