@@ -1,14 +1,15 @@
 import "./sidebar.css";
-import { useContext, useState } from "react";
-import { SocketContext } from "../../contexts/SocketContext"; // Import your SocketContext
+import { useContext, useEffect, useRef, useState } from "react";
+import { SocketContext } from "../../contexts/SocketContext";
 import { UserContext } from "../../contexts/UserContext";
-// import MoreVertIcon from "@mui/icons-material/MoreVert";
-// import IconButton from "@mui/material/IconButton";
 import DropdownMenu from "../dropdownMenu/dropdownMenu";
 import IBotUser from "../../interfaces/ibotUser";
 import DateInput from "../dateInput/DateInput";
-/* import SearchIcon from "@mui/icons-material/Search";
-import { IconButton } from "@mui/material"; */
+import { IconButton } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ClearIcon from "@mui/icons-material/Clear";
+import { TailSpin } from "react-loading-icons";
 
 interface SidebarProps {
   currentPage: string;
@@ -29,6 +30,14 @@ function Sidebar(props: SidebarProps) {
   const socketContext = useContext(SocketContext);
   const userContext = useContext(UserContext);
   const [search, setSearch] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState<IBotUser[] | null>(null);
+  const [displayUsers, setDisplayUsers] = useState<IBotUser[]>(
+    props.botUsersList
+  );
+  const [isSearchingUsers, setIsSearchingUsers] = useState<boolean | null>(
+    null
+  );
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const user = {
     username: userContext?.user?.name || "",
@@ -57,20 +66,32 @@ function Sidebar(props: SidebarProps) {
   const handleSearchBarChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setSearch(event.target.value);
-    filterUsers(search, props.botUsersList);
+    const searchQuery = event.target.value;
+    setSearch(searchQuery);
+    setIsSearchingUsers(true);
+    filterUsers(searchQuery, props.botUsersList);
   };
 
   function filterUsers(searchString: string, list: Array<IBotUser>) {
-    const filteredUsers = list.filter((item) => {
-      if (searchString === "") {
-        return item;
-      } else {
-        return item.botUserId.toLowerCase().includes(searchString);
-      }
-    });
-    console.log(filteredUsers);
+    const filtered = list.filter((item) =>
+      item.botUserId.toLowerCase().includes(searchString.toLowerCase())
+    );
+
+    setIsSearchingUsers(false);
+    setFilteredUsers(searchString === "" ? null : filtered);
   }
+
+  function cancelSearch() {
+    setSearch("");
+    setFilteredUsers(null);
+    setIsSearchingUsers(null);
+  }
+
+  useEffect(() => {
+    setDisplayUsers(
+      filteredUsers !== null ? filteredUsers : props.botUsersList
+    );
+  }, [filteredUsers, props.botUsersList]);
 
   return (
     <div className="sidebar">
@@ -104,46 +125,94 @@ function Sidebar(props: SidebarProps) {
         )}
       </div>
       <div className="sidebar-container">
-        <input
-          type="text"
-          placeholder="Pesquise um usuário"
-          onChange={handleSearchBarChange}
-          className="sidebar-search-bar"
-        />
-        {/*  <IconButton>
-          <SearchIcon />
-        </IconButton> */}
+        <div className="search-input-container">
+          <div className="left-icon-container">
+            {search === "" ? (
+              <IconButton
+                className="input-icon input-icon-left"
+                onClick={() => inputRef.current?.focus()}
+              >
+                <SearchIcon />
+              </IconButton>
+            ) : (
+              <IconButton
+                className="input-icon input-icon-left"
+                onClick={cancelSearch}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+            )}
+          </div>
+          <input
+            type="text"
+            placeholder="Pesquise um usuário"
+            value={search}
+            onChange={handleSearchBarChange}
+            className="sidebar-search-bar"
+            ref={inputRef}
+          />
+          {isSearchingUsers !== null && (
+            <div className="right-icon-container">
+              {isSearchingUsers ? (
+                <TailSpin
+                  stroke="#000"
+                  strokeOpacity={0.54}
+                  height={30}
+                  className="input-icon input-icon-right"
+                />
+              ) : (
+                !isSearchingUsers &&
+                search !== "" && (
+                  <IconButton
+                    className="input-icon input-icon-right"
+                    onClick={cancelSearch}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                )
+              )}
+            </div>
+          )}
+        </div>
         {props.botUsersList.length > 0 ? (
-          props.currentPage === "real-time-page" ? (
-            <ul>
-              {props.botUsersList.map((botUser) => (
-                <li
-                  key={botUser.botUserId}
-                  onClick={() => handleUserClick(botUser)}
-                  className={
-                    botUser.conversationId &&
-                    props.unreadConversations?.includes(botUser.conversationId)
-                      ? "unread-conversation"
-                      : ""
-                  }
-                >
-                  <div>{botUser.botUserId}</div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            props.currentPage === "history-page" && (
+          displayUsers.length > 0 ? (
+            props.currentPage === "real-time-page" ? (
               <ul>
-                {props.botUsersList.map((botUser) => (
+                {displayUsers.map((botUser) => (
                   <li
                     key={botUser.botUserId}
-                    onClick={() => selectBotUserToSeeHistory(botUser.botUserId)}
+                    onClick={() => handleUserClick(botUser)}
+                    className={
+                      botUser.conversationId &&
+                      props.unreadConversations?.includes(
+                        botUser.conversationId
+                      )
+                        ? "unread-conversation"
+                        : ""
+                    }
                   >
                     <div>{botUser.botUserId}</div>
                   </li>
                 ))}
               </ul>
+            ) : (
+              props.currentPage === "history-page" && (
+                <ul>
+                  {displayUsers.map((botUser) => (
+                    <li
+                      key={botUser.botUserId}
+                      onClick={() =>
+                        selectBotUserToSeeHistory(botUser.botUserId)
+                      }
+                    >
+                      <div>{botUser.botUserId}</div>
+                    </li>
+                  ))}
+                </ul>
+              )
             )
+          ) : (
+            <p className="no-users-message">Nenhum usuário encontrado</p>
           )
         ) : (
           <p className="no-users-message">Não há usuários em atendimento.</p>
