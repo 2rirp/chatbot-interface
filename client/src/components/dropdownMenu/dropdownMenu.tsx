@@ -119,12 +119,14 @@ export default function DropdownMenu(props: IProps) {
           </MenuItem>
         )}
 
-        <MenuItem key="relatorio" onClick={props.handleReportPage}>
-          <ListItemIcon>
-            <AssessmentIcon fontSize="small" />
-          </ListItemIcon>
-          Relatório
-        </MenuItem>
+        {userContext?.user?.is_admin && (
+          <MenuItem key="relatorio" onClick={props.handleReportPage}>
+            <ListItemIcon>
+              <AssessmentIcon fontSize="small" />
+            </ListItemIcon>
+            Relatório
+          </MenuItem>
+        )}
 
         <MenuItem key="logout" onClick={props.handleLogout}>
           <ListItemIcon>

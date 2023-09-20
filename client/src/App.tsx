@@ -27,9 +27,7 @@ export default function App() {
       path: "/chatpage",
       element: (
         <RequireAuth>
-          <RequireAdminAuth>
-            <ChatPage />
-          </RequireAdminAuth>
+          <ChatPage />
         </RequireAuth>
       ),
     },
@@ -38,7 +36,7 @@ export default function App() {
       element: (
         <RequireAuth>
           <RequireAdminAuth>
-            <ReportPage/>
+            <ReportPage />
           </RequireAdminAuth>
         </RequireAuth>
       ),

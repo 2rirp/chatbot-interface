@@ -20,8 +20,26 @@
   overflow: auto;
 }
 
+.search-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
 .sidebar-search-bar {
-  width: 98%;
+  width: 100%;
+  padding: 0 35px;
+}
+
+.left-icon-container {
+  position: absolute;
+  left: 3px;
+}
+
+.right-icon-container {
+  position: absolute;
+  right: 3px;
 }
 
 .sidebar-container ul {
