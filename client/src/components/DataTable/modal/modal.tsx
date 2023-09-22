@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import UsersTable from '../UsersTable';
 import './modal.css';
 

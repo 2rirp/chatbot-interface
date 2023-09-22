@@ -25,6 +25,7 @@ interface IReportUsers {
   date?: string;
   user_id?: string;
   status?: string;
+  emitida: boolean
 }
 
 export default function ReportPage() {
@@ -32,7 +33,6 @@ export default function ReportPage() {
   const [fetchedData, setFetchedData] = useState<Array<IResponse>>([]);
   const [usersData, setUsersData] = useState<Array<IReportUsers>>([]);
   const [modalIsOpen, setmodalIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [hasFetchedData, setHasFetchedData] = useState(false);
   const navigate = useNavigate();
 
@@ -96,7 +96,6 @@ export default function ReportPage() {
           "Content-Type": "application/json",
         },
       })
-      setIsLoading(true);
         const response = await users.json();
       if(users.ok) {
         if(response.data) {
@@ -152,12 +151,12 @@ export default function ReportPage() {
           <DateInput handleDateChange={handleDateChange} />
         </div>
         <div className="button-inputs">
-          <Button onClick={() => fetchDataByDate(selectedDate)} variant="text">
+          <button className="fetch-button" onClick={() => fetchDataByDate(selectedDate)} >
             Buscar por data
-          </Button>
-          <Button onClick={() => fetchData()} variant="text">
+          </button>
+          <button className="fetch-button" onClick={() => fetchData()} >
             Visualizar todas
-          </Button>
+          </button>
         </div>
         <div className="fetched-container">
           {hasFetchedData ? (

@@ -62,8 +62,8 @@ export default function UsersTable(props: IProps) {
   
 
   return (
-    <TableContainer component={Paper} >
-      <Table sx={{ minWidth: 650, fontSize: "30px" }} aria-label="simple table">
+    <TableContainer component={Paper}>
+      <Table sx={{minWidth: 650, fontSize: "30px"}} aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell >Conversa (id)</TableCell>
