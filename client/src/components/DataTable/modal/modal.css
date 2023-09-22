@@ -14,7 +14,7 @@
     padding: 40px;
     border-radius: 10px;
     background-color: rgb(255, 255, 255);
-
+    max-height: 40.625rem;
     display: flex;
   }
 
@@ -43,9 +43,9 @@
     flex-direction: column;
   }
 
-  .signup-button {
-    height: 45px;
-    width: 100px;
+  .fetch-button {
+    height: 2.81rem;
+    width: 12rem;
     border-radius: 8px;
     border: 0;
     background-color: rgba(71, 71, 71, 0.4);
@@ -53,7 +53,11 @@
     margin: 10px;
   }
   
-  .signup-button:hover {
+  .fetch-button:hover {
     cursor: pointer;
-    background-color: #5252e0;
+    background-color: #8383f0;
+  }
+
+  .fetch-button:active {
+    transform: scale(.98);
   }
