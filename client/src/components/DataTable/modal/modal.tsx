@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import UsersTable from '../UsersTable';
 import './modal.css';
 
@@ -7,6 +6,7 @@ interface IReportUsers {
     date?: string;
     user_id?: string;
     status?: string;
+    emitida: boolean;
 }
 
 interface modalProps {
