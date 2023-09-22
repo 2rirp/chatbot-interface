@@ -7,6 +7,7 @@ interface IReportUsers {
     date?: string;
     user_id?: string;
     status?: string;
+    emitida: boolean;
 }
 
 interface modalProps {

@@ -116,11 +116,13 @@ ORDER BY data;`
 
   async getAllUsersByDate(date: string) {
     try {
-      const queryText = `SELECT TO_CHAR(created_at, 'HH24:MI') AS date, id, user_id, status
-      FROM conversations
-      WHERE created_at >= $1::timestamp
-        AND created_at < ($1::timestamp + INTERVAL '1 day')
-      ORDER BY created_at;`;
+      const queryText = `SELECT TO_CHAR(c.created_at, 'HH24:MI') AS date, c.id, c.user_id, c.status,
+      CASE WHEN u.link_certidao IS NOT NULL and link_certidao <> '' THEN TRUE ELSE FALSE END AS emitida
+      FROM conversations c
+      LEFT JOIN registration u ON c.user_id = u.user_id
+      WHERE c.created_at >= $1::timestamp
+      AND c.created_at < ($1::timestamp + INTERVAL '1 day')
+      ORDER BY c.created_at;`;
       const result = await this.db.pool.query(queryText, [date]);
       return result.rows;
     } catch (error) {
