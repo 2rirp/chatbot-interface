@@ -36,19 +36,18 @@ FROM (
    GROUP BY data
 ) AS combined_data
 GROUP BY data
-ORDER BY data;`
+ORDER BY data;`;
       const result = await this.db.pool.query(queryText);
       return result.rows;
     } catch (error) {
-      console.error('failed to get conversation reports: ', error)
+      console.error("failed to get conversation reports: ", error);
       throw error;
     }
   }
 
   async getConversationReportsByDay(date: string) {
-     
     try {
-        const queryText = `SELECT data,
+      const queryText = `SELECT data,
         MAX(redirected) AS redirected,
         MAX(quantidade) AS quantidade,
         MAX(emitidas) AS emitidas
@@ -73,44 +72,44 @@ ORDER BY data;`
      GROUP BY data
  ) AS combined_data
  GROUP BY data
- ORDER BY data;`
-        const result = await this.db.pool.query(queryText, [date]);
-        return result.rows;
+ ORDER BY data;`;
+      const result = await this.db.pool.query(queryText, [date]);
+      return result.rows;
     } catch (error) {
-        console.error('failed to get conversation reports: ', error)
-        throw error;
+      console.error("failed to get conversation reports: ", error);
+      throw error;
     }
   }
 
   async getRedirectedConversations(date: string) {
     try {
-        const queryText = `SELECT TO_CHAR(DATE_TRUNC('day', created_at), 'YYYY-MM-DD') AS data, COUNT(*) AS redirected
+      const queryText = `SELECT TO_CHAR(DATE_TRUNC('day', created_at), 'YYYY-MM-DD') AS data, COUNT(*) AS redirected
         FROM conversations
         WHERE menu = 'option_2'
         WHERE created_at >= $1::timestamp AND created_at < ($1::timestamp + INTERVAL '1 day')
         GROUP BY date
-        ORDER BY date;`
-        const result = await this.db.pool.query(queryText, [date]);
-        return result.rows;
+        ORDER BY date;`;
+      const result = await this.db.pool.query(queryText, [date]);
+      return result.rows;
     } catch (error) {
-        console.error('failed to get redirected conversations reports: ', error)
-        throw error;
+      console.error("failed to get redirected conversations reports: ", error);
+      throw error;
     }
   }
 
   async getRegistrations(date: string) {
     try {
-        const queryText = `SELECT TO_CHAR(DATE_TRUNC('day', created_at), 'YYYY-MM-DD') AS data, 
+      const queryText = `SELECT TO_CHAR(DATE_TRUNC('day', created_at), 'YYYY-MM-DD') AS data, 
         COUNT(*) AS emitidas FROM registration WHERE link_certidao IS NOT NULL AND link_certidao <> ''
         WHERE data_solicitacao >= $1::timestamp AND data_solicitacao < ($1::timestamp + INTERVAL '1 day')
         GROUP BY data
         ORDER BY data;
-        `
-        const result = await this.db.pool.query(queryText, [date]);
-        return result.rows;
+        `;
+      const result = await this.db.pool.query(queryText, [date]);
+      return result.rows;
     } catch (error) {
-        console.error('failed to get registration reports: ', error)
-        throw error;
+      console.error("failed to get registration reports: ", error);
+      throw error;
     }
   }
 
