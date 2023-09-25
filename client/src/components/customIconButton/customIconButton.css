@@ -1,0 +1,33 @@
+.icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    width: 40px;
+    padding: 8px;
+    border-radius: 50%;
+    border: 0;
+    font-size: 1.5rem;
+    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.icon-button:hover{
+    cursor: pointer;
+    filter: brightness(90%);
+}
+
+.icon-button-transparency {
+    background-color: transparent;
+}
+
+.icon-button-badge {
+    position: absolute;
+    top: -2px;
+    right: 0px;
+    font-size: 12px;
+    padding: 2px;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+  }
