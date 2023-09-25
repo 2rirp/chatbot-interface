@@ -60,9 +60,17 @@
 }
 
 .chat-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1;
+  overflow: hidden;
+}
+
+.chat-content {
+  display: flex;
+  flex-direction: column;
+  /* flex: 1; */
   /* width: 100%; */
   overflow: auto;
   /* height: 90%; */
@@ -130,6 +138,14 @@ object {
 .message p {
   margin: 0;
   padding: 5px;
+}
+
+.scroll-to-bottom-button{
+  position: absolute;
+  bottom: 10px; 
+  right: 25px;
+  z-index: 1;
+  background-color: #cce6ff;
 }
 
 .chat-input-container {

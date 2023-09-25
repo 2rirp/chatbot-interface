@@ -6,6 +6,8 @@ import DownloadIcon from "@mui/icons-material/Download";
 import IMessage from "../../interfaces/imessage";
 import AlertDialog from "../alertDialog/alertDialog";
 import TextFormatter from "../textFormatter/TextFormatter";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import CustomIconButton from "../customIconButton/CustomIconButton";
 
 interface ChatProps {
   currentPage: string;
@@ -13,12 +15,14 @@ interface ChatProps {
   onSendMessage?: (message: string) => void;
   onEndConversation?: () => void;
   userId: string;
+  newBotUserMessageCount?: number;
+  unsetNewBotUserMessageCount?: () => void;
 }
 
 function Chat(props: ChatProps) {
   const [message, setMessage] = useState("");
   const [userAtBottom, setUserAtBottom] = useState(true);
-  const chatContainerRef = useRef<HTMLDivElement | null>(null);
+  const chatContentRef = useRef<HTMLDivElement | null>(null);
 
   const handleMessageChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
@@ -28,10 +32,8 @@ function Chat(props: ChatProps) {
 
   const handleSendMessage = () => {
     if (message.trim() !== "") {
-      /*  const messageWithNewlines = message.replace(/\n/g, "\\n"); */
       props.onSendMessage?.(message);
-      /*       console.log("Sent the message: " + messageWithNewlines);
-       */ setMessage("");
+      setMessage("");
     }
   };
 
@@ -51,22 +53,55 @@ function Chat(props: ChatProps) {
     return `${hour}:${minute}`;
   };
 
-  useEffect(() => {
-    const chatContainer = chatContainerRef.current;
-    if (chatContainer) {
-      const wasAtBottom =
-        chatContainer.scrollTop + chatContainer.clientHeight >=
-        chatContainer.scrollHeight;
+  const handleScroll = () => {
+    const chatContent = chatContentRef.current;
 
-      setUserAtBottom(wasAtBottom);
-      console.log(
-        `ScrollTop: ${chatContainer.scrollTop}, ClientHeight: ${chatContainer.clientHeight}, ScrollHeight: ${chatContainer.scrollHeight}`
-      );
-      if (userAtBottom) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+    if (chatContent) {
+      const isAtBottom =
+        chatContent.scrollTop + chatContent.clientHeight >=
+        chatContent.scrollHeight - 100;
+
+      setUserAtBottom(isAtBottom);
+
+      if (isAtBottom) {
+        props.unsetNewBotUserMessageCount?.();
       }
     }
+  };
+
+  const scrollToBottom = () => {
+    const chatContent = chatContentRef.current;
+
+    if (chatContent) {
+      chatContent.scrollTop = chatContent.scrollHeight;
+      setUserAtBottom(true);
+    }
+  };
+
+  useEffect(() => {
+    const chatContent = chatContentRef.current;
+
+    if (chatContent) {
+      chatContent.addEventListener("scroll", handleScroll);
+
+      chatContent.scrollTop = chatContent.scrollHeight;
+      return () => {
+        chatContent.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userAtBottom) {
+      scrollToBottom();
+    }
   }, [props.chatData]);
+
+  /* useEffect(() => {
+    setNewBotUserMessageCount(props.newBotUserMessageCount);
+  }, [props.newBotUserMessageCount]); */
+
+  console.log(userAtBottom);
 
   return (
     <div className="chat">
@@ -88,41 +123,63 @@ function Chat(props: ChatProps) {
           </div>
         )}
       </div>
-      <div className="chat-container" ref={chatContainerRef}>
-        {props.chatData.map((message) => (
-          <div
-            key={message.id}
-            className={`message ${
-              message.message_from_bot ? "bot-message" : "user-message"
-            }`}
-          >
-            {message.media_url && (
-              <div className="media-container">
-                {message.media_type.startsWith("image") ? (
-                  <img
-                    src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                    alt="Media"
-                  />
-                ) : message.media_type.startsWith("video") ? (
-                  <video controls>
-                    <source
+      <div className="chat-container">
+        <div className="chat-content" ref={chatContentRef}>
+          {props.chatData.map((message) => (
+            <div
+              key={message.id}
+              className={`message ${
+                message.message_from_bot ? "bot-message" : "user-message"
+              }`}
+            >
+              {message.media_url && (
+                <div className="media-container">
+                  {message.media_type.startsWith("image") ? (
+                    <img
                       src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                      type="video/mp4"
+                      alt="Media"
                     />
-                    Este navegador não suporta exibição de vídeo.
-                  </video>
-                ) : message.media_type.startsWith("document") ? (
-                  <div>
-                    <object
-                      data={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                      type="application/pdf"
-                    >
-                      <p>
-                        Este navegador não suporta PDFs. Por favor baixe o PDF
-                        para poder visualizá-lo.
-                      </p>
-                    </object>
+                  ) : message.media_type.startsWith("video") ? (
+                    <video controls>
+                      <source
+                        src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                        type="video/mp4"
+                      />
+                      Este navegador não suporta exibição de vídeo.
+                    </video>
+                  ) : message.media_type.startsWith("document") ? (
+                    <div>
+                      <object
+                        data={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                        type="application/pdf"
+                      >
+                        <p>
+                          Este navegador não suporta PDFs. Por favor baixe o PDF
+                          para poder visualizá-lo.
+                        </p>
+                      </object>
 
+                      <IconButton>
+                        Baixar arquivo
+                        <a
+                          href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download
+                        >
+                          <DownloadIcon />
+                        </a>
+                      </IconButton>
+                    </div>
+                  ) : message.media_type.startsWith("audio") ? (
+                    <audio controls>
+                      <source
+                        src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                        type={message.media_type}
+                      />
+                      Este navegador não suporta exibição de audio.
+                    </audio>
+                  ) : message.media_type.startsWith("application") ? (
                     <IconButton>
                       Baixar arquivo
                       <a
@@ -134,47 +191,38 @@ function Chat(props: ChatProps) {
                         <DownloadIcon />
                       </a>
                     </IconButton>
-                  </div>
-                ) : message.media_type.startsWith("audio") ? (
-                  <audio controls>
-                    <source
-                      src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                      type={message.media_type}
-                    />
-                    Este navegador não suporta exibição de audio.
-                  </audio>
-                ) : message.media_type.startsWith("application") ? (
-                  <IconButton>
-                    Baixar arquivo
-                    <a
-                      href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      download
-                    >
-                      <DownloadIcon />
-                    </a>
-                  </IconButton>
-                ) : (
-                  <p>
-                    Midía não suportada. Por favor, entre em contato com o
-                    suporte.
-                  </p>
-                )}
-              </div>
-            )}
-            {message.content !== "" && (
-              <div className="message-content">
-                <TextFormatter text={message.content} />
-              </div>
-            )}
-            <div className="message-bottom">
-              <div className="message-timestamp">
-                <span>{formatTimestamp(message.created_at)}</span>
+                  ) : (
+                    <p>
+                      Midía não suportada. Por favor, entre em contato com o
+                      suporte.
+                    </p>
+                  )}
+                </div>
+              )}
+              {message.content !== "" && (
+                <div className="message-content">
+                  <TextFormatter text={message.content} />
+                </div>
+              )}
+              <div className="message-bottom">
+                <div className="message-timestamp">
+                  <span>{formatTimestamp(message.created_at)}</span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        {!userAtBottom && (
+          <CustomIconButton
+            ariaLabel="Rolar para baixo"
+            onClick={scrollToBottom}
+            className="scroll-to-bottom-button"
+            deactivateTransparency
+            badgeContent={props.newBotUserMessageCount}
+          >
+            <KeyboardArrowDownIcon />
+          </CustomIconButton>
+        )}
       </div>
       {props.currentPage === "real-time-page" && (
         <div className="chat-input-container">
