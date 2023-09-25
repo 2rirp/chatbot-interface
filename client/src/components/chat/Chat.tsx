@@ -8,6 +8,7 @@ import AlertDialog from "../alertDialog/alertDialog";
 import TextFormatter from "../textFormatter/TextFormatter";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CustomIconButton from "../customIconButton/CustomIconButton";
+import PhoneNumberFormatter from "../phoneNumberFormatter/PhoneNumberFormatter";
 
 interface ChatProps {
   currentPage: string;
@@ -107,7 +108,10 @@ function Chat(props: ChatProps) {
     <div className="chat">
       <div className="chat-header">
         <div className="user-identification-container">
-          <h3>{props.userId}</h3>
+          <PhoneNumberFormatter
+            className="bot-user-number"
+            phoneNumber={`${props.userId}`}
+          />
         </div>
         {props.currentPage === "real-time-page" && (
           <div className="end-conversation-button-container">
