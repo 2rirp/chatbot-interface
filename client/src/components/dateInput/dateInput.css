@@ -1,6 +1,6 @@
 input {
     border-radius: .5rem;
-    border: .1em solid #75757581;
+    border: .1em solid var(--quaternary-gray);
     height: 2.5rem;
     width: 9rem;
     text-indent: 0.4rem;
@@ -9,6 +9,7 @@ input {
     /* background-position: -12px; */
 
 }
+
 input[type="date"]::-webkit-calendar-picker-indicator {
     opacity: 1;
     display: flex;

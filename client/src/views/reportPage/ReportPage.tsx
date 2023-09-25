@@ -6,7 +6,7 @@ import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
-import Button from "@mui/material/Button";
+/* import Button from "@mui/material/Button"; */
 import DateInput from "../../components/dateInput/DateInput";
 import "./reportPage.css";
 import DataTable from "../../components/DataTable/DataTable";
@@ -25,7 +25,7 @@ interface IReportUsers {
   date?: string;
   user_id?: string;
   status?: string;
-  emitida: boolean
+  emitida: boolean;
 }
 
 export default function ReportPage() {
@@ -95,24 +95,21 @@ export default function ReportPage() {
         headers: {
           "Content-Type": "application/json",
         },
-      })
-        const response = await users.json();
-      if(users.ok) {
-        if(response.data) {
-          console.log("Response.data: ", response.data)
+      });
+      const response = await users.json();
+      if (users.ok) {
+        if (response.data) {
+          console.log("Response.data: ", response.data);
           setUsersData(response.data);
-        } 
+        }
       } else {
-        console.log(response.error)
-        throw response.error
+        console.log(response.error);
+        throw response.error;
       }
-      
     } catch (error) {
       console.error(error);
     }
-    
   }
-
 
   function handleDateChange(date: string) {
     setDate(date);
@@ -123,15 +120,14 @@ export default function ReportPage() {
 
   async function openModal(date: string) {
     const data = await fetchUsers(date);
-    console.log("usersData: ", usersData, "\n\nData: ", data)
+    console.log("usersData: ", usersData, "\n\nData: ", data);
     setmodalIsOpen(true);
   }
 
   return (
     <>
       <div className="container">
-        {modalIsOpen && 
-        <Modal onClose={closeModal} data={usersData}/>}
+        {modalIsOpen && <Modal onClose={closeModal} data={usersData} />}
         <div className="header-container">
           <div className="header">
             <div className="button-div">
@@ -151,10 +147,13 @@ export default function ReportPage() {
           <DateInput handleDateChange={handleDateChange} />
         </div>
         <div className="button-inputs">
-          <button className="fetch-button" onClick={() => fetchDataByDate(selectedDate)} >
+          <button
+            className="fetch-button"
+            onClick={() => fetchDataByDate(selectedDate)}
+          >
             Buscar por data
           </button>
-          <button className="fetch-button" onClick={() => fetchData()} >
+          <button className="fetch-button" onClick={() => fetchData()}>
             Visualizar todas
           </button>
         </div>

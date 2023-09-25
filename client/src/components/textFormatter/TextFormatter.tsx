@@ -4,7 +4,7 @@ interface TextFormatterProps {
   text: string;
 }
 
-function TextFormatter({ text }: TextFormatterProps) {
+function TextFormatter(props: TextFormatterProps) {
   const boldRegex = /\*([^\s*].*?[^\s*])\*/g;
   const italicRegex = /\_([^\s_].*?[^\s_])\_/g;
   const strikeRegex = /\~([^\s~].*?[^\s~])\~/g;
@@ -20,7 +20,7 @@ function TextFormatter({ text }: TextFormatterProps) {
     return formattedText;
   };
 
-  const formattedText = formatText(text);
+  const formattedText = formatText(props.text);
 
   return (
     <div className="copyable-text">
