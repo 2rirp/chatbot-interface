@@ -12,7 +12,7 @@ interface IReportUsers {
   date?: string;
   user_id?: string;
   status?: string;
-  emitida?: boolean | string;
+  emitida: boolean | string;
   regist_count: number
 }
 
