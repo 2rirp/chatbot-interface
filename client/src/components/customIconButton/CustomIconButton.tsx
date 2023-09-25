@@ -28,8 +28,8 @@ function CustomIconButton(props: CustomIconButtonProps) {
         <span
           className="icon-button-badge"
           style={{
-            backgroundColor: props.badgeColor || "#6a94cf",
-            color: props.badgeContentColor || "rgba(0, 0, 0, 0.54)",
+            backgroundColor: props.badgeColor || "var(--tertiary-blue)",
+            color: props.badgeContentColor || "var(--tertiary-text-color)",
           }}
         >
           {props.badgeContent || null}

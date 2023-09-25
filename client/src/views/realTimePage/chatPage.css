@@ -15,7 +15,7 @@
 }
 
 .page-container {
-  border: 0.1em solid #b6b6b6dc;
+  border: 0.1em solid var(--quaternary-gray);
   background-color: #f8f9fa;
   border-radius: 10px;
   height: 98%;
@@ -36,5 +36,5 @@
 
 .centered-message-container p {
   font-size: 1.5rem;
-  color: #363636;
+  color: var(--primary-text-color);
 }

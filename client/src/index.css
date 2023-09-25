@@ -4,6 +4,18 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  --primary-text-color: #363636;
+  --secondary-text-color: #000;
+  --tertiary-text-color: rgba(0, 0, 0, 0.54);
+  --primary-blue: #dce9f8c5; 
+  --secondary-blue: #CCE6FF;
+  --tertiary-blue: #6A94CF;
+  --quaternary-blue: #6babffb9;
+  --primary-white: #FFF;
+  --primary-gray: #e7e7e76b;
+  --secondary-gray: #f0f0f0;
+  --tertiary-gray: #b6b6b6dc;
+ --quaternary-gray: #75757581;
 }
 /* 
 ul {
