@@ -5,7 +5,7 @@
   width: 300px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #b6b6b6dc;
+  border-right: 1px solid var(--quaternary-gray);
 }
 
 .sidebar-container {
@@ -57,7 +57,7 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background-color: #95c3ffb9;
+  background-color: var(--secondary-blue);
 
   color: #363636;
   border-radius: 0.35rem;
@@ -69,7 +69,7 @@
 }
 
 .sidebar-container li:hover {
-  background-color: #647be0;
+  filter: brightness(90%);
 }
 
 .unread-conversation::after {
@@ -84,11 +84,11 @@
 .sidebar-header {
   display: flex;
   align-items: center;
-  background-color: #dce9f8c5;
+  background-color: var(--primary-blue);
   height: 5%;
   padding: 10px 10px 10px 20px;
   justify-content: space-between;
-  color: #363636;
+  color: var(--primary-text-color);
 }
 
 .attendant-name {
@@ -99,5 +99,5 @@
 .sidebar-container p {
   text-align: center;
   font-size: 1.5rem;
-  color: #363636;
+  color: var(--primary-text-color);
 }

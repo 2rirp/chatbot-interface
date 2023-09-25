@@ -31,6 +31,9 @@ export default function RealTimePage() {
   const [unreadConversations, setUnreadConversations] = useState<Array<number>>(
     []
   );
+  const [newBotUserMessageCount, setNewBotUserMessageCount] = useState<
+    number | undefined
+  >(undefined);
   const currentPage = "real-time-page";
   const currentConversationIdRef = useRef(currentConversationId);
   const currentBotUserIdRef = useRef(currentBotUserId);
@@ -87,6 +90,7 @@ export default function RealTimePage() {
           setCurrentConversationId(conversationId);
           setCurrentBotUserId(botUserId);
           setChatData(responseObj.data);
+          setNewBotUserMessageCount(undefined);
           setHasFetchedChatData(true);
         } else {
           console.error("No chat data found:", responseObj.data);
@@ -139,6 +143,14 @@ export default function RealTimePage() {
 
     socketContext.socket.on("newBotUserMessage", (newMessageData: IMessage) => {
       setChatData((prevChatData) => [...prevChatData, newMessageData]);
+
+      setNewBotUserMessageCount((prevCount) => {
+        if (prevCount === undefined) {
+          return 1;
+        } else {
+          return prevCount + 1;
+        }
+      });
     });
 
     socketContext.socket.on(
@@ -230,6 +242,10 @@ export default function RealTimePage() {
     }
   };
 
+  const handleUnsetCount = () => {
+    setNewBotUserMessageCount(undefined);
+  };
+
   async function deactivateCurrentConversation() {
     try {
       const deactivatedConversation = await fetch(`/api/conversations/end`, {
@@ -283,6 +299,8 @@ export default function RealTimePage() {
             onSendMessage={handleSendMessage}
             onEndConversation={deactivateCurrentConversation}
             userId={currentBotUserId}
+            newBotUserMessageCount={newBotUserMessageCount}
+            unsetNewBotUserMessageCount={handleUnsetCount}
           />
         ) : (
           <div className="centered-message-container">

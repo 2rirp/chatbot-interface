@@ -1,5 +1,5 @@
-import UsersTable from '../UsersTable';
-import './modal.css';
+import UsersTable from "../UsersTable";
+import "./modal.css";
 
 interface IReportUsers {
     id: number;
@@ -11,19 +11,19 @@ interface IReportUsers {
 }
 
 interface modalProps {
-    onClose: () => void;
-    data: IReportUsers[];
+  onClose: () => void;
+  data: IReportUsers[];
 }
 
 export default function Modal(props: modalProps) {
-    function stopPropagation(e: React.MouseEvent<HTMLDivElement>) {
-        e.stopPropagation();
-      }
-    return(
-        <div className="modal-background" onClick={props.onClose}>
-            <div className="form-container" onClick={stopPropagation}>
-                <UsersTable fetchedData={props.data}/>
-            </div>
-        </div>
-    )
+  function stopPropagation(e: React.MouseEvent<HTMLDivElement>) {
+    e.stopPropagation();
+  }
+  return (
+    <div className="modal-background" onClick={props.onClose}>
+      <div className="form-container" onClick={stopPropagation}>
+        <UsersTable fetchedData={props.data} />
+      </div>
+    </div>
+  );
 }

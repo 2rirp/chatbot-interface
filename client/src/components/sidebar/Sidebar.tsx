@@ -10,6 +10,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import { TailSpin } from "react-loading-icons";
+import PhoneNumberFormatter from "../phoneNumberFormatter/PhoneNumberFormatter";
 
 interface SidebarProps {
   currentPage: string;
@@ -74,7 +75,7 @@ function Sidebar(props: SidebarProps) {
 
   function filterUsers(searchString: string, list: Array<IBotUser>) {
     const filtered = list.filter((item) =>
-      item.botUserId.toLowerCase().includes(searchString.toLowerCase())
+      item.botUserId.slice(2).toLowerCase().includes(searchString.toLowerCase())
     );
 
     setIsSearchingUsers(false);
@@ -191,7 +192,9 @@ function Sidebar(props: SidebarProps) {
                         : ""
                     }
                   >
-                    <div>{botUser.botUserId}</div>
+                    <PhoneNumberFormatter
+                      phoneNumber={`${botUser.botUserId}`}
+                    />
                   </li>
                 ))}
               </ul>
@@ -205,7 +208,9 @@ function Sidebar(props: SidebarProps) {
                         selectBotUserToSeeHistory(botUser.botUserId)
                       }
                     >
-                      <div>{botUser.botUserId}</div>
+                      <PhoneNumberFormatter
+                        phoneNumber={`${botUser.botUserId}`}
+                      />
                     </li>
                   ))}
                 </ul>
