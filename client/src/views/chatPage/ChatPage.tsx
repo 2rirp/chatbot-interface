@@ -94,10 +94,16 @@ export default function ChatPage() {
     }
   }
 
+  const closeChat = () => {
+    setHasFetchedChatData(false);
+    setCurrentBotUserId("");
+  };
+
   function closeModal() {
     setmodalIsOpen(false);
     setActiveDropdown(false);
   }
+
   function openModal() {
     setmodalIsOpen(true);
     setActiveDropdown(true);
@@ -109,6 +115,20 @@ export default function ChatPage() {
       fetchUserListByDate(selectedDate);
     }
   }, [selectedDate]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyPressed);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPressed);
+    };
+  }, []);
+
+  const handleKeyPressed = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      closeChat();
+    }
+  };
 
   return (
     <div className="page">

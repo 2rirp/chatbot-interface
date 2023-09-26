@@ -34,6 +34,8 @@ export default function RealTimePage() {
   const [newBotUserMessageCount, setNewBotUserMessageCount] = useState<
     number | undefined
   >(undefined);
+  const [mustExitConversation, setMustExitConversation] =
+    useState<boolean>(false);
   const currentPage = "real-time-page";
   const currentConversationIdRef = useRef(currentConversationId);
   const currentBotUserIdRef = useRef(currentBotUserId);
@@ -186,23 +188,8 @@ export default function RealTimePage() {
     socketContext.socket.on(
       "removeFromAttendance",
       (conversationId: number) => {
-        console.log(
-          conversationId +
-            " and " +
-            currentConversationIdRef.current +
-            " and " +
-            currentBotUserIdRef.current
-        );
-
         if (currentConversationIdRef.current === conversationId) {
-          socketContext?.socket?.emit(
-            "exitConversation",
-            currentBotUserIdRef.current,
-            currentConversationIdRef.current,
-            userContext?.user?.id
-          );
-
-          setHasFetchedChatData(false);
+          exitConversation();
         }
 
         setBotUsersNeedingAttendants((prev) =>
@@ -246,6 +233,27 @@ export default function RealTimePage() {
     setNewBotUserMessageCount(undefined);
   };
 
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyPressed);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPressed);
+    };
+  }, []);
+
+  const handleKeyPressed = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      setMustExitConversation(true);
+    }
+  };
+
+  useEffect(() => {
+    if (mustExitConversation) {
+      exitConversation();
+      setMustExitConversation(false);
+    }
+  }, [mustExitConversation]);
+
   async function deactivateCurrentConversation() {
     try {
       const deactivatedConversation = await fetch(`/api/conversations/end`, {
@@ -261,14 +269,7 @@ export default function RealTimePage() {
           prev.filter((user) => user.conversationId !== currentConversationId)
         );
 
-        socketContext?.socket?.emit(
-          "exitConversation",
-          currentBotUserId,
-          currentConversationId,
-          userContext?.user?.id
-        );
-
-        setHasFetchedChatData(false);
+        exitConversation();
       } else {
         alert("Erro ao encerrar a conversa.");
       }
@@ -276,6 +277,19 @@ export default function RealTimePage() {
       console.error(error.name, error.message);
     }
   }
+
+  const exitConversation = () => {
+    socketContext?.socket?.emit(
+      "exitConversation",
+      currentBotUserIdRef.current,
+      currentConversationIdRef.current,
+      userContext?.user?.id
+    );
+
+    setHasFetchedChatData(false);
+    setCurrentBotUserId("");
+    setCurrentConversationId(NaN);
+  };
 
   return (
     <div className="page">
