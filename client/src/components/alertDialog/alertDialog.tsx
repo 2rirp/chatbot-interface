@@ -1,56 +1,45 @@
-import * as React from 'react';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
 interface IProps {
-    handleDeactivate: () => void;
-    // isOpen: boolean;
+  mustOpen: boolean;
+  alertTitle: string;
+  alertDescription?: string;
+  firstButtonText: string;
+  secondButtonText?: string;
+  handleFirstButton: () => void;
+  handleSecondButton?: () => void;
 }
 
 export default function AlertDialog(props: IProps) {
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   return (
-    <div>
-      <Button variant="outlined" onClick={handleClickOpen} sx={{
-        background: "#d8646eb9",
-        color: "#000000b8",
-      }}>
-        Encerrar conversa
-      </Button>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Encerrar conversa"}
-        </DialogTitle>
+    <Dialog
+      open={props.mustOpen}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title">{props.alertTitle}</DialogTitle>
+      {props.alertDescription && (
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-           Deseja mesmo encerrar a conversa?
+            {props.alertDescription}
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={props.handleDeactivate}>Encerrar</Button>
-          <Button onClick={handleClose} autoFocus>
-            Cancelar
+      )}
+      <DialogActions>
+        <Button onClick={props.handleFirstButton}>
+          {props.firstButtonText}
+        </Button>
+        {props.handleSecondButton && (
+          <Button onClick={props.handleSecondButton} autoFocus>
+            {props.secondButtonText || null}
           </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+        )}
+      </DialogActions>
+    </Dialog>
   );
 }

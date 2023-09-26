@@ -5,7 +5,7 @@ import "./customIconButton.css";
 interface CustomIconButtonProps {
   children: ReactNode;
   ariaLabel?: string;
-  onClick?: () => void;
+  onClick?: (event?: any) => void;
   className?: string;
   deactivateTransparency?: boolean;
   badgeContent?: ReactNode;

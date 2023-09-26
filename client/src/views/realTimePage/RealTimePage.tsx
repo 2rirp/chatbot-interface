@@ -315,6 +315,7 @@ export default function RealTimePage() {
             userId={currentBotUserId}
             newBotUserMessageCount={newBotUserMessageCount}
             unsetNewBotUserMessageCount={handleUnsetCount}
+            onCloseChat={exitConversation}
           />
         ) : (
           <div className="centered-message-container">

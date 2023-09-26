@@ -9,6 +9,7 @@ import TextFormatter from "../textFormatter/TextFormatter";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CustomIconButton from "../customIconButton/CustomIconButton";
 import PhoneNumberFormatter from "../phoneNumberFormatter/PhoneNumberFormatter";
+import ChatDropdownMenu from "../chatDropdownMenu/chatDropdownMenu";
 
 interface ChatProps {
   currentPage: string;
@@ -18,11 +19,13 @@ interface ChatProps {
   userId: string;
   newBotUserMessageCount?: number;
   unsetNewBotUserMessageCount?: () => void;
+  onCloseChat: () => void;
 }
 
 function Chat(props: ChatProps) {
   const [message, setMessage] = useState("");
   const [userAtBottom, setUserAtBottom] = useState(true);
+  const [showEndChatDialog, setShowEndChatDialog] = useState(false);
   const chatContentRef = useRef<HTMLDivElement | null>(null);
 
   const handleMessageChange = (
@@ -79,6 +82,14 @@ function Chat(props: ChatProps) {
     }
   };
 
+  const openEndChatDialog = () => {
+    setShowEndChatDialog(true);
+  };
+
+  const closeEndChatDialog = () => {
+    setShowEndChatDialog(false);
+  };
+
   useEffect(() => {
     const chatContent = chatContentRef.current;
 
@@ -98,10 +109,6 @@ function Chat(props: ChatProps) {
     }
   }, [props.chatData]);
 
-  /* useEffect(() => {
-    setNewBotUserMessageCount(props.newBotUserMessageCount);
-  }, [props.newBotUserMessageCount]); */
-
   console.log(userAtBottom);
 
   return (
@@ -114,17 +121,18 @@ function Chat(props: ChatProps) {
           />
         </div>
         {props.currentPage === "real-time-page" && (
-          <div className="end-conversation-button-container">
-            {/* <button
-            className="end-conversation-button"
-            style={{ display: props.showButton }}
-            onClick={props.onEndConversation}
-          > */}
-            {props.onEndConversation && (
-              <AlertDialog handleDeactivate={props.onEndConversation} />
-            )}
-            {/* </button> */}
-          </div>
+          <ChatDropdownMenu
+            currentPage={props.currentPage}
+            handleCloseChat={props.onCloseChat}
+            handleEndChat={openEndChatDialog}
+          />
+        )}
+
+        {props.currentPage === "history-page" && (
+          <ChatDropdownMenu
+            currentPage={props.currentPage}
+            handleCloseChat={props.onCloseChat}
+          />
         )}
       </div>
       <div className="chat-container">
@@ -231,7 +239,6 @@ function Chat(props: ChatProps) {
       {props.currentPage === "real-time-page" && (
         <div className="chat-input-container">
           <textarea
-            /* type="text" */
             placeholder="Digite sua mensagem..."
             value={message}
             onChange={handleMessageChange}
@@ -243,6 +250,18 @@ function Chat(props: ChatProps) {
             <SendIcon />
           </IconButton>
         </div>
+      )}
+
+      {props.currentPage === "real-time-page" && props.onEndConversation && (
+        <AlertDialog
+          mustOpen={showEndChatDialog}
+          alertTitle="Encerrar conversa"
+          alertDescription="Deseja mesmo encerrar a conversa?"
+          firstButtonText="Encerrar"
+          handleFirstButton={props.onEndConversation}
+          secondButtonText="Cancelar"
+          handleSecondButton={closeEndChatDialog}
+        />
       )}
     </div>
   );

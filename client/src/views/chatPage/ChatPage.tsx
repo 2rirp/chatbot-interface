@@ -151,6 +151,7 @@ export default function ChatPage() {
             currentPage={currentPage}
             chatData={chatData}
             userId={currentBotUserId}
+            onCloseChat={closeChat}
           />
         ) : (
           <div className="centered-message-container">
