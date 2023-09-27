@@ -26,6 +26,7 @@ interface IReportUsers {
   user_id?: string;
   status?: string;
   emitida: boolean;
+  regist_count: number
 }
 
 export default function ReportPage() {

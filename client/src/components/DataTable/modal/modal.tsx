@@ -2,11 +2,12 @@ import UsersTable from "../UsersTable";
 import "./modal.css";
 
 interface IReportUsers {
-  id: number;
-  date?: string;
-  user_id?: string;
-  status?: string;
-  emitida: boolean;
+    id: number;
+    date?: string;
+    user_id?: string;
+    status?: string;
+    emitida: boolean;
+    regist_count: number
 }
 
 interface modalProps {
