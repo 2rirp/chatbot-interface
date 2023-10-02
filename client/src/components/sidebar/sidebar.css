@@ -1,8 +1,8 @@
 .sidebar {
   /* background-color: #f0f0f09d; */
   height: 100%;
-  /* flex: 1; */
-  width: 300px;
+   /* flex: 0.3; */
+  width: 300px; 
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--quaternary-gray);
@@ -83,12 +83,7 @@
 
 .sidebar-header {
   display: flex;
-  align-items: center;
-  background-color: var(--primary-blue);
-  height: 5%;
-  padding: 10px 10px 10px 20px;
   justify-content: space-between;
-  color: var(--primary-text-color);
 }
 
 .attendant-name {

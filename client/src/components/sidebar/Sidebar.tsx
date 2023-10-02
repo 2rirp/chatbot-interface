@@ -5,12 +5,12 @@ import { UserContext } from "../../contexts/UserContext";
 import DropdownMenu from "../dropdownMenu/dropdownMenu";
 import IBotUser from "../../interfaces/ibotUser";
 import DateInput from "../dateInput/DateInput";
-import { IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import { TailSpin } from "react-loading-icons";
 import PhoneNumberFormatter from "../phoneNumberFormatter/PhoneNumberFormatter";
+import CustomIconButton from "../customIconButton/CustomIconButton";
 
 interface SidebarProps {
   currentPage: string;
@@ -69,8 +69,12 @@ function Sidebar(props: SidebarProps) {
   ) => {
     const searchQuery = event.target.value;
     setSearch(searchQuery);
-    setIsSearchingUsers(true);
-    filterUsers(searchQuery, props.botUsersList);
+    if (searchQuery.trim() !== "") {
+      setIsSearchingUsers(true);
+      filterUsers(searchQuery, props.botUsersList);
+    } else {
+      setIsSearchingUsers(false);
+    }
   };
 
   function filterUsers(searchString: string, list: Array<IBotUser>) {
@@ -96,7 +100,7 @@ function Sidebar(props: SidebarProps) {
 
   return (
     <div className="sidebar">
-      <div className="sidebar-header">
+      <div className="pattern-header sidebar-header">
         <p className="attendant-name">{user.username}</p>
 
         {props.currentPage === "real-time-page" && (
@@ -129,19 +133,19 @@ function Sidebar(props: SidebarProps) {
         <div className="search-input-container">
           <div className="left-icon-container">
             {search === "" ? (
-              <IconButton
+              <CustomIconButton
                 className="input-icon input-icon-left"
                 onClick={() => inputRef.current?.focus()}
               >
                 <SearchIcon />
-              </IconButton>
+              </CustomIconButton>
             ) : (
-              <IconButton
+              <CustomIconButton
                 className="input-icon input-icon-left"
                 onClick={cancelSearch}
               >
                 <ArrowBackIcon />
-              </IconButton>
+              </CustomIconButton>
             )}
           </div>
           <input
@@ -164,12 +168,12 @@ function Sidebar(props: SidebarProps) {
               ) : (
                 !isSearchingUsers &&
                 search !== "" && (
-                  <IconButton
+                  <CustomIconButton
                     className="input-icon input-icon-right"
                     onClick={cancelSearch}
                   >
                     <ClearIcon />
-                  </IconButton>
+                  </CustomIconButton>
                 )
               )}
             </div>

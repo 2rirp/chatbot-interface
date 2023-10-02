@@ -3,13 +3,17 @@ import "./chat.css";
 import SendIcon from "@mui/icons-material/Send";
 import IconButton from "@mui/material/IconButton";
 import DownloadIcon from "@mui/icons-material/Download";
+import SearchIcon from "@mui/icons-material/Search";
 import IMessage from "../../interfaces/imessage";
 import AlertDialog from "../alertDialog/alertDialog";
 import TextFormatter from "../textFormatter/TextFormatter";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+/* import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"; */
 import CustomIconButton from "../customIconButton/CustomIconButton";
 import PhoneNumberFormatter from "../phoneNumberFormatter/PhoneNumberFormatter";
 import ChatDropdownMenu from "../chatDropdownMenu/chatDropdownMenu";
+import SearchSidebar from "../searchSidebar/SearchSidebar";
+import TimestampFormatter from "../timestampFormatter/TimestampFormatter";
 
 interface ChatProps {
   currentPage: string;
@@ -26,6 +30,13 @@ function Chat(props: ChatProps) {
   const [message, setMessage] = useState("");
   const [userAtBottom, setUserAtBottom] = useState(true);
   const [showEndChatDialog, setShowEndChatDialog] = useState(false);
+  const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
+
+  /* const [totalOfResults, setTotalOfResults] = useState<number>(0); */
+  /* const [selectedResultIndex, setSelectedResultIndex] = useState<number | null>(
+    null
+  ); */
+  /* const [matchingMessages, setMatchingMessages] = useState<IMessage[]>([]); */
   const chatContentRef = useRef<HTMLDivElement | null>(null);
 
   const handleMessageChange = (
@@ -49,14 +60,14 @@ function Chat(props: ChatProps) {
     }
   };
 
-  const formatTimestamp = (timestamp: string) => {
+  /* const formatTimestamp = (timestamp: string) => {
     const [_datePart, timePart] = timestamp.split("T");
 
     const [hour, minute, _second] = timePart.split(":");
 
     return `${hour}:${minute}`;
   };
-
+ */
   const handleScroll = () => {
     const chatContent = chatContentRef.current;
 
@@ -90,6 +101,66 @@ function Chat(props: ChatProps) {
     setShowEndChatDialog(false);
   };
 
+  const openSearchSidebar = () => {
+    setIsSearchResultVisible(true);
+  };
+
+  const closeSearchSidebar = () => {
+    setIsSearchResultVisible(false);
+    /* setMatchingMessages([]); */
+  };
+
+  const searchMessages = (searchQuery: string) => {
+    if (searchQuery !== "" && searchQuery.length > 1) {
+      const accentsRegex = /[\u0300-\u036f]/gi;
+
+      const filteredMessages = props.chatData.filter((message) =>
+        message.content
+          .normalize("NFD")
+          .replace(accentsRegex, "")
+          .toLowerCase()
+          .includes(
+            searchQuery.normalize("NFD").replace(accentsRegex, "").toLowerCase()
+          )
+      );
+
+      return filteredMessages;
+    } else {
+      return null;
+    }
+  };
+
+  const handleScrollToMessage = (messageId: number) => {
+    if (chatContentRef.current) {
+      const messageElement = chatContentRef.current.querySelector(
+        `[data-message-id="${messageId}"]`
+      );
+
+      if (messageElement) {
+        messageElement.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+  /* const handleMatchesCounterChange = () => {
+     setTotalOfResults((prevTotal) => prevTotal + 1); 
+    console.log("hi");
+  }; */
+
+  /* const handleNavigateToPreviousMatch = () => {
+    if (selectedResultIndex !== null && selectedResultIndex > 0) {
+      setSelectedResultIndex(selectedResultIndex - 1);
+    }
+  };
+
+  const handleNavigateToNextMatch = () => {
+    if (
+      selectedResultIndex !== null &&
+      selectedResultIndex < totalOfResults - 1
+    ) {
+      setSelectedResultIndex(selectedResultIndex + 1);
+    }
+  }; */
+
   useEffect(() => {
     const chatContent = chatContentRef.current;
 
@@ -109,33 +180,53 @@ function Chat(props: ChatProps) {
     }
   }, [props.chatData]);
 
-  console.log(userAtBottom);
-
   return (
     <div className="chat">
-      <div className="chat-header">
-        <div className="user-identification-container">
-          <PhoneNumberFormatter
-            className="bot-user-number"
-            phoneNumber={`${props.userId}`}
-          />
-        </div>
-        {props.currentPage === "real-time-page" && (
-          <ChatDropdownMenu
-            currentPage={props.currentPage}
-            handleCloseChat={props.onCloseChat}
-            handleEndChat={openEndChatDialog}
-          />
-        )}
-
-        {props.currentPage === "history-page" && (
-          <ChatDropdownMenu
-            currentPage={props.currentPage}
-            handleCloseChat={props.onCloseChat}
-          />
-        )}
-      </div>
       <div className="chat-container">
+        <div className="pattern-header chat-header">
+          <div className="user-identification-container">
+            <PhoneNumberFormatter
+              className="bot-user-number"
+              phoneNumber={`${props.userId}`}
+            />
+          </div>
+
+          <div className="icons-container">
+            {!isSearchResultVisible && (
+              <CustomIconButton onClick={openSearchSidebar}>
+                <SearchIcon />
+              </CustomIconButton>
+            )}
+
+            {/* <div className="right-icon-container">
+              {search !== "" && totalOfResults > 0 && (
+                <div className="arrow-icons-container">
+                  <CustomIconButton>
+                    <KeyboardArrowUpIcon />
+                  </CustomIconButton>
+                  <CustomIconButton>
+                    <KeyboardArrowDownIcon />
+                  </CustomIconButton>
+                </div>
+              )}
+            </div> */}
+
+            {props.currentPage === "real-time-page" && (
+              <ChatDropdownMenu
+                currentPage={props.currentPage}
+                handleCloseChat={props.onCloseChat}
+                handleEndChat={openEndChatDialog}
+              />
+            )}
+
+            {props.currentPage === "history-page" && (
+              <ChatDropdownMenu
+                currentPage={props.currentPage}
+                handleCloseChat={props.onCloseChat}
+              />
+            )}
+          </div>
+        </div>
         <div className="chat-content" ref={chatContentRef}>
           {props.chatData.map((message) => (
             <div
@@ -143,6 +234,7 @@ function Chat(props: ChatProps) {
               className={`message ${
                 message.message_from_bot ? "bot-message" : "user-message"
               }`}
+              data-message-id={message.id}
             >
               {message.media_url && (
                 <div className="media-container">
@@ -218,39 +310,43 @@ function Chat(props: ChatProps) {
               )}
               <div className="message-bottom">
                 <div className="message-timestamp">
-                  <span>{formatTimestamp(message.created_at)}</span>
+                  <TimestampFormatter
+                    timestamp={message.created_at}
+                    returnTime
+                    removeSomeData={["second"]}
+                  />
                 </div>
               </div>
             </div>
           ))}
+          {!userAtBottom && (
+            <CustomIconButton
+              ariaLabel="Rolar para baixo"
+              onClick={scrollToBottom}
+              className="scroll-to-bottom-button"
+              deactivateTransparency
+              badgeContent={props.newBotUserMessageCount}
+            >
+              <KeyboardArrowDownIcon />
+            </CustomIconButton>
+          )}
         </div>
-        {!userAtBottom && (
-          <CustomIconButton
-            ariaLabel="Rolar para baixo"
-            onClick={scrollToBottom}
-            className="scroll-to-bottom-button"
-            deactivateTransparency
-            badgeContent={props.newBotUserMessageCount}
-          >
-            <KeyboardArrowDownIcon />
-          </CustomIconButton>
+        {props.currentPage === "real-time-page" && (
+          <div className="chat-input-container">
+            <textarea
+              placeholder="Digite sua mensagem..."
+              value={message}
+              onChange={handleMessageChange}
+              onKeyDown={handleInputKeyPress}
+              className="chat-input"
+              rows={2}
+            />
+            <IconButton className="send-button" onClick={handleSendMessage}>
+              <SendIcon />
+            </IconButton>
+          </div>
         )}
       </div>
-      {props.currentPage === "real-time-page" && (
-        <div className="chat-input-container">
-          <textarea
-            placeholder="Digite sua mensagem..."
-            value={message}
-            onChange={handleMessageChange}
-            onKeyDown={handleInputKeyPress}
-            className="chat-input"
-            rows={2}
-          />
-          <IconButton className="send-button" onClick={handleSendMessage}>
-            <SendIcon />
-          </IconButton>
-        </div>
-      )}
 
       {props.currentPage === "real-time-page" && props.onEndConversation && (
         <AlertDialog
@@ -261,6 +357,15 @@ function Chat(props: ChatProps) {
           handleFirstButton={props.onEndConversation}
           secondButtonText="Cancelar"
           handleSecondButton={closeEndChatDialog}
+        />
+      )}
+
+      {isSearchResultVisible && (
+        <SearchSidebar
+          botUserId={props.userId}
+          onSearchQueryChange={searchMessages}
+          onClose={closeSearchSidebar}
+          onSearchResultClick={handleScrollToMessage}
         />
       )}
     </div>

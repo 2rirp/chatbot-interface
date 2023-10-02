@@ -4,6 +4,7 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  color: var(--primary-text-color);
   --primary-text-color: #363636;
   --secondary-text-color: #000;
   --tertiary-text-color: rgba(0, 0, 0, 0.54);
@@ -16,6 +17,13 @@
   --secondary-gray: #f0f0f0;
   --tertiary-gray: #b6b6b6dc;
  --quaternary-gray: #75757581;
+}
+
+.pattern-header{
+  height: 5.2%;
+  background-color: var(--primary-blue);
+  align-items: center;
+  padding: 10px 10px 10px 20px;
 }
 /* 
 ul {
