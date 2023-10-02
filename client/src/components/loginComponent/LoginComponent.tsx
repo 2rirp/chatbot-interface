@@ -16,9 +16,8 @@ export default function LoginComponent() {
 
   async function formSubmitted(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    
-    if(isFetching === true)
-      return;
+
+    if (isFetching === true) return;
     const data = new FormData(e.currentTarget);
 
     const credentials: ILogin = {
@@ -57,7 +56,7 @@ export default function LoginComponent() {
   }; */
 
   return (
-    <div className="container">
+    <div className="login-container">
       <div className="loginBox">
         <h1 className="loginTitle">Login</h1>
         <Box

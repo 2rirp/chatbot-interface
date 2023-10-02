@@ -126,7 +126,7 @@ export default function ReportPage() {
 
   return (
     <>
-      <div className="container">
+      <div className="reports-page-container">
         {modalIsOpen && <Modal onClose={closeModal} data={usersData} />}
         <div className="header-container">
           <div className="header">
