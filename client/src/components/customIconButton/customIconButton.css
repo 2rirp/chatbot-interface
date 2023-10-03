@@ -34,3 +34,8 @@
     width: 14px;
     height: 14px;
   }
+
+  .icon-button:disabled{
+    cursor:not-allowed;
+    opacity: 50%;
+}

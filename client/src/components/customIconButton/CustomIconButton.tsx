@@ -11,6 +11,7 @@ interface CustomIconButtonProps {
   badgeContent?: ReactNode;
   badgeColor?: string;
   badgeContentColor?: string;
+  disabled?: boolean;
 }
 
 function CustomIconButton(props: CustomIconButtonProps) {
@@ -18,10 +19,11 @@ function CustomIconButton(props: CustomIconButtonProps) {
     <button
       className={`icon-button ${props.className || ""} ${
         !props.deactivateTransparency ? "icon-button-transparency" : ""
-      }`}
+      } ${props.disabled ? "disabled" : ""}`}
       aria-label={props.ariaLabel || ""}
       onClick={props.onClick}
       type="button"
+      disabled={props.disabled || false}
     >
       {props.children}
       {props.badgeContent !== undefined && (
@@ -48,6 +50,7 @@ CustomIconButton.propTypes = {
   badgeContent: PropTypes.node,
   badgeColor: PropTypes.string,
   badgeContentColor: PropTypes.string,
+  disabled: PropTypes.bool,
 };
 
 export default CustomIconButton;
