@@ -41,21 +41,12 @@ interface RemoveSomeDataInterface {
 
 function TimestampFormatter(props: TimestampFormatterProps) {
   const formatTimestamp = (timestamp: string) => {
-    console.log(timestamp);
     const [datePart, timePart] = timestamp.split("T");
 
     const [splitedYear, splitedMonth, splitedDay] = datePart.split("-");
     const [splitedHour, splitedMinute, secondPlusZone] = timePart.split(":");
     const [splitedSecond, _zone] = secondPlusZone.split(".");
 
-    console.log(
-      splitedYear,
-      splitedMonth,
-      splitedDay,
-      splitedHour,
-      splitedMinute,
-      splitedSecond
-    );
     let formatted = "";
 
     const returnIfExists = (param: string, type: RemoveSomeDataKey) => {
@@ -98,8 +89,6 @@ function TimestampFormatter(props: TimestampFormatterProps) {
       };
 
       const dateParts = dateOrderMap[props.dateOrder || "dd_mm_yy"] || [];
-
-      console.log(dateParts);
 
       formatted += dateParts
         .filter((part) => part)
@@ -146,11 +135,9 @@ function TimestampFormatter(props: TimestampFormatterProps) {
 
       const timeParts = timeOrderMap[props.timeOrder || "hh_mm_ss"] || [];
 
-      console.log(timeParts);
       formatted += timeParts.filter((part) => part).join(":");
     }
 
-    console.log(formatted);
     return formatted;
   };
 

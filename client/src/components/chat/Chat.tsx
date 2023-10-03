@@ -27,6 +27,7 @@ interface ChatProps {
 }
 
 function Chat(props: ChatProps) {
+  const textareaMaxLength: number = 1550;
   const [message, setMessage] = useState("");
   const [userAtBottom, setUserAtBottom] = useState(true);
   const [showEndChatDialog, setShowEndChatDialog] = useState(false);
@@ -38,15 +39,17 @@ function Chat(props: ChatProps) {
   ); */
   /* const [matchingMessages, setMatchingMessages] = useState<IMessage[]>([]); */
   const chatContentRef = useRef<HTMLDivElement | null>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleMessageChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
-    setMessage(event.target.value);
+    const inputMessage = event.target.value;
+    setMessage(inputMessage);
   };
 
   const handleSendMessage = () => {
-    if (message.trim() !== "") {
+    if (message.trim() !== "" && message.length < textareaMaxLength) {
       props.onSendMessage?.(message);
       setMessage("");
     }
@@ -60,14 +63,6 @@ function Chat(props: ChatProps) {
     }
   };
 
-  /* const formatTimestamp = (timestamp: string) => {
-    const [_datePart, timePart] = timestamp.split("T");
-
-    const [hour, minute, _second] = timePart.split(":");
-
-    return `${hour}:${minute}`;
-  };
- */
   const handleScroll = () => {
     const chatContent = chatContentRef.current;
 
@@ -141,6 +136,14 @@ function Chat(props: ChatProps) {
       }
     }
   };
+
+  const resizeTextArea = () => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height =
+        textAreaRef.current.scrollHeight + "px";
+    }
+  };
   /* const handleMatchesCounterChange = () => {
      setTotalOfResults((prevTotal) => prevTotal + 1); 
     console.log("hi");
@@ -179,6 +182,10 @@ function Chat(props: ChatProps) {
       scrollToBottom();
     }
   }, [props.chatData]);
+
+  useEffect(() => {
+    resizeTextArea();
+  }, [message]);
 
   return (
     <div className="chat">
@@ -227,42 +234,64 @@ function Chat(props: ChatProps) {
             )}
           </div>
         </div>
-        <div className="chat-content" ref={chatContentRef}>
-          {props.chatData.map((message) => (
-            <div
-              key={message.id}
-              className={`message ${
-                message.message_from_bot ? "bot-message" : "user-message"
-              }`}
-              data-message-id={message.id}
-            >
-              {message.media_url && (
-                <div className="media-container">
-                  {message.media_type.startsWith("image") ? (
-                    <img
-                      src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                      alt="Media"
-                    />
-                  ) : message.media_type.startsWith("video") ? (
-                    <video controls>
-                      <source
+        <div className="chat-content-buttons">
+          <div className="chat-content" ref={chatContentRef}>
+            {props.chatData.map((message) => (
+              <div
+                key={message.id}
+                className={`message ${
+                  message.message_from_bot ? "bot-message" : "user-message"
+                }`}
+                data-message-id={message.id}
+              >
+                {message.media_url && (
+                  <div className="media-container">
+                    {message.media_type.startsWith("image") ? (
+                      <img
                         src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                        type="video/mp4"
+                        alt="Media"
                       />
-                      Este navegador não suporta exibição de vídeo.
-                    </video>
-                  ) : message.media_type.startsWith("document") ? (
-                    <div>
-                      <object
-                        data={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                        type="application/pdf"
-                      >
-                        <p>
-                          Este navegador não suporta PDFs. Por favor baixe o PDF
-                          para poder visualizá-lo.
-                        </p>
-                      </object>
+                    ) : message.media_type.startsWith("video") ? (
+                      <video controls>
+                        <source
+                          src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                          type="video/mp4"
+                        />
+                        Este navegador não suporta exibição de vídeo.
+                      </video>
+                    ) : message.media_type.startsWith("document") ? (
+                      <div>
+                        <object
+                          data={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                          type="application/pdf"
+                        >
+                          <p>
+                            Este navegador não suporta PDFs. Por favor baixe o
+                            PDF para poder visualizá-lo.
+                          </p>
+                        </object>
 
+                        <IconButton>
+                          Baixar arquivo
+                          <a
+                            href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download
+                          >
+                            <DownloadIcon />
+                          </a>
+                        </IconButton>
+                      </div>
+                    ) : message.media_type.startsWith("audio") ? (
+                      <audio controls>
+                        <source
+                          src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                          type={message.media_type}
+                        />
+                        Este navegador não suporta exibição de audio.
+                      </audio>
+                    ) : message.media_type.startsWith("application") ? (
                       <IconButton>
                         Baixar arquivo
                         <a
@@ -274,51 +303,32 @@ function Chat(props: ChatProps) {
                           <DownloadIcon />
                         </a>
                       </IconButton>
-                    </div>
-                  ) : message.media_type.startsWith("audio") ? (
-                    <audio controls>
-                      <source
-                        src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                        type={message.media_type}
-                      />
-                      Este navegador não suporta exibição de audio.
-                    </audio>
-                  ) : message.media_type.startsWith("application") ? (
-                    <IconButton>
-                      Baixar arquivo
-                      <a
-                        href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
-                      >
-                        <DownloadIcon />
-                      </a>
-                    </IconButton>
-                  ) : (
-                    <p>
-                      Midía não suportada. Por favor, entre em contato com o
-                      suporte.
-                    </p>
-                  )}
-                </div>
-              )}
-              {message.content !== "" && (
-                <div className="message-content">
-                  <TextFormatter text={message.content} />
-                </div>
-              )}
-              <div className="message-bottom">
-                <div className="message-timestamp">
-                  <TimestampFormatter
-                    timestamp={message.created_at}
-                    returnTime
-                    removeSomeData={["second"]}
-                  />
+                    ) : (
+                      <p>
+                        Midía não suportada. Por favor, entre em contato com o
+                        suporte.
+                      </p>
+                    )}
+                  </div>
+                )}
+                {message.content !== "" && (
+                  <div className="message-content">
+                    <TextFormatter text={message.content} />
+                  </div>
+                )}
+                <div className="message-bottom">
+                  <div className="message-timestamp">
+                    <TimestampFormatter
+                      timestamp={message.created_at}
+                      returnTime
+                      removeSomeData={["second"]}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
           {!userAtBottom && (
             <CustomIconButton
               ariaLabel="Rolar para baixo"
@@ -333,17 +343,34 @@ function Chat(props: ChatProps) {
         </div>
         {props.currentPage === "real-time-page" && (
           <div className="chat-input-container">
-            <textarea
-              placeholder="Digite sua mensagem..."
-              value={message}
-              onChange={handleMessageChange}
-              onKeyDown={handleInputKeyPress}
-              className="chat-input"
-              rows={2}
-            />
-            <IconButton className="send-button" onClick={handleSendMessage}>
+            <div className="textarea-container">
+              <textarea
+                placeholder="Digite sua mensagem..."
+                value={message}
+                onChange={handleMessageChange}
+                onKeyDown={handleInputKeyPress}
+                className="chat-textarea"
+                rows={1}
+                ref={textAreaRef}
+              />
+              {message.length < textareaMaxLength ? (
+                <span className={`textarea-message`}>
+                  {message.length}/{textareaMaxLength}
+                </span>
+              ) : (
+                <span className={`textarea-message limit-reached`}>
+                  Você atingiu o limite de caracteres: {message.length}/
+                  {textareaMaxLength}
+                </span>
+              )}
+            </div>
+            <CustomIconButton
+              className="send-button"
+              onClick={handleSendMessage}
+              disabled={message.length > textareaMaxLength}
+            >
               <SendIcon />
-            </IconButton>
+            </CustomIconButton>
           </div>
         )}
       </div>
