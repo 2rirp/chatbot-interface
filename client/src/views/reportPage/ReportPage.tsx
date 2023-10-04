@@ -128,7 +128,7 @@ export default function ReportPage() {
     <>
       <div className="reports-page-container">
         {modalIsOpen && <Modal onClose={closeModal} data={usersData} />}
-        <div className="header-container">
+        <div className="header-container pattern-header">
           <div className="header">
             <div className="button-div">
               <IconButton onClick={() => navigate("/")}>
