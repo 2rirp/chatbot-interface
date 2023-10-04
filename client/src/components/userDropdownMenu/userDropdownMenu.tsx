@@ -2,35 +2,40 @@ import React from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Tooltip from "@mui/material/Tooltip";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CustomIconButton from "../customIconButton/CustomIconButton";
 
 interface IProps {
   currentPage: string;
-  conversationId?: number;
-  handleEndChat?: () => void;
-  handleCloseChat: () => void;
-  onMarkAsUnread?: (conversationId: number | null) => void;
-  isAnUnreadConversation?: (conversationId: number | null) => boolean;
+  className?: string;
+  conversationId: number;
+  isAnUnreadConversation: boolean;
+  onMarkAsUnread: (conversationId: number) => void;
+  onMarkAsRead: (conversationId: number) => void;
 }
 
-export default function ChatDropdownMenu(props: IProps) {
+export default function UserDropdownMenu(props: IProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
+    event.stopPropagation();
   };
 
-  const handleClose = () => {
+  const handleClose = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(null);
+    event.stopPropagation();
   };
 
   return (
     <React.Fragment>
       <Tooltip title="Opções">
-        <CustomIconButton onClick={handleClick}>
-          <MoreVertIcon />
+        <CustomIconButton
+          onClick={handleClick}
+          className={props.className || ""}
+        >
+          <KeyboardArrowDownIcon />
         </CustomIconButton>
       </Tooltip>
 
@@ -70,28 +75,24 @@ export default function ChatDropdownMenu(props: IProps) {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         {props.currentPage === "real-time-page" &&
-          !props.isAnUnreadConversation?.(props.conversationId || null) &&
-          props.onMarkAsUnread &&
-          props.conversationId !== undefined && (
+          !props.isAnUnreadConversation && (
             <MenuItem
               key="mark-as-unread"
-              onClick={() =>
-                props.onMarkAsUnread?.(props.conversationId || null)
-              }
+              onClick={() => props.onMarkAsUnread(props.conversationId)}
             >
               Marcar como não lida
             </MenuItem>
           )}
 
-        {props.currentPage === "real-time-page" && (
-          <MenuItem key="end-conversation" onClick={props.handleEndChat}>
-            Encerrar Conversa
-          </MenuItem>
-        )}
-
-        <MenuItem key="close-chat" onClick={props.handleCloseChat}>
-          Fechar Chat
-        </MenuItem>
+        {props.currentPage === "real-time-page" &&
+          props.isAnUnreadConversation && (
+            <MenuItem
+              key="mark-as-read"
+              onClick={() => props.onMarkAsRead(props.conversationId)}
+            >
+              Marcar como lida
+            </MenuItem>
+          )}
       </Menu>
     </React.Fragment>
   );

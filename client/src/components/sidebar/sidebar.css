@@ -55,8 +55,10 @@
 
 .sidebar-container li {
   display: flex;
+  position: relative;
   align-items: center;
   justify-content: space-around;
+  overflow: hidden;
   background-color: var(--secondary-blue);
 
   color: #363636;
@@ -72,12 +74,24 @@
   filter: brightness(90%);
 }
 
+.user-dropdown-menu{
+position: absolute;
+right: -50px;
+transition: right 0.3s ease; 
+}
+
+.sidebar-container li:hover .user-dropdown-menu{
+  right: 0;
+}
+
 .unread-conversation::after {
   content: "";
   display: inline-block;
+  position: absolute;
+  right: 42px;
   width: 10px;
   height: 10px;
-  background-color: rgb(0, 190, 28);
+  background-color: #00be1c;
   border-radius: 50%;
 }
 

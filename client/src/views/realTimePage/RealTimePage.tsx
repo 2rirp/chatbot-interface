@@ -36,6 +36,7 @@ export default function RealTimePage() {
   >(undefined);
   const [mustExitConversation, setMustExitConversation] =
     useState<boolean>(false);
+
   const currentPage = "real-time-page";
   const currentConversationIdRef = useRef(currentConversationId);
   const currentBotUserIdRef = useRef(currentBotUserId);
@@ -247,6 +248,38 @@ export default function RealTimePage() {
     }
   };
 
+  const handleMarkAsUnread = (conversationId: number | null) => {
+    if (conversationId === null) {
+      return;
+    }
+
+    socketContext?.socket?.emit(
+      "markAsUnread",
+      conversationId,
+      userContext?.user?.id
+    );
+    setUnreadConversations((prev) => [...prev, conversationId]);
+  };
+
+  const handleMarkAsRead = (conversationId: number) => {
+    socketContext?.socket?.emit(
+      "markAsRead",
+      conversationId,
+      userContext?.user?.id
+    );
+
+    setUnreadConversations((prev) =>
+      prev.filter((id) => id !== conversationId)
+    );
+  };
+
+  const handleIsAnUnreadConversation = (conversationId: number | null) => {
+    return conversationId !== null &&
+      unreadConversations.includes(conversationId)
+      ? true
+      : false;
+  };
+
   useEffect(() => {
     if (mustExitConversation) {
       exitConversation();
@@ -305,6 +338,8 @@ export default function RealTimePage() {
           onReportClick={() => navigate("/relatorio")}
           onLogoutClick={logout}
           unreadConversations={unreadConversations}
+          onMarkAsUnread={handleMarkAsUnread}
+          onMarkAsRead={handleMarkAsRead}
         />
         {hasFetchedChatData ? (
           <Chat
@@ -313,9 +348,12 @@ export default function RealTimePage() {
             onSendMessage={handleSendMessage}
             onEndConversation={deactivateCurrentConversation}
             userId={currentBotUserId}
+            conversationId={currentConversationId}
             newBotUserMessageCount={newBotUserMessageCount}
             unsetNewBotUserMessageCount={handleUnsetCount}
             onCloseChat={exitConversation}
+            isAnUnreadConversation={handleIsAnUnreadConversation}
+            onMarkAsUnread={handleMarkAsUnread}
           />
         ) : (
           <div className="centered-message-container">

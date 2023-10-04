@@ -11,6 +11,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { TailSpin } from "react-loading-icons";
 import PhoneNumberFormatter from "../phoneNumberFormatter/PhoneNumberFormatter";
 import CustomIconButton from "../customIconButton/CustomIconButton";
+import UserDropdownMenu from "../userDropdownMenu/userDropdownMenu";
 
 interface SidebarProps {
   currentPage: string;
@@ -25,6 +26,8 @@ interface SidebarProps {
   isActive: boolean;
   botUsersList: Array<IBotUser>;
   unreadConversations?: Array<number>;
+  onMarkAsUnread?: (conversationId: number) => void;
+  onMarkAsRead?: (conversationId: number) => void;
 }
 
 function Sidebar(props: SidebarProps) {
@@ -199,6 +202,26 @@ function Sidebar(props: SidebarProps) {
                     <PhoneNumberFormatter
                       phoneNumber={`${botUser.botUserId}`}
                     />
+                    {props.currentPage === "real-time-page" &&
+                      botUser.conversationId &&
+                      props.onMarkAsUnread &&
+                      props.onMarkAsRead && (
+                        <UserDropdownMenu
+                          currentPage={props.currentPage}
+                          className="user-dropdown-menu"
+                          conversationId={botUser.conversationId}
+                          isAnUnreadConversation={
+                            botUser.conversationId &&
+                            props.unreadConversations?.includes(
+                              botUser.conversationId
+                            )
+                              ? true
+                              : false
+                          }
+                          onMarkAsUnread={props.onMarkAsUnread}
+                          onMarkAsRead={props.onMarkAsRead}
+                        />
+                      )}
                   </li>
                 ))}
               </ul>

@@ -118,6 +118,14 @@ export default class Websocket {
       );
     });
 
+    socket.on("markAsUnread", (conversationId, userId) => {
+      this.addUnfollowedConversation(conversationId, userId);
+    });
+
+    socket.on("markAsRead", (conversationId, userId) => {
+      this.removeUnfollowedConversation(conversationId, userId);
+    });
+
     socket.on("disconnect", () => {
       this.removeConnection(socket);
       console.log("Client disconnected");
@@ -276,18 +284,32 @@ export default class Websocket {
     }
   }
 
-  public addUnfollowedConversation(conversationId: number) {
+  private addUnfollowedConversation(
+    conversationId: number,
+    excludeUserConnection?: number
+  ) {
     if (!this.unreadConversations.includes(conversationId)) {
       this.unreadConversations.push(conversationId);
-      this.broadcastToEveryone("newUnreadConversation", conversationId);
+      this.broadcastToEveryone(
+        "newUnreadConversation",
+        conversationId,
+        excludeUserConnection
+      );
     }
   }
 
-  public removeUnfollowedConversation(conversationId: number) {
+  private removeUnfollowedConversation(
+    conversationId: number,
+    excludeUserConnection?: number
+  ) {
     const index = this.unreadConversations.indexOf(conversationId);
     if (index !== -1) {
       this.unreadConversations.splice(index, 1);
-      this.broadcastToEveryone("removeFromUnreadConversations", conversationId);
+      this.broadcastToEveryone(
+        "removeFromUnreadConversations",
+        conversationId,
+        excludeUserConnection
+      );
     }
   }
 }

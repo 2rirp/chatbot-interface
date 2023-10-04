@@ -21,9 +21,12 @@ interface ChatProps {
   onSendMessage?: (message: string) => void;
   onEndConversation?: () => void;
   userId: string;
+  conversationId?: number;
   newBotUserMessageCount?: number;
   unsetNewBotUserMessageCount?: () => void;
   onCloseChat: () => void;
+  isAnUnreadConversation?: (conversationId: number | null) => boolean;
+  onMarkAsUnread?: (conversaationId: number | null) => void;
 }
 
 function Chat(props: ChatProps) {
@@ -221,8 +224,11 @@ function Chat(props: ChatProps) {
             {props.currentPage === "real-time-page" && (
               <ChatDropdownMenu
                 currentPage={props.currentPage}
+                conversationId={props.conversationId}
                 handleCloseChat={props.onCloseChat}
                 handleEndChat={openEndChatDialog}
+                onMarkAsUnread={props.onMarkAsUnread}
+                isAnUnreadConversation={props.isAnUnreadConversation}
               />
             )}
 
