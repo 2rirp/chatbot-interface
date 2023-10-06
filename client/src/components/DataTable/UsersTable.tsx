@@ -83,7 +83,9 @@ export default function UsersTable(props: IProps) {
                 {row.id}
               </TableCell>
               <TableCell align="right">{row.date}</TableCell>
-              <TableCell align="right">{row.user_id}</TableCell>
+              <TableCell align="right">
+                <PhoneNumberFormatter phoneNumber={row.user_id} />
+              </TableCell>
               <TableCell align="right">{row.status}</TableCell>
               <TableCell align="right">{row.emitida}</TableCell>
             </TableRow>
