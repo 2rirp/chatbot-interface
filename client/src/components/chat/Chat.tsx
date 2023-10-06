@@ -26,12 +26,14 @@ interface ChatProps {
   unsetNewBotUserMessageCount?: () => void;
   onCloseChat: () => void;
   isAnUnreadConversation?: (conversationId: number | null) => boolean;
-  onMarkAsUnread?: (conversaationId: number | null) => void;
+  onMarkAsUnread?: (conversationId: number | null) => void;
+  onTextAreaChange?: (newMessage: string) => void;
+  initialMessage?: () => string;
 }
 
 function Chat(props: ChatProps) {
   const textareaMaxLength: number = 1550;
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<string>("");
   const [userAtBottom, setUserAtBottom] = useState(true);
   const [showEndChatDialog, setShowEndChatDialog] = useState(false);
   const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
@@ -49,11 +51,14 @@ function Chat(props: ChatProps) {
   ) => {
     const inputMessage = event.target.value;
     setMessage(inputMessage);
+    props.onTextAreaChange?.(inputMessage);
+    resizeTextArea();
   };
 
   const handleSendMessage = () => {
     if (message.trim() !== "" && message.length < textareaMaxLength) {
-      props.onSendMessage?.(message);
+      props.onSendMessage?.(message.trim());
+      props.onTextAreaChange?.("");
       setMessage("");
     }
   };
@@ -187,8 +192,8 @@ function Chat(props: ChatProps) {
   }, [props.chatData]);
 
   useEffect(() => {
-    resizeTextArea();
-  }, [message]);
+    setMessage(props.initialMessage || "");
+  }, [props.initialMessage]);
 
   return (
     <div className="chat">

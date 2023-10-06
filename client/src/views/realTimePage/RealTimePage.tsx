@@ -15,6 +15,11 @@ interface FetchBotUser {
   id: number;
 }
 
+interface TextAreaData {
+  userId: string;
+  message: string;
+}
+
 export default function RealTimePage() {
   const socketContext = useContext(SocketContext);
   const userContext = useContext(UserContext);
@@ -36,6 +41,7 @@ export default function RealTimePage() {
   >(undefined);
   const [mustExitConversation, setMustExitConversation] =
     useState<boolean>(false);
+  const [textAreaData, setTextAreaData] = useState<TextAreaData[]>([]);
 
   const currentPage = "real-time-page";
   const currentConversationIdRef = useRef(currentConversationId);
@@ -280,6 +286,43 @@ export default function RealTimePage() {
       : false;
   };
 
+  const handleTextAreaChange = (newMessage: string) => {
+    const userIndex = textAreaData.findIndex(
+      (data) => data.userId === currentBotUserId
+    );
+
+    if (userIndex !== -1) {
+      const updatedData = [...textAreaData];
+
+      updatedData[userIndex].message = newMessage;
+
+      setTextAreaData(updatedData);
+    } else {
+      console.log(`User with ID ${currentBotUserId} not found.`);
+    }
+  };
+
+  const handleInitialMessage = () => {
+    const userIndex = textAreaData.findIndex(
+      (data) => data.userId === currentBotUserId
+    );
+
+    let initialMessage = "";
+
+    if (userIndex !== -1) {
+      initialMessage = textAreaData[userIndex].message;
+    } else {
+      const newUserEntry = {
+        userId: currentBotUserId,
+        message: "",
+      };
+
+      setTextAreaData((prevData) => [...prevData, newUserEntry]);
+    }
+
+    return initialMessage;
+  };
+
   useEffect(() => {
     if (mustExitConversation) {
       exitConversation();
@@ -354,6 +397,8 @@ export default function RealTimePage() {
             onCloseChat={exitConversation}
             isAnUnreadConversation={handleIsAnUnreadConversation}
             onMarkAsUnread={handleMarkAsUnread}
+            onTextAreaChange={handleTextAreaChange}
+            initialMessage={handleInitialMessage}
           />
         ) : (
           <div className="centered-message-container">
