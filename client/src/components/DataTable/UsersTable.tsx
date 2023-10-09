@@ -14,6 +14,7 @@ interface IReportUsers {
   user_id?: string;
   status?: string;
   emitida: boolean | string;
+  regist_count: number;
 }
 
 interface IProps {
@@ -25,9 +26,10 @@ function createData(
   date: string,
   user_id: string,
   status: string,
-  emitida: boolean | string
+  emitida: boolean | string,
+  regist_count: number
 ) {
-  return { id, date, user_id, status, emitida };
+  return { id, date, user_id, status, emitida, regist_count };
 }
 
 export default function UsersTable(props: IProps) {
@@ -50,6 +52,7 @@ export default function UsersTable(props: IProps) {
         break;
       default:
         item.status;
+        break;
     }
     if (item.emitida === true) item.emitida = "Sim";
     else if (item.emitida === false) item.emitida = "Não";
@@ -59,7 +62,8 @@ export default function UsersTable(props: IProps) {
       item.date || "",
       item.user_id || "0",
       item.status || "0",
-      item.emitida
+      item.emitida,
+      item.regist_count || 0
     );
   });
 
@@ -73,6 +77,7 @@ export default function UsersTable(props: IProps) {
             <TableCell align="right">Usuário</TableCell>
             <TableCell align="right">Status</TableCell>
             <TableCell align="right">Emitida</TableCell>
+            <TableCell align="right">Quantidade</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -90,6 +95,7 @@ export default function UsersTable(props: IProps) {
               </TableCell>
               <TableCell align="right">{row.status}</TableCell>
               <TableCell align="right">{row.emitida}</TableCell>
+              <TableCell align="right">{row.regist_count}</TableCell>
             </TableRow>
           ))}
         </TableBody>
