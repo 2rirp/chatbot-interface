@@ -8,11 +8,17 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext";
 import IMessage from "../../interfaces/imessage";
 import IBotUser from "../../interfaces/ibotUser";
+import PagesType from "../../interfaces/pagesName";
 //import AlertDialog from "../../components/chat/alertDialog/alertDialog";
 
 interface FetchBotUser {
   user_id: string;
   id: number;
+}
+
+interface TextAreaData {
+  userId: string;
+  message: string;
 }
 
 export default function RealTimePage() {
@@ -34,7 +40,11 @@ export default function RealTimePage() {
   const [newBotUserMessageCount, setNewBotUserMessageCount] = useState<
     number | undefined
   >(undefined);
-  const currentPage = "real-time-page";
+  const [mustExitConversation, setMustExitConversation] =
+    useState<boolean>(false);
+  const [textAreaData, setTextAreaData] = useState<TextAreaData[]>([]);
+
+  const currentPage: keyof PagesType = "real_time_page";
   const currentConversationIdRef = useRef(currentConversationId);
   const currentBotUserIdRef = useRef(currentBotUserId);
   // const [deleteUser, setDeleteUser] = useState(false);
@@ -186,23 +196,8 @@ export default function RealTimePage() {
     socketContext.socket.on(
       "removeFromAttendance",
       (conversationId: number) => {
-        console.log(
-          conversationId +
-            " and " +
-            currentConversationIdRef.current +
-            " and " +
-            currentBotUserIdRef.current
-        );
-
         if (currentConversationIdRef.current === conversationId) {
-          socketContext?.socket?.emit(
-            "exitConversation",
-            currentBotUserIdRef.current,
-            currentConversationIdRef.current,
-            userContext?.user?.id
-          );
-
-          setHasFetchedChatData(false);
+          exitConversation();
         }
 
         setBotUsersNeedingAttendants((prev) =>
@@ -246,6 +241,96 @@ export default function RealTimePage() {
     setNewBotUserMessageCount(undefined);
   };
 
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyPressed);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPressed);
+    };
+  }, []);
+
+  const handleKeyPressed = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      setMustExitConversation(true);
+    }
+  };
+
+  const handleMarkAsUnread = (conversationId: number | null) => {
+    if (conversationId === null) {
+      return;
+    }
+
+    socketContext?.socket?.emit(
+      "markAsUnread",
+      conversationId,
+      userContext?.user?.id
+    );
+    setUnreadConversations((prev) => [...prev, conversationId]);
+  };
+
+  const handleMarkAsRead = (conversationId: number) => {
+    socketContext?.socket?.emit(
+      "markAsRead",
+      conversationId,
+      userContext?.user?.id
+    );
+
+    setUnreadConversations((prev) =>
+      prev.filter((id) => id !== conversationId)
+    );
+  };
+
+  const handleIsAnUnreadConversation = (conversationId: number | null) => {
+    return conversationId !== null &&
+      unreadConversations.includes(conversationId)
+      ? true
+      : false;
+  };
+
+  const handleTextAreaChange = (newMessage: string) => {
+    const userIndex = textAreaData.findIndex(
+      (data) => data.userId === currentBotUserId
+    );
+
+    if (userIndex !== -1) {
+      const updatedData = [...textAreaData];
+
+      updatedData[userIndex].message = newMessage;
+
+      setTextAreaData(updatedData);
+    } else {
+      console.log(`User with ID ${currentBotUserId} not found.`);
+    }
+  };
+
+  const handleInitialMessage = () => {
+    const userIndex = textAreaData.findIndex(
+      (data) => data.userId === currentBotUserId
+    );
+
+    let initialMessage = "";
+
+    if (userIndex !== -1) {
+      initialMessage = textAreaData[userIndex].message;
+    } else {
+      const newUserEntry = {
+        userId: currentBotUserId,
+        message: "",
+      };
+
+      setTextAreaData((prevData) => [...prevData, newUserEntry]);
+    }
+
+    return initialMessage;
+  };
+
+  useEffect(() => {
+    if (mustExitConversation) {
+      exitConversation();
+      setMustExitConversation(false);
+    }
+  }, [mustExitConversation]);
+
   async function deactivateCurrentConversation() {
     try {
       const deactivatedConversation = await fetch(`/api/conversations/end`, {
@@ -261,14 +346,7 @@ export default function RealTimePage() {
           prev.filter((user) => user.conversationId !== currentConversationId)
         );
 
-        socketContext?.socket?.emit(
-          "exitConversation",
-          currentBotUserId,
-          currentConversationId,
-          userContext?.user?.id
-        );
-
-        setHasFetchedChatData(false);
+        exitConversation();
       } else {
         alert("Erro ao encerrar a conversa.");
       }
@@ -276,6 +354,19 @@ export default function RealTimePage() {
       console.error(error.name, error.message);
     }
   }
+
+  const exitConversation = () => {
+    socketContext?.socket?.emit(
+      "exitConversation",
+      currentBotUserIdRef.current,
+      currentConversationIdRef.current,
+      userContext?.user?.id
+    );
+
+    setHasFetchedChatData(false);
+    setCurrentBotUserId("");
+    setCurrentConversationId(NaN);
+  };
 
   return (
     <div className="page">
@@ -291,6 +382,8 @@ export default function RealTimePage() {
           onReportClick={() => navigate("/relatorio")}
           onLogoutClick={logout}
           unreadConversations={unreadConversations}
+          onMarkAsUnread={handleMarkAsUnread}
+          onMarkAsRead={handleMarkAsRead}
         />
         {hasFetchedChatData ? (
           <Chat
@@ -299,8 +392,14 @@ export default function RealTimePage() {
             onSendMessage={handleSendMessage}
             onEndConversation={deactivateCurrentConversation}
             userId={currentBotUserId}
+            conversationId={currentConversationId}
             newBotUserMessageCount={newBotUserMessageCount}
             unsetNewBotUserMessageCount={handleUnsetCount}
+            onCloseChat={exitConversation}
+            isAnUnreadConversation={handleIsAnUnreadConversation}
+            onMarkAsUnread={handleMarkAsUnread}
+            onTextAreaChange={handleTextAreaChange}
+            initialMessage={handleInitialMessage}
           />
         ) : (
           <div className="centered-message-container">

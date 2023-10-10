@@ -1,5 +1,5 @@
 import "./chatPage.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 
 import SignUpModal from "../../components/signUpModal/SignUpModal";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,8 @@ import IBotUser from "../../interfaces/ibotUser";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Chat from "../../components/chat/Chat";
 import IMessage from "../../interfaces/imessage";
+import { SocketContext } from "../../contexts/SocketContext";
+import PagesType from "../../interfaces/pagesName";
 
 export default function ChatPage() {
   const [chatData, setChatData] = useState<Array<IMessage>>([]);
@@ -16,7 +18,14 @@ export default function ChatPage() {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [userList, setUserList] = useState<Array<IBotUser>>([]);
   const [currentBotUserId, setCurrentBotUserId] = useState<string>("");
-  const currentPage = "history-page";
+  const [isItToday, setIsItToday] = useState<boolean>(false);
+  const socketContext = useContext(SocketContext);
+  const currentPage: keyof PagesType = "history_page";
+  const currentBotUserIdRef = useRef(currentBotUserId);
+  const [conversationStatus, setConversationStatus] = useState<string | null>(
+    null
+  );
+
   const navigate = useNavigate();
 
   const changeRoute = () => {
@@ -82,6 +91,7 @@ export default function ChatPage() {
         if (responseObj.data) {
           setCurrentBotUserId(botUserId);
           setChatData(responseObj.data);
+          checkIfItsToday();
           setHasFetchedChatData(true);
         } else {
           console.error("No chat data found:", responseObj.data);
@@ -94,14 +104,52 @@ export default function ChatPage() {
     }
   }
 
+  const closeChat = () => {
+    setHasFetchedChatData(false);
+    setCurrentBotUserId("");
+  };
+
   function closeModal() {
     setmodalIsOpen(false);
     setActiveDropdown(false);
   }
+
   function openModal() {
     setmodalIsOpen(true);
     setActiveDropdown(true);
   }
+
+  const checkIfItsToday = () => {
+    const options = { timeZone: "America/Sao_Paulo" };
+    const [day, month, year] = new Date()
+      .toLocaleString("pt-BR", options)
+      .split(",")[0]
+      .split("/");
+
+    const date = `${year}-${month}-${day}`;
+    console.log(`${selectedDate} e ${date}`);
+
+    if (selectedDate === date) {
+      setIsItToday(true);
+    } else {
+      setIsItToday(false);
+    }
+  };
+
+  const handleRedirectChat = (
+    conversationId: number | null,
+    userId: string | null
+  ) => {
+    if (conversationId === null || userId === null) {
+      return;
+    }
+
+    socketContext?.socket?.emit(
+      "redirectToAttendantFromInterface",
+      conversationId,
+      userId
+    );
+  };
 
   useEffect(() => {
     if (selectedDate !== "") {
@@ -109,6 +157,38 @@ export default function ChatPage() {
       fetchUserListByDate(selectedDate);
     }
   }, [selectedDate]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyPressed);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPressed);
+    };
+  }, []);
+
+  const handleKeyPressed = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      closeChat();
+    }
+  };
+
+  useEffect(() => {
+    currentBotUserIdRef.current = currentBotUserId;
+  }, [currentBotUserId]);
+
+  useEffect(() => {
+    if (!socketContext?.socket) return;
+
+    socketContext.socket.on("botUserNeedsAttendant", (newBotUser: IBotUser) => {
+      if (currentBotUserIdRef.current === newBotUser.botUserId) {
+        setConversationStatus("talking_to_attendant");
+      }
+    });
+
+    return () => {
+      socketContext?.socket?.off("botUserNeedsAttendant");
+    };
+  }, [socketContext]);
 
   return (
     <div className="page">
@@ -131,6 +211,10 @@ export default function ChatPage() {
             currentPage={currentPage}
             chatData={chatData}
             userId={currentBotUserId}
+            onCloseChat={closeChat}
+            isItToday={isItToday}
+            onRedirectChat={handleRedirectChat}
+            newConversationStatus={conversationStatus}
           />
         ) : (
           <div className="centered-message-container">
