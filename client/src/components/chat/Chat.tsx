@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import "./chat.css";
 import SendIcon from "@mui/icons-material/Send";
 import IconButton from "@mui/material/IconButton";
@@ -14,9 +14,10 @@ import PhoneNumberFormatter from "../phoneNumberFormatter/PhoneNumberFormatter";
 import ChatDropdownMenu from "../chatDropdownMenu/chatDropdownMenu";
 import SearchSidebar from "../searchSidebar/SearchSidebar";
 import TimestampFormatter from "../timestampFormatter/TimestampFormatter";
+import PagesType from "../../interfaces/pagesName";
 
 interface ChatProps {
-  currentPage: string;
+  currentPage: keyof PagesType;
   chatData: Array<IMessage>;
   onSendMessage?: (message: string) => void;
   onEndConversation?: () => void;
@@ -29,6 +30,12 @@ interface ChatProps {
   onMarkAsUnread?: (conversationId: number | null) => void;
   onTextAreaChange?: (newMessage: string) => void;
   initialMessage?: () => string;
+  onRedirectChat?: (
+    conversationId: number | null,
+    userId: string | null
+  ) => void;
+  isItToday?: boolean;
+  newConversationStatus?: string | null;
 }
 
 function Chat(props: ChatProps) {
@@ -37,7 +44,7 @@ function Chat(props: ChatProps) {
   const [userAtBottom, setUserAtBottom] = useState(true);
   const [showEndChatDialog, setShowEndChatDialog] = useState(false);
   const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
-
+  /*   const [isUserScrolling, setIsUserScrolling] = useState(false);*/
   /* const [totalOfResults, setTotalOfResults] = useState<number>(0); */
   /* const [selectedResultIndex, setSelectedResultIndex] = useState<number | null>(
     null
@@ -45,6 +52,8 @@ function Chat(props: ChatProps) {
   /* const [matchingMessages, setMatchingMessages] = useState<IMessage[]>([]); */
   const chatContentRef = useRef<HTMLDivElement | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  let num = 0;
+  const lastMessage = props.chatData[props.chatData.length - 1];
 
   const handleMessageChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
@@ -226,7 +235,7 @@ function Chat(props: ChatProps) {
               )}
             </div> */}
 
-            {props.currentPage === "real-time-page" && (
+            {props.currentPage === "real_time_page" && (
               <ChatDropdownMenu
                 currentPage={props.currentPage}
                 conversationId={props.conversationId}
@@ -237,51 +246,94 @@ function Chat(props: ChatProps) {
               />
             )}
 
-            {props.currentPage === "history-page" && (
+            {props.currentPage === "history_page" && (
               <ChatDropdownMenu
                 currentPage={props.currentPage}
+                conversationId={lastMessage.conversation_id}
+                conversationStatus={
+                  props.newConversationStatus || lastMessage.status
+                }
+                userId={props.userId}
                 handleCloseChat={props.onCloseChat}
+                onRedirectChat={props.onRedirectChat}
+                isItToday={props.isItToday}
               />
             )}
           </div>
         </div>
         <div className="chat-content-buttons">
           <div className="chat-content" ref={chatContentRef}>
-            {props.chatData.map((message) => (
-              <div
-                key={message.id}
-                className={`message ${
-                  message.message_from_bot ? "bot-message" : "user-message"
-                }`}
-                data-message-id={message.id}
-              >
-                {message.media_url && (
-                  <div className="media-container">
-                    {message.media_type.startsWith("image") ? (
-                      <img
-                        src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                        alt="Media"
-                      />
-                    ) : message.media_type.startsWith("video") ? (
-                      <video controls>
-                        <source
-                          src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                          type="video/mp4"
-                        />
-                        Este navegador não suporta exibição de vídeo.
-                      </video>
-                    ) : message.media_type.startsWith("document") ? (
-                      <div>
-                        <object
-                          data={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                          type="application/pdf"
-                        >
-                          <p>
-                            Este navegador não suporta PDFs. Por favor baixe o
-                            PDF para poder visualizá-lo.
-                          </p>
-                        </object>
+            {/* {isUserScrolling && (
+              <div className="info-message sticky-info-message">
+                <h3>{(num += 1)}ª conversa do dia</h3>
+              </div>
+            )} */}
+            {props.chatData.map((message, index) => (
+              <Fragment key={message.id}>
+                {index === 0 ||
+                (message.conversation_id !==
+                  props.chatData[index - 1]?.conversation_id &&
+                  props.currentPage === "history_page") ? (
+                  <div className="info-message">
+                    <h3>{(num += 1)}ª conversa do dia</h3>
+                  </div>
+                ) : null}
 
+                <div
+                  key={message.id}
+                  className={`message ${
+                    message.message_from_bot ? "bot-message" : "user-message"
+                  }`}
+                  data-message-id={message.id}
+                >
+                  {message.media_url && (
+                    <div className="media-container">
+                      {message.media_type.startsWith("image") ? (
+                        <img
+                          src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                          alt="Media"
+                        />
+                      ) : message.media_type.startsWith("video") ? (
+                        <video controls>
+                          <source
+                            src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                            type="video/mp4"
+                          />
+                          Este navegador não suporta exibição de vídeo.
+                        </video>
+                      ) : message.media_type.startsWith("document") ? (
+                        <div>
+                          <object
+                            data={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                            type="application/pdf"
+                          >
+                            <p>
+                              Este navegador não suporta PDFs. Por favor baixe o
+                              PDF para poder visualizá-lo.
+                            </p>
+                          </object>
+
+                          <IconButton>
+                            Baixar arquivo
+                            <a
+                              href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download
+                            >
+                              <DownloadIcon />
+                            </a>
+                          </IconButton>
+                        </div>
+                      ) : message.media_type.startsWith("audio") ? (
+                        <audio controls>
+                          <source
+                            src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                            type={message.media_type}
+                          />
+                          Este navegador não suporta exibição de audio.
+                        </audio>
+                      ) : message.media_type.startsWith("application") ? (
                         <IconButton>
                           Baixar arquivo
                           <a
@@ -293,50 +345,30 @@ function Chat(props: ChatProps) {
                             <DownloadIcon />
                           </a>
                         </IconButton>
-                      </div>
-                    ) : message.media_type.startsWith("audio") ? (
-                      <audio controls>
-                        <source
-                          src={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                          type={message.media_type}
-                        />
-                        Este navegador não suporta exibição de audio.
-                      </audio>
-                    ) : message.media_type.startsWith("application") ? (
-                      <IconButton>
-                        Baixar arquivo
-                        <a
-                          href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          download
-                        >
-                          <DownloadIcon />
-                        </a>
-                      </IconButton>
-                    ) : (
-                      <p>
-                        Midía não suportada. Por favor, entre em contato com o
-                        suporte.
-                      </p>
-                    )}
-                  </div>
-                )}
-                {message.content !== "" && (
-                  <div className="message-content">
-                    <TextFormatter text={message.content} />
-                  </div>
-                )}
-                <div className="message-bottom">
-                  <div className="message-timestamp">
-                    <TimestampFormatter
-                      timestamp={message.created_at}
-                      returnTime
-                      removeSomeData={["second"]}
-                    />
+                      ) : (
+                        <p>
+                          Midía não suportada. Por favor, entre em contato com o
+                          suporte.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {message.content !== "" && (
+                    <div className="message-content">
+                      <TextFormatter text={message.content} />
+                    </div>
+                  )}
+                  <div className="message-bottom">
+                    <div className="message-timestamp">
+                      <TimestampFormatter
+                        timestamp={message.created_at}
+                        returnTime
+                        removeSomeData={["second"]}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Fragment>
             ))}
           </div>
 
@@ -352,7 +384,7 @@ function Chat(props: ChatProps) {
             </CustomIconButton>
           )}
         </div>
-        {props.currentPage === "real-time-page" && (
+        {props.currentPage === "real_time_page" && (
           <div className="chat-input-container">
             <div className="textarea-container">
               <textarea
@@ -386,7 +418,7 @@ function Chat(props: ChatProps) {
         )}
       </div>
 
-      {props.currentPage === "real-time-page" && props.onEndConversation && (
+      {props.currentPage === "real_time_page" && props.onEndConversation && (
         <AlertDialog
           mustOpen={showEndChatDialog}
           alertTitle="Encerrar conversa"

@@ -4,9 +4,10 @@ import MenuItem from "@mui/material/MenuItem";
 import Tooltip from "@mui/material/Tooltip";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CustomIconButton from "../customIconButton/CustomIconButton";
+import PagesType from "../../interfaces/pagesName";
 
 interface IProps {
-  currentPage: string;
+  currentPage: keyof PagesType;
   className?: string;
   conversationId: number;
   isAnUnreadConversation: boolean;
@@ -74,7 +75,7 @@ export default function UserDropdownMenu(props: IProps) {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        {props.currentPage === "real-time-page" &&
+        {props.currentPage === "real_time_page" &&
           !props.isAnUnreadConversation && (
             <MenuItem
               key="mark-as-unread"
@@ -84,7 +85,7 @@ export default function UserDropdownMenu(props: IProps) {
             </MenuItem>
           )}
 
-        {props.currentPage === "real-time-page" &&
+        {props.currentPage === "real_time_page" &&
           props.isAnUnreadConversation && (
             <MenuItem
               key="mark-as-read"

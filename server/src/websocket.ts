@@ -126,6 +126,10 @@ export default class Websocket {
       this.removeUnfollowedConversation(conversationId, userId);
     });
 
+    socket.on("redirectToAttendantFromInterface", (conversationId, userId) => {
+      this.io?.emit("redirectFromInterface", conversationId, userId);
+    });
+
     socket.on("disconnect", () => {
       this.removeConnection(socket);
       console.log("Client disconnected");

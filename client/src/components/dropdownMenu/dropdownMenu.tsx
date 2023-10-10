@@ -14,9 +14,10 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { UserContext } from "../../contexts/UserContext";
 import { useContext } from "react";
 import Box from "@mui/material/Box";
+import PagesType from "../../interfaces/pagesName";
 
 interface IProps {
-  currentPage: string;
+  currentPage: keyof PagesType;
   handleRegister: () => void;
   handleChatpage?: () => void;
   handleHistoryPage?: () => void;
@@ -101,7 +102,7 @@ export default function DropdownMenu(props: IProps) {
           </MenuItem>
         )}
 
-        {props.currentPage === "real-time-page" && (
+        {props.currentPage === "real_time_page" && (
           <MenuItem key="history" onClick={props.handleHistoryPage}>
             <ListItemIcon>
               <EventNoteIcon fontSize="small" />
@@ -110,7 +111,7 @@ export default function DropdownMenu(props: IProps) {
           </MenuItem>
         )}
 
-        {props.currentPage === "history-page" && (
+        {props.currentPage === "history_page" && (
           <MenuItem key="chat" onClick={props.handleChatpage}>
             <ListItemIcon>
               <ChatIcon fontSize="small" />

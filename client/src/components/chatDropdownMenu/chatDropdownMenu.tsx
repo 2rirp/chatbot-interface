@@ -4,14 +4,22 @@ import MenuItem from "@mui/material/MenuItem";
 import Tooltip from "@mui/material/Tooltip";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CustomIconButton from "../customIconButton/CustomIconButton";
+import PagesType from "../../interfaces/pagesName";
 
 interface IProps {
-  currentPage: string;
+  currentPage: keyof PagesType;
   conversationId?: number;
+  conversationStatus?: string;
+  userId?: string;
   handleEndChat?: () => void;
   handleCloseChat: () => void;
   onMarkAsUnread?: (conversationId: number | null) => void;
   isAnUnreadConversation?: (conversationId: number | null) => boolean;
+  onRedirectChat?: (
+    conversationId: number | null,
+    userId: string | null
+  ) => void;
+  isItToday?: boolean;
 }
 
 export default function ChatDropdownMenu(props: IProps) {
@@ -69,7 +77,7 @@ export default function ChatDropdownMenu(props: IProps) {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        {props.currentPage === "real-time-page" &&
+        {props.currentPage === "real_time_page" &&
           !props.isAnUnreadConversation?.(props.conversationId || null) &&
           props.onMarkAsUnread &&
           props.conversationId !== undefined && (
@@ -83,7 +91,27 @@ export default function ChatDropdownMenu(props: IProps) {
             </MenuItem>
           )}
 
-        {props.currentPage === "real-time-page" && (
+        {props.currentPage === "history_page" && props.isItToday && (
+          <MenuItem
+            key="redirect-conversation"
+            disabled={
+              props.conversationStatus &&
+              props.conversationStatus !== "talking_to_attendant"
+                ? false
+                : true
+            }
+            onClick={() =>
+              props.onRedirectChat?.(
+                props.conversationId || null,
+                props.userId || null
+              )
+            }
+          >
+            Redirecionar para atendimento
+          </MenuItem>
+        )}
+
+        {props.currentPage === "real_time_page" && (
           <MenuItem key="end-conversation" onClick={props.handleEndChat}>
             Encerrar Conversa
           </MenuItem>

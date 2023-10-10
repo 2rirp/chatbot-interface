@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/UserContext";
 import IMessage from "../../interfaces/imessage";
 import IBotUser from "../../interfaces/ibotUser";
+import PagesType from "../../interfaces/pagesName";
 //import AlertDialog from "../../components/chat/alertDialog/alertDialog";
 
 interface FetchBotUser {
@@ -43,7 +44,7 @@ export default function RealTimePage() {
     useState<boolean>(false);
   const [textAreaData, setTextAreaData] = useState<TextAreaData[]>([]);
 
-  const currentPage = "real-time-page";
+  const currentPage: keyof PagesType = "real_time_page";
   const currentConversationIdRef = useRef(currentConversationId);
   const currentBotUserIdRef = useRef(currentBotUserId);
   // const [deleteUser, setDeleteUser] = useState(false);
