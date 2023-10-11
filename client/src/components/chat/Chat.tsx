@@ -270,10 +270,10 @@ function Chat(props: ChatProps) {
             )} */}
             {props.chatData.map((message, index) => (
               <Fragment key={message.id}>
-                {index === 0 ||
-                (message.conversation_id !==
-                  props.chatData[index - 1]?.conversation_id &&
-                  props.currentPage === "history_page") ? (
+                {(props.currentPage === "history_page" && index === 0) ||
+                (props.currentPage === "history_page" &&
+                  message.conversation_id !==
+                    props.chatData[index - 1]?.conversation_id) ? (
                   <div className="info-message">
                     <h3>{(num += 1)}ª conversa do dia</h3>
                   </div>
