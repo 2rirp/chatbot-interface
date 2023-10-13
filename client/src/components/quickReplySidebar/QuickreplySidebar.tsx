@@ -98,7 +98,7 @@ function QuickreplySidebar(props: QuickreplySidebarProps) {
               onClick={() => props.onQuickreplyClick(reply.message)}
               className="quickreply-button"
             >
-              reply.title
+              {reply.title}
             </button>
           </div>
         ))}
