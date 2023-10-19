@@ -102,6 +102,15 @@ function Sidebar(props: SidebarProps) {
     );
   }, [filteredUsers, props.botUsersList]);
 
+  useEffect(() => {
+    if (search.trim() !== "") {
+      setIsSearchingUsers(true);
+      filterUsers(search, props.botUsersList);
+    } else {
+      setIsSearchingUsers(false);
+    }
+  }, [props.botUsersList]);
+
   return (
     <div className="sidebar">
       <div className="pattern-header sidebar-header">
