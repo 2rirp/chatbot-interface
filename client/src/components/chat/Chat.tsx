@@ -69,8 +69,6 @@ function Chat(props: ChatProps) {
   ) => {
     const inputMessage = event.target.value;
     setMessage(inputMessage);
-    props.onTextAreaChange?.(inputMessage);
-    resizeTextArea();
   };
 
   const handleSendMessage = () => {
@@ -127,15 +125,19 @@ function Chat(props: ChatProps) {
 
   const openSearchSidebar = () => {
     setIsSearchResultVisible(true);
+    closeQuickreplySidebar();
   };
 
   const closeSearchSidebar = () => {
     setIsSearchResultVisible(false);
     /* setMatchingMessages([]); */
   };
+
   const openQuickreplySidebar = () => {
     setisQuickreplySidebarOpen(true);
+    closeSearchSidebar();
   };
+
   const closeQuickreplySidebar = () => {
     setisQuickreplySidebarOpen(false);
   };
@@ -221,6 +223,11 @@ function Chat(props: ChatProps) {
   useEffect(() => {
     setMessage(props.initialMessage || "");
   }, [props.initialMessage]);
+
+  useEffect(() => {
+    props.onTextAreaChange?.(message);
+    resizeTextArea();
+  }, [message]);
 
   return (
     <div className="chat">
