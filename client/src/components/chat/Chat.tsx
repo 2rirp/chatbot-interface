@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import "./chat.css";
 import SendIcon from "@mui/icons-material/Send";
+import QuickreplyIcon from "@mui/icons-material/Quickreply";
 import IconButton from "@mui/material/IconButton";
 import DownloadIcon from "@mui/icons-material/Download";
 import SearchIcon from "@mui/icons-material/Search";
@@ -15,6 +16,7 @@ import ChatDropdownMenu from "../chatDropdownMenu/chatDropdownMenu";
 import SearchSidebar from "../searchSidebar/SearchSidebar";
 import TimestampFormatter from "../timestampFormatter/TimestampFormatter";
 import PagesType from "../../interfaces/pagesName";
+import QuickreplySidebar from "../quickReplySidebar/QuickreplySidebar";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import DoneIcon from "@mui/icons-material/Done";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
@@ -41,6 +43,7 @@ interface ChatProps {
   ) => void;
   isItToday?: boolean;
   newConversationStatus?: string | null;
+  attendantName?: string;
 }
 
 function Chat(props: ChatProps) {
@@ -49,6 +52,7 @@ function Chat(props: ChatProps) {
   const [userAtBottom, setUserAtBottom] = useState(true);
   const [showEndChatDialog, setShowEndChatDialog] = useState(false);
   const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
+  const [isQuickreplySidebarOpen, setisQuickreplySidebarOpen] = useState(false);
   /*   const [isUserScrolling, setIsUserScrolling] = useState(false);*/
   /* const [totalOfResults, setTotalOfResults] = useState<number>(0); */
   /* const [selectedResultIndex, setSelectedResultIndex] = useState<number | null>(
@@ -100,6 +104,9 @@ function Chat(props: ChatProps) {
       }
     }
   };
+  const handleQuickReply = (quickreply: string) => {
+    setMessage(quickreply);
+  };
 
   const scrollToBottom = () => {
     const chatContent = chatContentRef.current;
@@ -125,6 +132,12 @@ function Chat(props: ChatProps) {
   const closeSearchSidebar = () => {
     setIsSearchResultVisible(false);
     /* setMatchingMessages([]); */
+  };
+  const openQuickreplySidebar = () => {
+    setisQuickreplySidebarOpen(true);
+  };
+  const closeQuickreplySidebar = () => {
+    setisQuickreplySidebarOpen(false);
   };
 
   const searchMessages = (searchQuery: string) => {
@@ -413,6 +426,15 @@ function Chat(props: ChatProps) {
         </div>
         {props.currentPage === "real_time_page" && (
           <div className="chat-input-container">
+            {!isQuickreplySidebarOpen && (
+              <CustomIconButton
+                ariaLabel="Mensagens rápidas"
+                onClick={openQuickreplySidebar}
+                className="quick-reply-button"
+              >
+                <QuickreplyIcon />
+              </CustomIconButton>
+            )}
             <div className="textarea-container">
               <textarea
                 placeholder="Digite sua mensagem..."
@@ -463,6 +485,14 @@ function Chat(props: ChatProps) {
           onSearchQueryChange={searchMessages}
           onClose={closeSearchSidebar}
           onSearchResultClick={handleScrollToMessage}
+        />
+      )}
+
+      {isQuickreplySidebarOpen && (
+        <QuickreplySidebar
+          onQuickreplyClick={handleQuickReply}
+          onClose={closeQuickreplySidebar}
+          attendantName={props.attendantName}
         />
       )}
     </div>
