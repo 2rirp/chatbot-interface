@@ -15,6 +15,11 @@ import ChatDropdownMenu from "../chatDropdownMenu/chatDropdownMenu";
 import SearchSidebar from "../searchSidebar/SearchSidebar";
 import TimestampFormatter from "../timestampFormatter/TimestampFormatter";
 import PagesType from "../../interfaces/pagesName";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import DoneIcon from "@mui/icons-material/Done";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+import CloseIcon from "@mui/icons-material/Close";
+import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 
 interface ChatProps {
   currentPage: keyof PagesType;
@@ -366,6 +371,28 @@ function Chat(props: ChatProps) {
                         removeSomeData={["second"]}
                       />
                     </div>
+                    {message.status && message.message_from_bot === true ? (
+                      <div
+                        className={`message-status-badge ${
+                          message.status === "read"
+                            ? "change-message-status-color"
+                            : ""
+                        }`}
+                      >
+                        {message.status === "queued" ? (
+                          <AccessTimeIcon fontSize="inherit" />
+                        ) : message.status === "failed" ? (
+                          <CloseIcon fontSize="inherit" />
+                        ) : message.status === "sent" ? (
+                          <DoneIcon fontSize="inherit" />
+                        ) : message.status === "delivered" ||
+                          message.status === "read" ? (
+                          <DoneAllIcon fontSize="inherit" />
+                        ) : (
+                          <QuestionMarkIcon fontSize="inherit" />
+                        )}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </Fragment>
