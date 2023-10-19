@@ -54,6 +54,9 @@ export default function RealTimePage() {
   const changeRoute = () => {
     navigate("/chatpage");
   };
+  const user = {
+    username: userContext?.user?.name || "",
+  };
 
   async function fetchRedirectedConversations() {
     try {
@@ -400,6 +403,7 @@ export default function RealTimePage() {
             onMarkAsUnread={handleMarkAsUnread}
             onTextAreaChange={handleTextAreaChange}
             initialMessage={handleInitialMessage}
+            attendantName={user.username}
           />
         ) : (
           <div className="centered-message-container">
