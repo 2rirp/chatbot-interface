@@ -7,5 +7,13 @@ export default interface IMessage {
   media_url: string;
   media_type: string;
   botUserId?: string;
-  status?: string;
+  status?: keyof IStatus;
+}
+
+interface IStatus {
+  queued: string;
+  failed: string;
+  sent: string;
+  delivered: string;
+  read: string;
 }

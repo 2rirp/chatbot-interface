@@ -113,15 +113,25 @@ text-align: center;
 
 .message-bottom {
   display: flex;
+  flex-direction: row;
+  gap: 2px;
   justify-content: flex-end;
   align-items: center;
   width: 100%;
   padding: 0 5px;
+  color: var(--tertiary-text-color);
 }
 
 .message-timestamp {
   font-size: small;
-  color: var(--tertiary-text-color);
+}
+
+.message-status-badge{
+  display: flex;
+}
+
+.change-message-status-color{
+  color: var(--tertiary-blue);
 }
 
 .media-container {

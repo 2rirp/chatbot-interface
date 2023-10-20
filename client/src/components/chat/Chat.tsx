@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import "./chat.css";
 import SendIcon from "@mui/icons-material/Send";
-import QuickreplyIcon from '@mui/icons-material/Quickreply';
+import QuickreplyIcon from "@mui/icons-material/Quickreply";
 import IconButton from "@mui/material/IconButton";
 import DownloadIcon from "@mui/icons-material/Download";
 import SearchIcon from "@mui/icons-material/Search";
@@ -17,6 +17,11 @@ import SearchSidebar from "../searchSidebar/SearchSidebar";
 import TimestampFormatter from "../timestampFormatter/TimestampFormatter";
 import PagesType from "../../interfaces/pagesName";
 import QuickreplySidebar from "../quickReplySidebar/QuickreplySidebar";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import DoneIcon from "@mui/icons-material/Done";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+import CloseIcon from "@mui/icons-material/Close";
+import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 
 interface ChatProps {
   currentPage: keyof PagesType;
@@ -64,8 +69,6 @@ function Chat(props: ChatProps) {
   ) => {
     const inputMessage = event.target.value;
     setMessage(inputMessage);
-    props.onTextAreaChange?.(inputMessage);
-    resizeTextArea();
   };
 
   const handleSendMessage = () => {
@@ -101,7 +104,7 @@ function Chat(props: ChatProps) {
   };
   const handleQuickReply = (quickreply: string) => {
     setMessage(quickreply);
-  }
+  };
 
   const scrollToBottom = () => {
     const chatContent = chatContentRef.current;
@@ -122,18 +125,22 @@ function Chat(props: ChatProps) {
 
   const openSearchSidebar = () => {
     setIsSearchResultVisible(true);
+    closeQuickreplySidebar();
   };
 
   const closeSearchSidebar = () => {
     setIsSearchResultVisible(false);
     /* setMatchingMessages([]); */
   };
+
   const openQuickreplySidebar = () => {
     setisQuickreplySidebarOpen(true);
-  }
+    closeSearchSidebar();
+  };
+
   const closeQuickreplySidebar = () => {
     setisQuickreplySidebarOpen(false);
-  }
+  };
 
   const searchMessages = (searchQuery: string) => {
     if (searchQuery !== "" && searchQuery.length > 1) {
@@ -216,6 +223,11 @@ function Chat(props: ChatProps) {
   useEffect(() => {
     setMessage(props.initialMessage || "");
   }, [props.initialMessage]);
+
+  useEffect(() => {
+    props.onTextAreaChange?.(message);
+    resizeTextArea();
+  }, [message]);
 
   return (
     <div className="chat">
@@ -379,6 +391,28 @@ function Chat(props: ChatProps) {
                         removeSomeData={["second"]}
                       />
                     </div>
+                    {message.status && message.message_from_bot === true ? (
+                      <div
+                        className={`message-status-badge ${
+                          message.status === "read"
+                            ? "change-message-status-color"
+                            : ""
+                        }`}
+                      >
+                        {message.status === "queued" ? (
+                          <AccessTimeIcon fontSize="inherit" />
+                        ) : message.status === "failed" ? (
+                          <CloseIcon fontSize="inherit" />
+                        ) : message.status === "sent" ? (
+                          <DoneIcon fontSize="inherit" />
+                        ) : message.status === "delivered" ||
+                          message.status === "read" ? (
+                          <DoneAllIcon fontSize="inherit" />
+                        ) : (
+                          <QuestionMarkIcon fontSize="inherit" />
+                        )}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </Fragment>
@@ -400,13 +434,13 @@ function Chat(props: ChatProps) {
         {props.currentPage === "real_time_page" && (
           <div className="chat-input-container">
             {!isQuickreplySidebarOpen && (
-            <CustomIconButton
-            ariaLabel="Mensagens rápidas"
-            onClick={openQuickreplySidebar}
-            className="quick-reply-button"
-            >
-              <QuickreplyIcon/>
-            </CustomIconButton>
+              <CustomIconButton
+                ariaLabel="Mensagens rápidas"
+                onClick={openQuickreplySidebar}
+                className="quick-reply-button"
+              >
+                <QuickreplyIcon />
+              </CustomIconButton>
             )}
             <div className="textarea-container">
               <textarea
