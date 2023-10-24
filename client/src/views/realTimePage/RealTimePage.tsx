@@ -47,6 +47,7 @@ export default function RealTimePage() {
   const currentPage: keyof PagesType = "real_time_page";
   const currentConversationIdRef = useRef(currentConversationId);
   const currentBotUserIdRef = useRef(currentBotUserId);
+  const chatDataRef = useRef(chatData);
   // const [deleteUser, setDeleteUser] = useState(false);
 
   const navigate = useNavigate();
@@ -145,6 +146,10 @@ export default function RealTimePage() {
   }, [currentConversationId, currentBotUserId]);
 
   useEffect(() => {
+    chatDataRef.current = chatData;
+  }, [chatData]);
+
+  useEffect(() => {
     if (!socketContext?.socket) return;
 
     socketContext.socket.on("botUserNeedsAttendant", (newBotUser: IBotUser) => {
@@ -208,6 +213,22 @@ export default function RealTimePage() {
         );
       }
     );
+
+    socketContext.socket.on(
+      "newMessageStatus",
+      (messageData: Partial<IMessage>) => {
+        const updatedMessages = chatDataRef.current.map((message) => {
+          if (message.sid === messageData.sid) {
+            return { ...message, status: messageData.status };
+          }
+          return message;
+        });
+
+        console.log(messageData);
+        console.log(updatedMessages);
+        setChatData(updatedMessages);
+      }
+    );
     return () => {
       socketContext?.socket?.off("botUserNeedsAttendant");
       socketContext?.socket?.off("newBotUserMessage");
@@ -216,6 +237,7 @@ export default function RealTimePage() {
       socketContext?.socket?.off("newUnreadConversation");
       socketContext?.socket?.off("removeFromUnreadConversations");
       socketContext?.socket?.off("removeFromAttendance");
+      socketContext?.socket?.off("newMessageStatus");
     };
   }, [socketContext]);
 

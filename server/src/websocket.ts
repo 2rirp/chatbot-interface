@@ -130,6 +130,20 @@ export default class Websocket {
       this.io?.emit("redirectFromInterface", conversationId, userId);
     });
 
+    socket.on(
+      "newMessageStatusToInterface",
+      (messageData: Partial<IMessage>) => {
+        console.log(messageData);
+        if (messageData.conversation_id) {
+          this.broadcastToConversation(
+            "newMessageStatus",
+            messageData.conversation_id,
+            messageData
+          );
+        }
+      }
+    );
+
     socket.on("disconnect", () => {
       this.removeConnection(socket);
       console.log("Client disconnected");

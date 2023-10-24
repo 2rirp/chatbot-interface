@@ -7,6 +7,7 @@ export default interface IMessage {
   media_url: string;
   media_type: string;
   botUserId?: string;
+  sid?: string;
   status?: keyof IStatus;
 }
 
