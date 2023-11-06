@@ -14,6 +14,11 @@ import PagesType from "../../interfaces/pagesName";
 interface FetchBotUser {
   user_id: string;
   id: number;
+  content: string;
+  created_at: string;
+  sid: string;
+  status: string;
+  media_type: string;
 }
 
 interface TextAreaData {
@@ -72,10 +77,17 @@ export default function RealTimePage() {
 
       if (response.ok) {
         if (responseObj.data) {
-          const convertedData = responseObj.data.map((item: FetchBotUser) => ({
-            botUserId: item.user_id,
-            conversationId: item.id,
-          }));
+          const convertedData: IBotUser[] = responseObj.data.map(
+            (item: FetchBotUser) => ({
+              botUserId: item.user_id,
+              conversationId: item.id,
+              lastMessageContent: item.content,
+              lastMessageCreatedAt: item.created_at,
+              lastMessageSid: item.sid,
+              lastMessageStatus: item.status,
+              lastMessageMediaType: item.media_type,
+            })
+          );
           setBotUsersNeedingAttendants(convertedData);
         } else {
           console.error("No users data found:", responseObj.data);

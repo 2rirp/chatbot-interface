@@ -385,11 +385,21 @@ function Chat(props: ChatProps) {
                   )}
                   <div className="message-bottom">
                     <div className="message-timestamp">
-                      <TimestampFormatter
-                        timestamp={message.created_at}
-                        returnTime
-                        removeSomeData={["second"]}
-                      />
+                      {props.currentPage === "real_time_page" ? (
+                        <TimestampFormatter
+                          timestamp={message.created_at}
+                          returnTime
+                          returnDate
+                          dateDisplayInterval="beforeToday"
+                          removeSomeData={["second", "year"]}
+                        />
+                      ) : (
+                        <TimestampFormatter
+                          timestamp={message.created_at}
+                          returnTime
+                          removeSomeData={["second"]}
+                        />
+                      )}
                     </div>
                     {message.status && message.message_from_bot === true ? (
                       <div

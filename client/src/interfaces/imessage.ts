@@ -11,10 +11,10 @@ export default interface IMessage {
   status?: keyof IStatus;
 }
 
-interface IStatus {
+export type IStatus = {
   queued: string;
   failed: string;
   sent: string;
   delivered: string;
   read: string;
-}
+};

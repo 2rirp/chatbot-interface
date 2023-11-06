@@ -1,0 +1,15 @@
+.unread-indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: var(--primary-green);
+    color: var(--primary-white);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .unread {
+    display: block;
+  }
