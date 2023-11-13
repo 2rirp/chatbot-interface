@@ -1,5 +1,5 @@
 import ErrorHandler from "../errors";
-import IMessage from "../interfaces/imessage";
+import { IMessage } from "../interfaces/imessage";
 import MessageRepository from "../repositories/messageRepository";
 
 export default class MessageServices {

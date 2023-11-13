@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import IConnection from "./interfaces/connection";
-import IMessage from "./interfaces/imessage";
+import { IMessage } from "./interfaces/imessage";
 
 export default class Websocket {
   private static instance: Websocket;
@@ -133,13 +133,8 @@ export default class Websocket {
     socket.on(
       "newMessageStatusToInterface",
       (messageData: Partial<IMessage>) => {
-        console.log(messageData);
-        if (messageData.conversation_id) {
-          this.broadcastToConversation(
-            "newMessageStatus",
-            messageData.conversation_id,
-            messageData
-          );
+        if (messageData.sid) {
+          this.broadcastToEveryone("newMessageStatus", messageData);
         }
       }
     );

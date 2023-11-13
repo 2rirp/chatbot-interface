@@ -53,6 +53,7 @@ export default function RealTimePage() {
   const currentConversationIdRef = useRef(currentConversationId);
   const currentBotUserIdRef = useRef(currentBotUserId);
   const chatDataRef = useRef(chatData);
+  const botUsersNeedingAttendantsRef = useRef(botUsersNeedingAttendants);
   // const [deleteUser, setDeleteUser] = useState(false);
 
   const navigate = useNavigate();
@@ -162,6 +163,10 @@ export default function RealTimePage() {
   }, [chatData]);
 
   useEffect(() => {
+    botUsersNeedingAttendantsRef.current = botUsersNeedingAttendants;
+  }, [botUsersNeedingAttendants]);
+
+  useEffect(() => {
     if (!socketContext?.socket) return;
 
     socketContext.socket.on("botUserNeedsAttendant", (newBotUser: IBotUser) => {
@@ -229,18 +234,33 @@ export default function RealTimePage() {
     socketContext.socket.on(
       "newMessageStatus",
       (messageData: Partial<IMessage>) => {
-        const updatedMessages = chatDataRef.current.map((message) => {
-          if (message.sid === messageData.sid) {
-            return { ...message, status: messageData.status };
-          }
-          return message;
-        });
+        if (currentConversationIdRef.current === messageData.conversation_id) {
+          const updatedMessages = chatDataRef.current.map((message) => {
+            if (message.sid === messageData.sid) {
+              return { ...message, status: messageData.status };
+            }
+            return message;
+          });
 
-        console.log(messageData);
-        console.log(updatedMessages);
-        setChatData(updatedMessages);
+          setChatData(updatedMessages);
+        }
+
+        const updatedBotUserList = botUsersNeedingAttendantsRef.current.map(
+          (botUser) => {
+            if (
+              botUser.lastMessageSid === messageData.sid &&
+              messageData.status
+            ) {
+              return { ...botUser, lastMessageStatus: messageData.status };
+            }
+            return botUser;
+          }
+        );
+
+        setBotUsersNeedingAttendants(updatedBotUserList);
       }
     );
+
     return () => {
       socketContext?.socket?.off("botUserNeedsAttendant");
       socketContext?.socket?.off("newBotUserMessage");
