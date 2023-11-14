@@ -46,11 +46,16 @@ export default class Websocket {
 
     socket.on(
       "redirectToAttendant",
-      (botUserId: string, conversationId: number) => {
+      (botUserId: string, conversationId: number, message: IMessage) => {
         try {
           this.io?.emit("botUserNeedsAttendant", {
             botUserId,
             conversationId,
+            lastMessageContent: message.content,
+            lastMessageCreatedAt: message.created_at,
+            lastMessageSid: message.sid,
+            lastMessageStatus: message.status,
+            lastMessageMediaType: message.media_type,
           });
         } catch (error) {
           console.error("Error redirecting to attendant " + error);
