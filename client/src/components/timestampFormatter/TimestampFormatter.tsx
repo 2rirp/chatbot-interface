@@ -6,11 +6,13 @@ interface TimestampFormatterProps {
   returnTime?: boolean;
   dateOrder?: DateOrderKey;
   timeOrder?: TimeOrderKey;
+  dateDisplayInterval?: DateIntervalKey;
 }
 
 type DateOrderKey = keyof DateOrderInterface;
 type TimeOrderKey = keyof TimeOrderInterface;
 type RemoveSomeDataKey = keyof RemoveSomeDataInterface;
+type DateIntervalKey = keyof DateInterval;
 
 interface DateOrderInterface {
   dd_mm_yy: string[];
@@ -37,6 +39,14 @@ interface RemoveSomeDataInterface {
   hour: string;
   minute: string;
   second: string;
+}
+
+interface DateInterval {
+  beforeToday: string;
+  beforeYesterday: string;
+  beforeThisWeek: string;
+  beforeThisMonth: string;
+  beforeThisYear: string;
 }
 
 function TimestampFormatter(props: TimestampFormatterProps) {
@@ -90,9 +100,51 @@ function TimestampFormatter(props: TimestampFormatterProps) {
 
       const dateParts = dateOrderMap[props.dateOrder || "dd_mm_yy"] || [];
 
-      formatted += dateParts
-        .filter((part) => part)
-        .join(props.dateSeparator || "/");
+      const options = { timeZone: "America/Sao_Paulo" };
+      const currentDateTime = new Date().toLocaleString("pt-BR", options);
+
+      let shouldDisplay = true;
+      const [datePart, _timePart] = currentDateTime.split(", ");
+      const [currentDay, currentMonth, currentYear] = datePart.split("/");
+
+      if (props.dateDisplayInterval) {
+        switch (props.dateDisplayInterval) {
+          case "beforeToday":
+            shouldDisplay =
+              parseInt(splitedYear) < parseInt(currentYear) ||
+              (parseInt(splitedYear) === parseInt(currentYear) &&
+                parseInt(splitedMonth) < parseInt(currentMonth)) ||
+              (parseInt(splitedMonth) === parseInt(currentMonth) &&
+                parseInt(splitedDay) < parseInt(currentDay));
+            break;
+          case "beforeYesterday":
+            shouldDisplay =
+              parseInt(splitedYear) < parseInt(currentYear) ||
+              (parseInt(splitedYear) === parseInt(currentYear) &&
+                parseInt(splitedMonth) < parseInt(currentMonth)) ||
+              (parseInt(splitedMonth) === parseInt(currentMonth) &&
+                parseInt(splitedDay) < parseInt(currentDay) - 1);
+            break;
+          case "beforeThisMonth":
+            shouldDisplay =
+              parseInt(splitedYear) < parseInt(currentYear) ||
+              (parseInt(splitedYear) === parseInt(currentYear) &&
+                parseInt(splitedMonth) < parseInt(currentMonth));
+            break;
+          case "beforeThisYear":
+            shouldDisplay = parseInt(splitedYear) < parseInt(currentYear);
+            break;
+          default:
+            shouldDisplay = true;
+            break;
+        }
+      }
+
+      if (shouldDisplay) {
+        formatted += dateParts
+          .filter((part) => part)
+          .join(props.dateSeparator || "/");
+      }
     }
 
     if (props.returnTime) {

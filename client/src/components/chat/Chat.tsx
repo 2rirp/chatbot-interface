@@ -22,6 +22,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import CloseIcon from "@mui/icons-material/Close";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
+import { formatDateTime } from "../../utils/dateUtils";
 
 interface ChatProps {
   currentPage: keyof PagesType;
@@ -53,6 +54,9 @@ function Chat(props: ChatProps) {
   const [showEndChatDialog, setShowEndChatDialog] = useState(false);
   const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
   const [isQuickreplySidebarOpen, setisQuickreplySidebarOpen] = useState(false);
+  const [isItMoreThan24HoursAgo, setIsItMoreThan24HoursAgo] = useState<
+    boolean | null | undefined
+  >(undefined);
   /*   const [isUserScrolling, setIsUserScrolling] = useState(false);*/
   /* const [totalOfResults, setTotalOfResults] = useState<number>(0); */
   /* const [selectedResultIndex, setSelectedResultIndex] = useState<number | null>(
@@ -62,7 +66,10 @@ function Chat(props: ChatProps) {
   const chatContentRef = useRef<HTMLDivElement | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
   let num = 0;
+  const firstMessage = props.chatData[0];
   const lastMessage = props.chatData[props.chatData.length - 1];
+  const provocationMessage =
+    'Deseja continuar este atendimento? Para continuar, envie "Sim".';
 
   const handleMessageChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
@@ -71,8 +78,14 @@ function Chat(props: ChatProps) {
     setMessage(inputMessage);
   };
 
-  const handleSendMessage = () => {
-    if (message.trim() !== "" && message.length < textareaMaxLength) {
+  const handleSendMessage = (textMessage?: string) => {
+    if (
+      textMessage &&
+      textMessage.trim() !== "" &&
+      textMessage.length < textareaMaxLength
+    ) {
+      props.onSendMessage?.(textMessage.trim());
+    } else if (message.trim() !== "" && message.length < textareaMaxLength) {
       props.onSendMessage?.(message.trim());
       props.onTextAreaChange?.("");
       setMessage("");
@@ -181,6 +194,78 @@ function Chat(props: ChatProps) {
         textAreaRef.current.scrollHeight + "px";
     }
   };
+
+  const isMessageMoreThan24HoursAgo = (firstMessageTimestamp: string) => {
+    const firstMessageTime: any = formatDateTime(firstMessageTimestamp);
+    const currentTime = formatDateTime(new Date());
+    const twentyFourHoursInMilliseconds = 24 * 60 * 60 * 1000;
+
+    if (currentTime - firstMessageTime > twentyFourHoursInMilliseconds) {
+      const reversedChatData = props.chatData.slice().reverse();
+      const lastBotUserMessage = reversedChatData.find(
+        (message) => !message.message_from_bot
+      );
+      const lastAttendantMessage = reversedChatData.find(
+        (message) => message.message_from_bot
+      );
+
+      if (lastBotUserMessage) {
+        let startOfWindow = formatDateTime(lastBotUserMessage.created_at);
+        let endOfWindow: any = new Date(
+          startOfWindow.getTime() + twentyFourHoursInMilliseconds
+        );
+
+        console.log(
+          `${lastBotUserMessage.content} \n${lastAttendantMessage?.content} \n${
+            lastBotUserMessage.created_at
+          } \n${
+            lastAttendantMessage?.created_at
+          } \n${startOfWindow} \n${endOfWindow} \n${currentTime} \n${
+            endOfWindow - currentTime
+          }`
+        );
+
+        if (
+          endOfWindow - currentTime > 0 &&
+          endOfWindow - currentTime < twentyFourHoursInMilliseconds
+        ) {
+          setIsItMoreThan24HoursAgo(false);
+        } else {
+          if (
+            lastAttendantMessage &&
+            isProvocationMessage(lastAttendantMessage)
+          ) {
+            setIsItMoreThan24HoursAgo(true);
+          } else {
+            setIsItMoreThan24HoursAgo(null);
+          }
+        }
+      } else {
+        if (
+          lastAttendantMessage &&
+          isProvocationMessage(lastAttendantMessage)
+        ) {
+          setIsItMoreThan24HoursAgo(true);
+        } else {
+          setIsItMoreThan24HoursAgo(null);
+        }
+      }
+    } else {
+      setIsItMoreThan24HoursAgo(false);
+    }
+  };
+
+  const handleProvokeUser = () => {
+    handleSendMessage(provocationMessage);
+  };
+
+  const isProvocationMessage = (message: IMessage) => {
+    return (
+      message.content !== provocationMessage ||
+      (message.content === provocationMessage && message.status === "failed")
+    );
+  };
+
   /* const handleMatchesCounterChange = () => {
      setTotalOfResults((prevTotal) => prevTotal + 1); 
     console.log("hi");
@@ -218,6 +303,8 @@ function Chat(props: ChatProps) {
     if (userAtBottom) {
       scrollToBottom();
     }
+
+    isMessageMoreThan24HoursAgo(firstMessage.created_at);
   }, [props.chatData]);
 
   useEffect(() => {
@@ -275,9 +362,7 @@ function Chat(props: ChatProps) {
               <ChatDropdownMenu
                 currentPage={props.currentPage}
                 conversationId={lastMessage.conversation_id}
-                conversationStatus={
-                  props.newConversationStatus || lastMessage.status
-                }
+                conversationStatus={props.newConversationStatus}
                 userId={props.userId}
                 handleCloseChat={props.onCloseChat}
                 onRedirectChat={props.onRedirectChat}
@@ -311,7 +396,7 @@ function Chat(props: ChatProps) {
                   }`}
                   data-message-id={message.id}
                 >
-                  {message.media_url && (
+                  {message.media_url && message.media_type && (
                     <div className="media-container">
                       {message.media_type.startsWith("image") ? (
                         <img
@@ -385,11 +470,21 @@ function Chat(props: ChatProps) {
                   )}
                   <div className="message-bottom">
                     <div className="message-timestamp">
-                      <TimestampFormatter
-                        timestamp={message.created_at}
-                        returnTime
-                        removeSomeData={["second"]}
-                      />
+                      {props.currentPage === "real_time_page" ? (
+                        <TimestampFormatter
+                          timestamp={message.created_at}
+                          returnTime
+                          returnDate
+                          dateDisplayInterval="beforeToday"
+                          removeSomeData={["second", "year"]}
+                        />
+                      ) : (
+                        <TimestampFormatter
+                          timestamp={message.created_at}
+                          returnTime
+                          removeSomeData={["second"]}
+                        />
+                      )}
                     </div>
                     {message.status && message.message_from_bot === true ? (
                       <div
@@ -431,47 +526,68 @@ function Chat(props: ChatProps) {
             </CustomIconButton>
           )}
         </div>
-        {props.currentPage === "real_time_page" && (
-          <div className="chat-input-container">
-            {!isQuickreplySidebarOpen && (
-              <CustomIconButton
-                ariaLabel="Mensagens rápidas"
-                onClick={openQuickreplySidebar}
-                className="quick-reply-button"
-              >
-                <QuickreplyIcon />
-              </CustomIconButton>
-            )}
-            <div className="textarea-container">
-              <textarea
-                placeholder="Digite sua mensagem..."
-                value={message}
-                onChange={handleMessageChange}
-                onKeyDown={handleInputKeyPress}
-                className="chat-textarea"
-                rows={1}
-                ref={textAreaRef}
-              />
-              {message.length < textareaMaxLength ? (
-                <span className={`textarea-message`}>
-                  {message.length}/{textareaMaxLength}
-                </span>
-              ) : (
-                <span className={`textarea-message limit-reached`}>
-                  Você atingiu o limite de caracteres: {message.length}/
-                  {textareaMaxLength}
-                </span>
+        {props.currentPage === "real_time_page" &&
+          (isItMoreThan24HoursAgo === false ? (
+            <div className="chat-input-container">
+              {!isQuickreplySidebarOpen && (
+                <CustomIconButton
+                  ariaLabel="Mensagens rápidas"
+                  onClick={openQuickreplySidebar}
+                  className="quick-reply-button"
+                >
+                  <QuickreplyIcon />
+                </CustomIconButton>
               )}
+
+              <div className="textarea-container">
+                <textarea
+                  placeholder="Digite sua mensagem..."
+                  value={message}
+                  onChange={handleMessageChange}
+                  onKeyDown={handleInputKeyPress}
+                  className="chat-textarea"
+                  rows={1}
+                  ref={textAreaRef}
+                />
+                {message.length < textareaMaxLength ? (
+                  <span className={`textarea-message`}>
+                    {message.length}/{textareaMaxLength}
+                  </span>
+                ) : (
+                  <span className={`textarea-message limit-reached`}>
+                    Você atingiu o limite de caracteres: {message.length}/
+                    {textareaMaxLength}
+                  </span>
+                )}
+              </div>
+              <CustomIconButton
+                className="send-button"
+                onClick={handleSendMessage}
+                disabled={message.length > textareaMaxLength}
+              >
+                <SendIcon />
+              </CustomIconButton>
             </div>
-            <CustomIconButton
-              className="send-button"
-              onClick={handleSendMessage}
-              disabled={message.length > textareaMaxLength}
-            >
-              <SendIcon />
-            </CustomIconButton>
-          </div>
-        )}
+          ) : isItMoreThan24HoursAgo ? (
+            <div className="chat-content-bottom">
+              <p>
+                Já faz mais de 24h desde a última vez que esse usuário enviou
+                uma mensagem.
+                <br />É necessário provocá-lo para que o mesmo envie uma
+                mensagem e possamos prosseguir com o atendimento
+              </p>
+              <button onClick={() => handleProvokeUser()}>
+                Provocar usuário
+              </button>
+            </div>
+          ) : isItMoreThan24HoursAgo === null ? (
+            <div className="chat-content-bottom">
+              <p>
+                Este usuário já foi provocado. É necessário aguardar uma
+                resposta dele para prosseguir com o atendimento.
+              </p>
+            </div>
+          ) : null)}
       </div>
 
       {props.currentPage === "real_time_page" && props.onEndConversation && (

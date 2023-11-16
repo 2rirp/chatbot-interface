@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import IConnection from "./interfaces/connection";
-import IMessage from "./interfaces/imessage";
+import { IMessage } from "./interfaces/imessage";
 
 export default class Websocket {
   private static instance: Websocket;
@@ -46,11 +46,16 @@ export default class Websocket {
 
     socket.on(
       "redirectToAttendant",
-      (botUserId: string, conversationId: number) => {
+      (botUserId: string, conversationId: number, message: IMessage) => {
         try {
           this.io?.emit("botUserNeedsAttendant", {
             botUserId,
             conversationId,
+            lastMessageContent: message.content,
+            lastMessageCreatedAt: message.created_at,
+            lastMessageSid: message.sid,
+            lastMessageStatus: message.status,
+            lastMessageMediaType: message.media_type,
           });
         } catch (error) {
           console.error("Error redirecting to attendant " + error);
@@ -90,9 +95,9 @@ export default class Websocket {
       "messageToAttendant",
       (conversationId: number, message: IMessage) => {
         try {
-          this.broadcastToConversation(
+          this.broadcastToEveryone(
             "newBotUserMessage",
-            conversationId,
+
             message
           );
         } catch (error) {
@@ -110,12 +115,8 @@ export default class Websocket {
       );
     });
 
-    socket.on("messageFromAttendant", (messageBody) => {
-      this.broadcastToConversation(
-        "newAttendantMessage",
-        messageBody.conversation_id,
-        messageBody
-      );
+    socket.on("messageFromAttendant", (messageBody: IMessage) => {
+      this.broadcastToEveryone("newAttendantMessage", messageBody);
     });
 
     socket.on("markAsUnread", (conversationId, userId) => {
@@ -129,6 +130,15 @@ export default class Websocket {
     socket.on("redirectToAttendantFromInterface", (conversationId, userId) => {
       this.io?.emit("redirectFromInterface", conversationId, userId);
     });
+
+    socket.on(
+      "newMessageStatusToInterface",
+      (messageData: Partial<IMessage>) => {
+        if (messageData.sid) {
+          this.broadcastToEveryone("newMessageStatus", messageData);
+        }
+      }
+    );
 
     socket.on("disconnect", () => {
       this.removeConnection(socket);

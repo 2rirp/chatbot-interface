@@ -14,6 +14,11 @@ import PagesType from "../../interfaces/pagesName";
 interface FetchBotUser {
   user_id: string;
   id: number;
+  content: string;
+  created_at: string;
+  sid: string;
+  status: string;
+  media_type: string;
 }
 
 interface TextAreaData {
@@ -47,6 +52,8 @@ export default function RealTimePage() {
   const currentPage: keyof PagesType = "real_time_page";
   const currentConversationIdRef = useRef(currentConversationId);
   const currentBotUserIdRef = useRef(currentBotUserId);
+  const chatDataRef = useRef(chatData);
+  const botUsersNeedingAttendantsRef = useRef(botUsersNeedingAttendants);
   // const [deleteUser, setDeleteUser] = useState(false);
 
   const navigate = useNavigate();
@@ -71,10 +78,17 @@ export default function RealTimePage() {
 
       if (response.ok) {
         if (responseObj.data) {
-          const convertedData = responseObj.data.map((item: FetchBotUser) => ({
-            botUserId: item.user_id,
-            conversationId: item.id,
-          }));
+          const convertedData: IBotUser[] = responseObj.data.map(
+            (item: FetchBotUser) => ({
+              botUserId: item.user_id,
+              conversationId: item.id,
+              lastMessageContent: item.content,
+              lastMessageCreatedAt: item.created_at,
+              lastMessageSid: item.sid,
+              lastMessageStatus: item.status,
+              lastMessageMediaType: item.media_type,
+            })
+          );
           setBotUsersNeedingAttendants(convertedData);
         } else {
           console.error("No users data found:", responseObj.data);
@@ -145,6 +159,14 @@ export default function RealTimePage() {
   }, [currentConversationId, currentBotUserId]);
 
   useEffect(() => {
+    chatDataRef.current = chatData;
+  }, [chatData]);
+
+  useEffect(() => {
+    botUsersNeedingAttendantsRef.current = botUsersNeedingAttendants;
+  }, [botUsersNeedingAttendants]);
+
+  useEffect(() => {
     if (!socketContext?.socket) return;
 
     socketContext.socket.on("botUserNeedsAttendant", (newBotUser: IBotUser) => {
@@ -155,21 +177,80 @@ export default function RealTimePage() {
     });
 
     socketContext.socket.on("newBotUserMessage", (newMessageData: IMessage) => {
-      setChatData((prevChatData) => [...prevChatData, newMessageData]);
+      console.log(newMessageData);
 
-      setNewBotUserMessageCount((prevCount) => {
-        if (prevCount === undefined) {
-          return 1;
-        } else {
-          return prevCount + 1;
+      if (currentConversationIdRef.current === newMessageData.conversation_id) {
+        setChatData((prevChatData) => [...prevChatData, newMessageData]);
+        setNewBotUserMessageCount((prevCount) => {
+          if (prevCount === undefined) {
+            return 1;
+          } else {
+            return prevCount + 1;
+          }
+        });
+      }
+
+      const updatedBotUserList = botUsersNeedingAttendantsRef.current.map(
+        (botUser) => {
+          console.log(botUser);
+          if (
+            botUser.conversationId === newMessageData.conversation_id &&
+            (newMessageData.status || newMessageData.status === null) &&
+            newMessageData.content &&
+            newMessageData.created_at &&
+            (newMessageData.sid || newMessageData.sid === null) &&
+            (newMessageData.media_type || newMessageData.media_type === null)
+          ) {
+            console.log("Opa: ", newMessageData);
+            return {
+              ...botUser,
+              lastMessageStatus: newMessageData.status,
+              lastMessageContent: newMessageData.content,
+              lastMessageCreatedAt: newMessageData.created_at,
+              lastMessageSid: newMessageData.sid,
+              lastMessageMediaType: newMessageData.media_type,
+            };
+          }
+          return botUser;
         }
-      });
+      );
+
+      setBotUsersNeedingAttendants(updatedBotUserList);
     });
 
     socketContext.socket.on(
       "newAttendantMessage",
       (newMessageData: IMessage) => {
-        setChatData((prevChatData) => [...prevChatData, newMessageData]);
+        if (
+          currentConversationIdRef.current === newMessageData.conversation_id
+        ) {
+          setChatData((prevChatData) => [...prevChatData, newMessageData]);
+        }
+
+        const updatedBotUserList = botUsersNeedingAttendantsRef.current.map(
+          (botUser) => {
+            if (
+              botUser.conversationId === newMessageData.conversation_id &&
+              (newMessageData.status || newMessageData.status === null) &&
+              newMessageData.content &&
+              newMessageData.created_at &&
+              (newMessageData.sid || newMessageData.sid === null) &&
+              (newMessageData.media_type || newMessageData.media_type === null)
+            ) {
+              return {
+                ...botUser,
+                lastMessageStatus: newMessageData.status,
+                lastMessageContent: newMessageData.content,
+                lastMessageCreatedAt: newMessageData.created_at,
+                lastMessageSid: newMessageData.sid,
+                lastMessageMediaType: newMessageData.media_type,
+              };
+            }
+            return botUser;
+          }
+        );
+
+        setBotUsersNeedingAttendants(updatedBotUserList);
       }
     );
 
@@ -208,6 +289,41 @@ export default function RealTimePage() {
         );
       }
     );
+
+    socketContext.socket.on(
+      "newMessageStatus",
+      (messageData: Partial<IMessage>) => {
+        if (currentConversationIdRef.current === messageData.conversation_id) {
+          const updatedMessages = chatDataRef.current.map((message) => {
+            if (
+              messageData.sid &&
+              message.sid === messageData.sid &&
+              messageData.status
+            ) {
+              return { ...message, status: messageData.status };
+            }
+            return message;
+          });
+
+          setChatData(updatedMessages);
+        }
+
+        const updatedBotUserList = botUsersNeedingAttendantsRef.current.map(
+          (botUser) => {
+            if (
+              botUser.lastMessageSid === messageData.sid &&
+              messageData.status
+            ) {
+              return { ...botUser, lastMessageStatus: messageData.status };
+            }
+            return botUser;
+          }
+        );
+
+        setBotUsersNeedingAttendants(updatedBotUserList);
+      }
+    );
+
     return () => {
       socketContext?.socket?.off("botUserNeedsAttendant");
       socketContext?.socket?.off("newBotUserMessage");
@@ -216,6 +332,7 @@ export default function RealTimePage() {
       socketContext?.socket?.off("newUnreadConversation");
       socketContext?.socket?.off("removeFromUnreadConversations");
       socketContext?.socket?.off("removeFromAttendance");
+      socketContext?.socket?.off("newMessageStatus");
     };
   }, [socketContext]);
 

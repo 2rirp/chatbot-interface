@@ -28,9 +28,19 @@ export default class ConversationRepository {
 
   async getRedirectedConversations() {
     try {
-      const queryText = `SELECT user_id, id FROM conversations WHERE status = 'talking_to_attendant'`;
+      const queryText = `SELECT c.user_id, c.id, m.content, m.created_at, m.sid, m.status, m.media_type
+      FROM conversations c
+      INNER JOIN (
+        SELECT conversation_id, MAX(id) AS max_id
+        FROM messages
+        GROUP BY conversation_id
+      ) latest_message ON c.id = latest_message.conversation_id
+      INNER JOIN messages m ON latest_message.max_id = m.id
+      WHERE c.status = 'talking_to_attendant'`;
 
       const result = await this.db.pool.query(queryText);
+
+      console.log(result.rows);
 
       return result.rows;
     } catch (error) {
@@ -54,10 +64,7 @@ export default class ConversationRepository {
 
       return result.rows[0];
     } catch (error) {
-      console.error(
-        "Failed to deactivate conversation: ",
-        error
-      );
+      console.error("Failed to deactivate conversation: ", error);
       throw error;
     }
   }

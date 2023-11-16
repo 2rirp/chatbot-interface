@@ -17,7 +17,8 @@
   --primary-gray: #e7e7e76b;
   --secondary-gray: #f0f0f0;
   --tertiary-gray: #b6b6b6dc;
- --quaternary-gray: #75757581;
+  --quaternary-gray: #75757581;
+  --primary-green: #00be1c;
 }
 
 .pattern-header{

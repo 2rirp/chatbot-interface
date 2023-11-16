@@ -1,6 +1,6 @@
 import { Query, QueryResult } from "pg";
 import dbConnect from "../database/dbConnect";
-import IMessage from "../interfaces/imessage";
+import { IMessage } from "../interfaces/imessage";
 
 export default class MessageRepository {
   private db: dbConnect;

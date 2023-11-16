@@ -13,6 +13,16 @@ import PhoneNumberFormatter from "../phoneNumberFormatter/PhoneNumberFormatter";
 import CustomIconButton from "../customIconButton/CustomIconButton";
 import UserDropdownMenu from "../userDropdownMenu/userDropdownMenu";
 import PagesType from "../../interfaces/pagesName";
+import TimestampFormatter from "../timestampFormatter/TimestampFormatter";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import DoneIcon from "@mui/icons-material/Done";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+import CloseIcon from "@mui/icons-material/Close";
+import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
+import VideocamIcon from "@mui/icons-material/Videocam";
+import ArticleIcon from "@mui/icons-material/Article";
+import MicIcon from "@mui/icons-material/Mic";
+import UnreadIndicator from "./unreadIndicator/UnreadIndicator";
 
 interface SidebarProps {
   currentPage: keyof PagesType;
@@ -200,38 +210,127 @@ function Sidebar(props: SidebarProps) {
                   <li
                     key={botUser.botUserId}
                     onClick={() => handleUserClick(botUser)}
-                    className={
+                    /* className={
                       botUser.conversationId &&
                       props.unreadConversations?.includes(
                         botUser.conversationId
                       )
                         ? "unread-conversation"
                         : ""
-                    }
+                    } */
                   >
-                    <PhoneNumberFormatter
-                      phoneNumber={`${botUser.botUserId}`}
-                    />
-                    {props.currentPage === "real_time_page" &&
-                      botUser.conversationId &&
-                      props.onMarkAsUnread &&
-                      props.onMarkAsRead && (
-                        <UserDropdownMenu
-                          currentPage={props.currentPage}
-                          className="user-dropdown-menu"
-                          conversationId={botUser.conversationId}
-                          isAnUnreadConversation={
-                            botUser.conversationId &&
-                            props.unreadConversations?.includes(
-                              botUser.conversationId
-                            )
-                              ? true
-                              : false
-                          }
-                          onMarkAsUnread={props.onMarkAsUnread}
-                          onMarkAsRead={props.onMarkAsRead}
+                    <div className="user-details">
+                      <PhoneNumberFormatter
+                        phoneNumber={`${botUser.botUserId}`}
+                        className="formatted-number"
+                      />
+
+                      {botUser.lastMessageCreatedAt && (
+                        <TimestampFormatter
+                          timestamp={botUser.lastMessageCreatedAt}
+                          returnTime
+                          returnDate
+                          dateDisplayInterval="beforeToday"
+                          removeSomeData={["second", "year"]}
                         />
                       )}
+                    </div>
+
+                    <div className="message-details">
+                      <div className="message-part">
+                        {botUser.lastMessageStatus && (
+                          <div
+                            className={`message-status-badge ${
+                              botUser.lastMessageStatus === "read"
+                                ? "change-message-status-color"
+                                : ""
+                            }`}
+                          >
+                            {botUser.lastMessageStatus === "queued" ? (
+                              <AccessTimeIcon fontSize="inherit" />
+                            ) : botUser.lastMessageStatus === "failed" ? (
+                              <CloseIcon fontSize="inherit" />
+                            ) : botUser.lastMessageStatus === "sent" ? (
+                              <DoneIcon fontSize="inherit" />
+                            ) : botUser.lastMessageStatus === "delivered" ||
+                              botUser.lastMessageStatus === "read" ? (
+                              <DoneAllIcon fontSize="inherit" />
+                            ) : null}
+                          </div>
+                        )}
+
+                        {botUser.lastMessageMediaType && (
+                          <div className="message-media-icon">
+                            {botUser.lastMessageMediaType.startsWith(
+                              "image"
+                            ) ? (
+                              <InsertPhotoIcon fontSize="inherit" />
+                            ) : botUser.lastMessageMediaType.startsWith(
+                                "video"
+                              ) ? (
+                              <VideocamIcon fontSize="inherit" />
+                            ) : botUser.lastMessageMediaType.startsWith(
+                                "audio"
+                              ) ? (
+                              <MicIcon fontSize="inherit" />
+                            ) : botUser.lastMessageMediaType.startsWith(
+                                "document" ||
+                                  botUser.lastMessageMediaType.startsWith(
+                                    "document"
+                                  )
+                              ) ? (
+                              <ArticleIcon fontSize="inherit" />
+                            ) : null}
+                          </div>
+                        )}
+
+                        {botUser.lastMessageContent && (
+                          <span
+                            className="message-preview"
+                            ref={(el) => {
+                              if (el) {
+                                el.style.width =
+                                  el.scrollWidth > el.clientWidth
+                                    ? "90%"
+                                    : "auto";
+                              }
+                            }}
+                          >
+                            {botUser.lastMessageContent}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="icons-part">
+                        {botUser.conversationId &&
+                        props.unreadConversations?.includes(
+                          botUser.conversationId
+                        ) ? (
+                          <UnreadIndicator />
+                        ) : null}
+
+                        {props.currentPage === "real_time_page" &&
+                          botUser.conversationId &&
+                          props.onMarkAsUnread &&
+                          props.onMarkAsRead && (
+                            <UserDropdownMenu
+                              currentPage={props.currentPage}
+                              className="user-dropdown-menu"
+                              conversationId={botUser.conversationId}
+                              isAnUnreadConversation={
+                                botUser.conversationId &&
+                                props.unreadConversations?.includes(
+                                  botUser.conversationId
+                                )
+                                  ? true
+                                  : false
+                              }
+                              onMarkAsUnread={props.onMarkAsUnread}
+                              onMarkAsRead={props.onMarkAsRead}
+                            />
+                          )}
+                      </div>
+                    </div>
                   </li>
                 ))}
               </ul>

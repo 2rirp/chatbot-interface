@@ -29,7 +29,7 @@ function QuickreplySidebar(props: QuickreplySidebarProps) {
     {
       title: "Confirmação localização matrícula",
       message:
-        "Conforme solicitado via WhatsApp, segue dados para confirmação:\n\n*Matrícula: XXXXXXXXXXXXXXX// Endereço:  XXXXXXXXXXXXXXXXXXX*\nConfirma os dados acima (  ) SIM ou (   ) NÃO*\n\nValor: R$ 68,24*",
+        "Conforme solicitado via WhatsApp, segue dados para confirmação:\n*Matrícula: XXXXXXXXXXXXXXX// Endereço:  XXXXXXXXXXXXXXXXXXX* \nConfirma os dados acima (  ) SIM ou (   ) NÃO \n*Valor: R$ 68,24*",
     },
     {
       title: "Confirmação pedido / Abertura NFe",
@@ -39,7 +39,7 @@ function QuickreplySidebar(props: QuickreplySidebarProps) {
     {
       title: "Abertura protocolo",
       message:
-        "Seu protocolo foi aberto sob nº *PROTOCOLO*.\n\nSegue a chave *PIX copia e cola* (com prazo para pagamento de 2 horas), para emissão da certidão.",
+        "Seu protocolo foi aberto sob nº *Protocolo*. \nSegue abaixo a *chave PIX copia e cola* no valor de *R$ 68,24*. \nPara efetuar o pagamento: copie esse código, acesse o aplicativo do seu banco e utilize a opção de pagamento via PIX. \nAssim que o pagamento for confirmado, o seu pedido será processado automaticamente e você receberá o link para acessar a certidão solicitada.",
     },
     {
       title: "Documentos para prenotar",

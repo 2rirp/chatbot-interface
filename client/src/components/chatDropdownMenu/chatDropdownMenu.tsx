@@ -9,7 +9,7 @@ import PagesType from "../../interfaces/pagesName";
 interface IProps {
   currentPage: keyof PagesType;
   conversationId?: number;
-  conversationStatus?: string;
+  conversationStatus?: string | null;
   userId?: string;
   handleEndChat?: () => void;
   handleCloseChat: () => void;
