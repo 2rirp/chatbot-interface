@@ -95,9 +95,9 @@ export default class Websocket {
       "messageToAttendant",
       (conversationId: number, message: IMessage) => {
         try {
-          this.broadcastToConversation(
+          this.broadcastToEveryone(
             "newBotUserMessage",
-            conversationId,
+
             message
           );
         } catch (error) {
@@ -115,12 +115,8 @@ export default class Websocket {
       );
     });
 
-    socket.on("messageFromAttendant", (messageBody) => {
-      this.broadcastToConversation(
-        "newAttendantMessage",
-        messageBody.conversation_id,
-        messageBody
-      );
+    socket.on("messageFromAttendant", (messageBody: IMessage) => {
+      this.broadcastToEveryone("newAttendantMessage", messageBody);
     });
 
     socket.on("markAsUnread", (conversationId, userId) => {

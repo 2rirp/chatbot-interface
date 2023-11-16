@@ -177,21 +177,80 @@ export default function RealTimePage() {
     });
 
     socketContext.socket.on("newBotUserMessage", (newMessageData: IMessage) => {
-      setChatData((prevChatData) => [...prevChatData, newMessageData]);
+      console.log(newMessageData);
 
-      setNewBotUserMessageCount((prevCount) => {
-        if (prevCount === undefined) {
-          return 1;
-        } else {
-          return prevCount + 1;
+      if (currentConversationIdRef.current === newMessageData.conversation_id) {
+        setChatData((prevChatData) => [...prevChatData, newMessageData]);
+        setNewBotUserMessageCount((prevCount) => {
+          if (prevCount === undefined) {
+            return 1;
+          } else {
+            return prevCount + 1;
+          }
+        });
+      }
+
+      const updatedBotUserList = botUsersNeedingAttendantsRef.current.map(
+        (botUser) => {
+          console.log(botUser);
+          if (
+            botUser.conversationId === newMessageData.conversation_id &&
+            (newMessageData.status || newMessageData.status === null) &&
+            newMessageData.content &&
+            newMessageData.created_at &&
+            (newMessageData.sid || newMessageData.sid === null) &&
+            (newMessageData.media_type || newMessageData.media_type === null)
+          ) {
+            console.log("Opa: ", newMessageData);
+            return {
+              ...botUser,
+              lastMessageStatus: newMessageData.status,
+              lastMessageContent: newMessageData.content,
+              lastMessageCreatedAt: newMessageData.created_at,
+              lastMessageSid: newMessageData.sid,
+              lastMessageMediaType: newMessageData.media_type,
+            };
+          }
+          return botUser;
         }
-      });
+      );
+
+      setBotUsersNeedingAttendants(updatedBotUserList);
     });
 
     socketContext.socket.on(
       "newAttendantMessage",
       (newMessageData: IMessage) => {
-        setChatData((prevChatData) => [...prevChatData, newMessageData]);
+        if (
+          currentConversationIdRef.current === newMessageData.conversation_id
+        ) {
+          setChatData((prevChatData) => [...prevChatData, newMessageData]);
+        }
+
+        const updatedBotUserList = botUsersNeedingAttendantsRef.current.map(
+          (botUser) => {
+            if (
+              botUser.conversationId === newMessageData.conversation_id &&
+              (newMessageData.status || newMessageData.status === null) &&
+              newMessageData.content &&
+              newMessageData.created_at &&
+              (newMessageData.sid || newMessageData.sid === null) &&
+              (newMessageData.media_type || newMessageData.media_type === null)
+            ) {
+              return {
+                ...botUser,
+                lastMessageStatus: newMessageData.status,
+                lastMessageContent: newMessageData.content,
+                lastMessageCreatedAt: newMessageData.created_at,
+                lastMessageSid: newMessageData.sid,
+                lastMessageMediaType: newMessageData.media_type,
+              };
+            }
+            return botUser;
+          }
+        );
+
+        setBotUsersNeedingAttendants(updatedBotUserList);
       }
     );
 
@@ -236,7 +295,11 @@ export default function RealTimePage() {
       (messageData: Partial<IMessage>) => {
         if (currentConversationIdRef.current === messageData.conversation_id) {
           const updatedMessages = chatDataRef.current.map((message) => {
-            if (message.sid === messageData.sid) {
+            if (
+              messageData.sid &&
+              message.sid === messageData.sid &&
+              messageData.status
+            ) {
               return { ...message, status: messageData.status };
             }
             return message;

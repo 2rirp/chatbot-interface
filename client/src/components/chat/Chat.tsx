@@ -362,9 +362,7 @@ function Chat(props: ChatProps) {
               <ChatDropdownMenu
                 currentPage={props.currentPage}
                 conversationId={lastMessage.conversation_id}
-                conversationStatus={
-                  props.newConversationStatus || lastMessage.status
-                }
+                conversationStatus={props.newConversationStatus}
                 userId={props.userId}
                 handleCloseChat={props.onCloseChat}
                 onRedirectChat={props.onRedirectChat}
@@ -398,7 +396,7 @@ function Chat(props: ChatProps) {
                   }`}
                   data-message-id={message.id}
                 >
-                  {message.media_url && (
+                  {message.media_url && message.media_type && (
                     <div className="media-container">
                       {message.media_type.startsWith("image") ? (
                         <img
