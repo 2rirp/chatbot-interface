@@ -95,11 +95,15 @@ export default class Websocket {
       "messageToAttendant",
       (conversationId: number, message: IMessage) => {
         try {
-          this.broadcastToEveryone(
-            "newBotUserMessage",
+          this.broadcastToEveryone("newBotUserMessage", message);
 
-            message
+          const isAnyUserConnected = this.connections.some(
+            (conn: IConnection) => conn.conversationId === conversationId
           );
+
+          if (!isAnyUserConnected) {
+            this.addUnfollowedConversation(conversationId);
+          }
         } catch (error) {
           console.error("Error receiving new message: " + error);
         }
@@ -229,37 +233,30 @@ export default class Websocket {
   ) {
     if (!this.io) return;
 
-    const isAnyUserConnected = this.connections.some(
-      (conn: IConnection) => conn.conversationId === conversationId
-    );
+    this.connections.forEach((conn: IConnection) => {
+      if (excludeUserConnection) {
+        if (
+          conn.conversationId === conversationId &&
+          conn.userId !== excludeUserConnection
+        ) {
+          console.log(
+            `websocket: sending message to conversation ${conversationId} excluding user ${excludeUserConnection}`
+          );
 
-    if (isAnyUserConnected) {
-      this.connections.forEach((conn: IConnection) => {
-        if (excludeUserConnection) {
-          if (
-            conn.conversationId === conversationId &&
-            conn.userId !== excludeUserConnection
-          ) {
-            console.log(
-              `websocket: sending message to conversation ${conversationId} excluding user ${excludeUserConnection}`
-            );
-
-            conn.connection.emit(eventName, data);
-          }
-        } else {
-          if (conn.conversationId === conversationId) {
-            console.log(
-              `websocket: sending message to all users in conversation ${conversationId}`
-            );
-            conn.connection.emit(eventName, data);
-          }
+          conn.connection.emit(eventName, data);
         }
+      } else {
+        if (conn.conversationId === conversationId) {
+          console.log(
+            `websocket: sending message to all users in conversation ${conversationId}`
+          );
+          conn.connection.emit(eventName, data);
+        }
+      }
 
-        console.log("event is: " + eventName);
-      });
-    } else {
-      this.addUnfollowedConversation(conversationId);
-    }
+      console.log("event is: " + eventName);
+    });
+
     /*     this.emitEventToBot(eventName, data);*/
   }
 
