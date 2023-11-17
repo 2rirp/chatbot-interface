@@ -215,7 +215,17 @@ export default function RealTimePage() {
         }
       );
 
-      setBotUsersNeedingAttendants(updatedBotUserList);
+      const indexOfBotUser = updatedBotUserList.findIndex(
+        (user) => user.conversationId === newMessageData.conversation_id
+      );
+
+      const orderedBotUserList = moveElement(
+        updatedBotUserList,
+        indexOfBotUser,
+        0
+      );
+
+      setBotUsersNeedingAttendants(orderedBotUserList);
     });
 
     socketContext.socket.on(
@@ -250,7 +260,17 @@ export default function RealTimePage() {
           }
         );
 
-        setBotUsersNeedingAttendants(updatedBotUserList);
+        const indexOfBotUser = updatedBotUserList.findIndex(
+          (user) => user.conversationId === newMessageData.conversation_id
+        );
+
+        const orderedBotUserList = moveElement(
+          updatedBotUserList,
+          indexOfBotUser,
+          0
+        );
+
+        setBotUsersNeedingAttendants(orderedBotUserList);
       }
     );
 
@@ -442,6 +462,14 @@ export default function RealTimePage() {
     }
 
     return initialMessage;
+  };
+
+  const moveElement = (array: any, fromIndex: number, toIndex: number) => {
+    const element = array.splice(fromIndex, 1)[0];
+
+    array.splice(toIndex, 0, element);
+
+    return array;
   };
 
   useEffect(() => {

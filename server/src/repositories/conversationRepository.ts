@@ -36,7 +36,8 @@ export default class ConversationRepository {
         GROUP BY conversation_id
       ) latest_message ON c.id = latest_message.conversation_id
       INNER JOIN messages m ON latest_message.max_id = m.id
-      WHERE c.status = 'talking_to_attendant'`;
+      WHERE c.status = 'talking_to_attendant'
+      ORDER BY m.created_at DESC`;
 
       const result = await this.db.pool.query(queryText);
 
