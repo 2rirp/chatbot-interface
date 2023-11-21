@@ -45,12 +45,15 @@ interface ChatProps {
   isItToday?: boolean;
   newConversationStatus?: string | null;
   attendantName?: string;
+  loadOlderMessages?: (dateLimit: string) => void;
+  hasLoadedOlderMessages?: boolean | null;
 }
 
 function Chat(props: ChatProps) {
   const textareaMaxLength: number = 1550;
   const [message, setMessage] = useState<string>("");
   const [userAtBottom, setUserAtBottom] = useState(true);
+  const [userAtTop, setUserAtTop] = useState(false);
   const [showEndChatDialog, setShowEndChatDialog] = useState(false);
   const [isSearchResultVisible, setIsSearchResultVisible] = useState(false);
   const [isQuickreplySidebarOpen, setisQuickreplySidebarOpen] = useState(false);
@@ -108,7 +111,10 @@ function Chat(props: ChatProps) {
         chatContent.scrollTop + chatContent.clientHeight >=
         chatContent.scrollHeight - 100;
 
+      const isAtTop = chatContent.scrollTop < 100;
+
       setUserAtBottom(isAtBottom);
+      setUserAtTop(isAtTop);
 
       if (isAtBottom) {
         props.unsetNewBotUserMessageCount?.();
@@ -215,16 +221,6 @@ function Chat(props: ChatProps) {
           startOfWindow.getTime() + twentyFourHoursInMilliseconds
         );
 
-        console.log(
-          `${lastBotUserMessage.content} \n${lastAttendantMessage?.content} \n${
-            lastBotUserMessage.created_at
-          } \n${
-            lastAttendantMessage?.created_at
-          } \n${startOfWindow} \n${endOfWindow} \n${currentTime} \n${
-            endOfWindow - currentTime
-          }`
-        );
-
         if (
           endOfWindow - currentTime > 0 &&
           endOfWindow - currentTime < twentyFourHoursInMilliseconds
@@ -266,6 +262,11 @@ function Chat(props: ChatProps) {
     );
   };
 
+  const handleLoadOlderMessages = (dateLimit: string) => {
+    if (props.loadOlderMessages) {
+      props.loadOlderMessages(dateLimit);
+    }
+  };
   /* const handleMatchesCounterChange = () => {
      setTotalOfResults((prevTotal) => prevTotal + 1); 
     console.log("hi");
@@ -372,6 +373,23 @@ function Chat(props: ChatProps) {
           </div>
         </div>
         <div className="chat-content-buttons">
+          {props.currentPage === "real_time_page" &&
+            props.loadOlderMessages &&
+            userAtTop &&
+            (props.hasLoadedOlderMessages === false ? (
+              <button
+                className="pattern-button"
+                onClick={() =>
+                  handleLoadOlderMessages(props.chatData[0].created_at)
+                }
+              >
+                Carregar mensagens antigas
+              </button>
+            ) : props.hasLoadedOlderMessages === null ? (
+              <span className="centered-message">
+                Não foi encontrada nenhuma mensagem nos três dias anteriores.
+              </span>
+            ) : null)}
           <div className="chat-content" ref={chatContentRef}>
             {/* {isUserScrolling && (
               <div className="info-message sticky-info-message">
@@ -486,7 +504,7 @@ function Chat(props: ChatProps) {
                         />
                       )}
                     </div>
-                    {message.status && message.message_from_bot === true ? (
+                    {message.status && message.message_from_bot ? (
                       <div
                         className={`message-status-badge ${
                           message.status === "read"
@@ -562,7 +580,7 @@ function Chat(props: ChatProps) {
               </div>
               <CustomIconButton
                 className="send-button"
-                onClick={handleSendMessage}
+                onClick={() => handleSendMessage()}
                 disabled={message.length > textareaMaxLength}
               >
                 <SendIcon />

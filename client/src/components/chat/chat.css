@@ -71,8 +71,13 @@ height: 100%;
 .chat-content-buttons{
   display: flex;
   flex: 1;
-overflow: hidden;
-position: relative;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.chat-content-buttons > .pattern-button{
+  margin-top: 15px;
 }
 
 .chat-content {
@@ -246,16 +251,4 @@ object {
 
 .chat-content-bottom p {
   font-weight: 700;
-}
-
-.chat-content-bottom button {
-  height: 40px;
-  border-radius: 8px;
-  border: 0;
-  background-color: var(--tertiary-gray);
-}
-
-.chat-content-bottom button:hover{
-  cursor: pointer;
-  filter: brightness(90%);
 }

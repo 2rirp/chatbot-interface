@@ -27,6 +27,25 @@
   align-items: center;
   padding: 10px 10px 10px 20px;
 }
+
+.pattern-button{
+  height: 40px;
+  border-radius: 8px;
+  border: 0;
+  background-color: var(--tertiary-gray);
+  align-self: center;
+}
+
+.pattern-button:hover{
+  cursor: pointer;
+  filter: brightness(90%);
+}
+
+.centered-message{
+  font-size: 1.5rem;
+  color: var(--primary-text-color);
+  align-self: center;
+}
 /* 
 ul {
   margin: 0;

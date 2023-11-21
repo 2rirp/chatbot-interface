@@ -48,6 +48,9 @@ export default function RealTimePage() {
   const [mustExitConversation, setMustExitConversation] =
     useState<boolean>(false);
   const [textAreaData, setTextAreaData] = useState<TextAreaData[]>([]);
+  const [hasFetchedOlderMessages, setHasFetchedOlderMessages] = useState<
+    boolean | null
+  >(false);
 
   const currentPage: keyof PagesType = "real_time_page";
   const currentConversationIdRef = useRef(currentConversationId);
@@ -119,8 +122,53 @@ export default function RealTimePage() {
           setChatData(responseObj.data);
           setNewBotUserMessageCount(undefined);
           setHasFetchedChatData(true);
+          setHasFetchedOlderMessages(false);
         } else {
           console.error("No chat data found:", responseObj.data);
+        }
+      } else {
+        throw responseObj.error;
+      }
+    } catch (error: any) {
+      console.error(error.name, error.message);
+    }
+  }
+
+  async function fetchChatDataFromThreeDays(dateLimit: string) {
+    try {
+      const response = await fetch(
+        `/api/messages/${currentBotUserId}/${dateLimit}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        if (responseObj.data) {
+          console.log(
+            Array.isArray(responseObj.data),
+            responseObj.data.length === 0,
+            responseObj.data[0]
+          );
+          if (
+            Array.isArray(responseObj.data) &&
+            responseObj.data.length === 0
+          ) {
+            setHasFetchedOlderMessages(null);
+          } else {
+            setChatData((chatData) => [...responseObj.data, ...chatData]);
+            setHasFetchedOlderMessages(true);
+          }
+        } else {
+          console.error(
+            "No chat data found from three days:",
+            responseObj.data
+          );
         }
       } else {
         throw responseObj.error;
@@ -201,7 +249,6 @@ export default function RealTimePage() {
             (newMessageData.sid || newMessageData.sid === null) &&
             (newMessageData.media_type || newMessageData.media_type === null)
           ) {
-            console.log("Opa: ", newMessageData);
             return {
               ...botUser,
               lastMessageStatus: newMessageData.status,
@@ -516,6 +563,7 @@ export default function RealTimePage() {
     setCurrentConversationId(NaN);
   };
 
+  console.log(chatData);
   return (
     <div className="page">
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
@@ -549,6 +597,8 @@ export default function RealTimePage() {
             onTextAreaChange={handleTextAreaChange}
             initialMessage={handleInitialMessage}
             attendantName={user.username}
+            loadOlderMessages={fetchChatDataFromThreeDays}
+            hasLoadedOlderMessages={hasFetchedOlderMessages}
           />
         ) : (
           <div className="centered-message-container">

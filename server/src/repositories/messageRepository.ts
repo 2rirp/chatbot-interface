@@ -21,7 +21,6 @@ export default class MessageRepository {
             ORDER BY m.created_at, m.id;`;
       const result = await this.db.pool.query(queryText, [date, botUserId]);
 
-      console.log(result.rows[result.rows.length - 1]);
       return result.rows;
     } catch (error) {
       console.error("Failed to fetch messages by userId: ", error);
@@ -65,6 +64,28 @@ export default class MessageRepository {
       return createdMessage;
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  async getMessagesFromThreeDays(botUserId: string, dateLimit: string) {
+    try {
+      const queryText = `
+            SELECT * FROM messages m
+            INNER JOIN (
+                SELECT id AS conv_id FROM conversations c WHERE c.created_at < $1 
+                    AND c.created_at > ($1 - INTERVAL '3 day')
+                    AND c.user_id = $2 
+            ) c ON c.conv_id = m.conversation_id 
+            ORDER BY m.created_at, m.id;`;
+      const result = await this.db.pool.query(queryText, [
+        dateLimit,
+        botUserId,
+      ]);
+
+      return result.rows;
+    } catch (error) {
+      console.error("Failed to fetch messages from three days ago: ", error);
+      throw error;
     }
   }
 }

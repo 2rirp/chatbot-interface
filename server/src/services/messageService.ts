@@ -46,4 +46,21 @@ export default class MessageServices {
       throw error;
     }
   }
+
+  public static async getMessagesFromThreeDays(
+    botUserId: string,
+    dateLimit: string
+  ) {
+    try {
+      const messages = await this.repository.getMessagesFromThreeDays(
+        botUserId,
+        dateLimit
+      );
+      /* console.log(messages); */
+
+      return messages;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
