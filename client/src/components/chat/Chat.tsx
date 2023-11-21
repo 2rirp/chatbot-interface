@@ -576,7 +576,10 @@ function Chat(props: ChatProps) {
                 <br />É necessário provocá-lo para que o mesmo envie uma
                 mensagem e possamos prosseguir com o atendimento
               </p>
-              <button onClick={() => handleProvokeUser()}>
+              <button
+                className="pattern-button"
+                onClick={() => handleProvokeUser()}
+              >
                 Provocar usuário
               </button>
             </div>
