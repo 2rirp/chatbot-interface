@@ -225,8 +225,6 @@ export default function RealTimePage() {
     });
 
     socketContext.socket.on("newBotUserMessage", (newMessageData: IMessage) => {
-      console.log(newMessageData);
-
       if (currentConversationIdRef.current === newMessageData.conversation_id) {
         setChatData((prevChatData) => [...prevChatData, newMessageData]);
         setNewBotUserMessageCount((prevCount) => {
@@ -240,7 +238,6 @@ export default function RealTimePage() {
 
       const updatedBotUserList = botUsersNeedingAttendantsRef.current.map(
         (botUser) => {
-          console.log(botUser);
           if (
             botUser.conversationId === newMessageData.conversation_id &&
             (newMessageData.status || newMessageData.status === null) &&
@@ -262,14 +259,8 @@ export default function RealTimePage() {
         }
       );
 
-      const indexOfBotUser = updatedBotUserList.findIndex(
-        (user) => user.conversationId === newMessageData.conversation_id
-      );
-
-      const orderedBotUserList = moveElement(
-        updatedBotUserList,
-        indexOfBotUser,
-        0
+      const orderedBotUserList = updatedBotUserList.sort((a, b) =>
+        a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
       );
 
       setBotUsersNeedingAttendants(orderedBotUserList);
@@ -307,14 +298,8 @@ export default function RealTimePage() {
           }
         );
 
-        const indexOfBotUser = updatedBotUserList.findIndex(
-          (user) => user.conversationId === newMessageData.conversation_id
-        );
-
-        const orderedBotUserList = moveElement(
-          updatedBotUserList,
-          indexOfBotUser,
-          0
+        const orderedBotUserList = updatedBotUserList.sort((a, b) =>
+          a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
         );
 
         setBotUsersNeedingAttendants(orderedBotUserList);
@@ -511,13 +496,13 @@ export default function RealTimePage() {
     return initialMessage;
   };
 
-  const moveElement = (array: any, fromIndex: number, toIndex: number) => {
+  /* const moveElement = (array: any, fromIndex: number, toIndex: number) => {
     const element = array.splice(fromIndex, 1)[0];
 
     array.splice(toIndex, 0, element);
 
     return array;
-  };
+  }; */
 
   useEffect(() => {
     if (mustExitConversation) {
@@ -563,7 +548,6 @@ export default function RealTimePage() {
     setCurrentConversationId(NaN);
   };
 
-  console.log(chatData);
   return (
     <div className="page">
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
