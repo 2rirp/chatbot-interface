@@ -9,7 +9,6 @@ interface QuickreplySidebarProps {
   onQuickreplyClick: (value: string) => void;
   attendantName?: string;
 }
-
 interface IQuickReply {
   title: string;
   message: string;
@@ -70,6 +69,26 @@ function QuickreplySidebar(props: QuickreplySidebarProps) {
       title: "Encerramento por falta de interação.",
       message:
         "Encerraremos esse atendimento por falta de interação. Se precisar de algo, basta iniciar a conversa novamente.\n\nO 2º Registro de Imóveis de Ribeirão Preto agradece seu contato.",
+    },
+    {
+      title: "Em análise",
+      message: `Prezado, bom dia.\nCumpre-nos informar que o seu título encontra-se em fase de análise e em breve informaremos o resultado. Nosso compromisso é concluir o procedimento dentro do menor prazo possível.`,
+    },
+    {
+      title: "Aguardando Valores",
+      message: `Prezado, boa tarde.\nCumpre-nos informar que o título encontra-se apto para registro e estamos aguardando o pagamento do Boleto/PIX já enviado no e-mail/WhatsApp indicado no protocolo.`,
+    },
+    {
+      title: "Em Fase de Conclusão",
+      message: `Prezado, boa tarde.\nCumpre-nos informar que o título encontra-se em fase de conclusão e em breve encaminharemos a certidão de atos praticados/juntamente com o link da certidão.\n(...) a nota de exigência e devolução.`,
+    },
+    {
+      title: "Contatos de Tabelião",
+      message: `1º TABELIÃO DE NOTAS\nAv. Nove de Julho, 1189 - Fone/Fax 0xx16 3977-7080/3977-7090/3977-7082\n\n2º TABELIÃO DE NOTAS\nAv. João Fiúsa, 970 - Alto da Boa Vista - Fone/Fax 0xx16 3902-4222/3625-5024\n\n3º TABELIÃO DE NOTAS\nAv. Costábile Romano, 2900 - Fone/Fax 0xx16 /3941-2222/ fax 3636-1170\n\n4º TABELIÃO DE NOTAS\nAv. Independência,1441 Fone/Fax 0xx16 3977-2444/3625-7262\n\n5º TABELIÃO DE NOTAS\nRua Mariana Junqueira, 494 - Fone/Fax 0xx16 3611-1190/3610-1059\n\nTABELIÃO DE NOTAS DE BONFIM PAULISTA\nRua Dona Iria Alves, 207 - Fone/Fax 0xx16 3972-0170`,
+    },
+    {
+      title: "Contatos de Registro Civil",
+      message: `Horário de funcionamento: 2ª a 6ª feira, das 9h00 às 17h00, aos sábados das 9h00 às 12h00.\n\n1º REGISTRO CIVIL\nRua Visconde de Inhaúma, 1315 - Fone/Fax 0xx16/3636-3635\n\n2º REGISTRO CIVIL\nRua Coronel Luiz da Cunha, 669 - Fone/Fax 0xx16/3625-9358/3625-5280\n\n3º REGISTRO CIVIL\nRua Paraíba, 513 - Fone/Fax 0xx16 /3625-3832/3610-6807`,
     },
   ];
 
