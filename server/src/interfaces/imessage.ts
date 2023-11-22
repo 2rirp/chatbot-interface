@@ -9,6 +9,7 @@ interface IMessage {
   sid: string;
   status: keyof IMessageStatus;
   botUserId?: string;
+  conversation_status?: string;
 }
 
 interface IMessageStatus {

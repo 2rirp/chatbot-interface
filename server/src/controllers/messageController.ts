@@ -50,6 +50,29 @@ export default class MessageController {
     }
   }
 
+  async getMessagesFromThreeDays(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const userId = req.params.userId;
+      const dateLimit = req.params.date;
+
+      const messages = await MessageServices.getMessagesFromThreeDays(
+        userId,
+        dateLimit
+      );
+
+      res.status(200).json({
+        error: null,
+        data: messages,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   /* async postMessage(
     req: Request,
     res: Response,

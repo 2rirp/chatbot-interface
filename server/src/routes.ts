@@ -3,7 +3,7 @@ import UserController from "./controllers/userController";
 import BotUserController from "./controllers/botUserController";
 import MessageController from "./controllers/messageController";
 import ConversationController from "./controllers/conversationController";
-import ReportsController from "./controllers/reportsController"
+import ReportsController from "./controllers/reportsController";
 import authenticate from "./middlewares/authenticator";
 
 const router = Router();
@@ -51,6 +51,12 @@ router.get(
   "/api/messages/:conversationId",
   authenticate,
   messageController.getMessagesByConversationId.bind(messageController)
+);
+
+router.get(
+  "/api/messages/:userId/:date",
+  authenticate,
+  messageController.getMessagesFromThreeDays.bind(messageController)
 );
 
 /* router.post(
