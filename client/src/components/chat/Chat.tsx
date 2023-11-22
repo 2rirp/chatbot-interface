@@ -363,7 +363,9 @@ function Chat(props: ChatProps) {
               <ChatDropdownMenu
                 currentPage={props.currentPage}
                 conversationId={lastMessage.conversation_id}
-                conversationStatus={props.newConversationStatus}
+                conversationStatus={
+                  props.newConversationStatus || lastMessage.conversation_status
+                }
                 userId={props.userId}
                 handleCloseChat={props.onCloseChat}
                 onRedirectChat={props.onRedirectChat}
