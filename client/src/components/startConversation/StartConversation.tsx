@@ -15,22 +15,36 @@ interface newConversationProps {
     onClick: (data: IData) => void;
 }
 function StartConversation(props: newConversationProps) {
-    // const [userName, setUserName] = useState("");
-    // const [prenotation, setPrenotation] = useState("");
-    // const [documents, setDocuments] = useState("");
+     const [userName, setUserName] = useState("");
+     const [prenotation, setPrenotation] = useState("");
+     const [documents, setDocuments] = useState("");
     const [data, setData] = useState({ 
-            templateName: 'default',
+            templateName: '',
             userId: '',
-            content: 'Deseja falar conosco para esclarecimentos e informações sobre seu registro ou certidões?' 
+            content: '' 
         }
     );
     
-const handleSubmit = () => {
+const handleSubmit = (event: any) => {
     if(data.userId.trim() !== '' ) {
-        
+        switch(event.target.name) {
+            case 'default':
+                data.templateName = 'default';
+                data.content = 'Deseja falar conosco para esclarecimentos e informações sobre seu registro ou certidões?'
+                break;
+            case 'waiting_documents':
+                data.templateName = 'waiting_documents'
+                data.content = `${userName}, sou ${props.attendantName}, atendente do 2º Registro de Imóveis.\nPrenotação nº ${prenotation}.\nPara continuar a análise do seu título, preciso que me envie ${documents}.\nPara adiantar, envie a informação ou foto de boa qualidade do documento para eu verificar se será suficiente.`;
+                break;
+            case 'waiting_payment_1':
+                data.templateName = 'waiting_payment_1'
+                data.content = `${userName},\n\nPrenotação nº ${prenotation}.\n\nEstamos esperando o pagamento do boleto/pix enviado para concluir o registro do seu título. Desconsidere essa mensagem caso já tenha feito o pagamento. 2º Oficial de Registro de Imóveis de Ribeirão Preto.`;
+                break;
+        }
+        console.log(data)
         props.onClick(data);
     } else {
-        console.log("TA FALTANDO")
+        alert("Preencha o campo de Whatsapp")
     }
 }
 const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,7 +80,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                     <p>Deseja falar conosco para esclarecimentos e informações sobre seu registro ou certidões?</p>
                     <button name="default" onClick={handleSubmit}>Enviar</button>
                 </div>
-            {/* <div className="message-container">
+             <div className="default-container">
             
                 <label htmlFor="">Aguardando documentos</label>
                 <p><Input placeholder="Nome Apresentante"
@@ -90,10 +104,10 @@ Para continuar a análise do seu título, preciso que me envie
                     setDocuments(event.target.value);
                   }}/> .
 Para adiantar, envie a informação ou foto de boa qualidade do documento para eu verificar se será suficiente.</p>
-<button name="default" onClick={handleSubmit}>Enviar</button>
+<button name="waiting_documents" onClick={handleSubmit}>Enviar</button>
                 
             </div>
-            <div className="message-container">
+            <div className="default-container">
                 <label htmlFor="">Aguardando pagamento</label>
                 <p><Input placeholder="Nome Apresentante"
                 value={userName}
@@ -109,8 +123,8 @@ Para adiantar, envie a informação ou foto de boa qualidade do documento para e
                 />.
 Estamos esperando o pagamento do boleto/pix enviado para concluir o registro do seu título.
 Desconsidere essa mensagem caso já tenha feito o pagamento. 2º Oficial de Registro de Imóveis de Ribeirão Preto.</p>
-<button name="default" onClick={handleSubmit}>Enviar</button>
-            </div> */}
+<button name="waiting_payment_1" onClick={handleSubmit}>Enviar</button>
+            </div>
             </div>
             
         </div>
