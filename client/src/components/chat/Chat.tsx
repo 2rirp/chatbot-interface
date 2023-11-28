@@ -22,6 +22,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import CloseIcon from "@mui/icons-material/Close";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { formatDateTime } from "../../utils/dateUtils";
 
 interface ChatProps {
@@ -558,7 +559,11 @@ function Chat(props: ChatProps) {
                   <QuickreplyIcon />
                 </CustomIconButton>
               )}
-
+              <CustomIconButton
+                className="attach-file-button"
+                onClick={()=>console.log("Anexar arquivo")}>
+              <AttachFileIcon/>
+              </CustomIconButton>
               <div className="textarea-container">
                 <textarea
                   placeholder="Digite sua mensagem..."
@@ -588,6 +593,7 @@ function Chat(props: ChatProps) {
                 <SendIcon />
               </CustomIconButton>
             </div>
+            
           ) : isItMoreThan24HoursAgo ? (
             <div className="chat-content-bottom">
               <p>

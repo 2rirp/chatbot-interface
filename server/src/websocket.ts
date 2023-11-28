@@ -119,6 +119,16 @@ export default class Websocket {
       );
     });
 
+    socket.on("startNewConversation", (templateName, userId, content) => {
+      this.io?.emit(
+        "startNewConversation",
+        templateName,
+        userId,
+        content
+      );
+      console.log(`WEBSOCKET: testando nova conversa`, userId, content);
+    });
+
     socket.on("messageFromAttendant", (messageBody: IMessage) => {
       this.broadcastToEveryone("newAttendantMessage", messageBody);
     });

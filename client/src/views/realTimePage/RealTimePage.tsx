@@ -9,6 +9,7 @@ import { UserContext } from "../../contexts/UserContext";
 import IMessage from "../../interfaces/imessage";
 import IBotUser from "../../interfaces/ibotUser";
 import PagesType from "../../interfaces/pagesName";
+import StartConversation from "../../components/startConversation/StartConversation";
 //import AlertDialog from "../../components/chat/alertDialog/alertDialog";
 
 interface FetchBotUser {
@@ -19,6 +20,12 @@ interface FetchBotUser {
   sid: string;
   status: string;
   media_type: string;
+}
+
+interface IData {
+  templateName: string;
+  userId: string;
+  content: string,
 }
 
 interface TextAreaData {
@@ -51,6 +58,7 @@ export default function RealTimePage() {
   const [hasFetchedOlderMessages, setHasFetchedOlderMessages] = useState<
     boolean | null
   >(false);
+  const [startConversation, setStartConversation] = useState(false);
 
   const currentPage: keyof PagesType = "real_time_page";
   const currentConversationIdRef = useRef(currentConversationId);
@@ -409,6 +417,16 @@ export default function RealTimePage() {
     }
   };
 
+  const handleNewConversation = async (data: IData) => {
+    console.log("handleNewConversation: ", data)
+    socketContext?.socket?.emit(
+      "startNewConversation",
+      data.templateName,
+      data.content,
+      `55${data.userId}`,
+    )
+  }
+
   const handleUnsetCount = () => {
     setNewBotUserMessageCount(undefined);
   };
@@ -548,6 +566,10 @@ export default function RealTimePage() {
     setCurrentConversationId(NaN);
   };
 
+  function renderNewConversation() {
+    setStartConversation(!startConversation);
+  }
+
   return (
     <div className="page">
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
@@ -564,8 +586,15 @@ export default function RealTimePage() {
           unreadConversations={unreadConversations}
           onMarkAsUnread={handleMarkAsUnread}
           onMarkAsRead={handleMarkAsRead}
+          onNewConversation={renderNewConversation}
         />
-        {hasFetchedChatData ? (
+        {startConversation ? (
+          <StartConversation
+          attendantName={user.username}
+          attendantRole="Atendente"
+          onClick={handleNewConversation}
+          />
+        ) : ( hasFetchedChatData ? (
           <Chat
             currentPage={currentPage}
             chatData={chatData}
@@ -588,7 +617,7 @@ export default function RealTimePage() {
           <div className="centered-message-container">
             <p className="centered-message">Nenhum usuário selecionado.</p>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );
