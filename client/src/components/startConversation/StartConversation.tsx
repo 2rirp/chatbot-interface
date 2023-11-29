@@ -32,8 +32,8 @@ const handleSubmit = (event: any) => {
                 data.templateName = 'default';
                 data.content = 'Deseja falar conosco para esclarecimentos e informações sobre seu registro ou certidões?'
                 break;
-            case 'waiting_documents':
-                data.templateName = 'waiting_documents'
+            case 'waiting_for_documents':
+                data.templateName = 'waiting_for_documents'
                 data.content = `${userName}, sou ${props.attendantName}, atendente do 2º Registro de Imóveis.\nPrenotação nº ${prenotation}.\nPara continuar a análise do seu título, preciso que me envie ${documents}.\nPara adiantar, envie a informação ou foto de boa qualidade do documento para eu verificar se será suficiente.`;
                 break;
             case 'waiting_payment_1':
@@ -104,7 +104,7 @@ Para continuar a análise do seu título, preciso que me envie
                     setDocuments(event.target.value);
                   }}/> .
 Para adiantar, envie a informação ou foto de boa qualidade do documento para eu verificar se será suficiente.</p>
-<button name="waiting_documents" onClick={handleSubmit}>Enviar</button>
+<button name="waiting_for_documents" onClick={handleSubmit}>Enviar</button>
                 
             </div>
             <div className="default-container">
