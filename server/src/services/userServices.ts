@@ -53,4 +53,25 @@ export default class UsersServices {
       throw error;
     }
   }
+
+  public static async updateUserPassword(email: string, newPassword: string) {
+    try {
+      const user: IUser = await this.repository.getUserByEmail(email);
+      const compare = await bcrypt.compare(newPassword, user.password);
+      if (!compare) {
+        const passwordHash = await bcrypt.hash(newPassword, 10);
+        const response = await this.repository.updateUserPassword(email, passwordHash);
+
+        return response;
+      }
+      throw ErrorHandler.createError(
+        "ForbiddenError",
+        "A nova senha não deve ser igual a senha previamente cadastrada!"
+      );
+      
+      
+    } catch (error) {
+      throw error;
+    }
+  }
 }

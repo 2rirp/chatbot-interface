@@ -11,6 +11,7 @@ interface UserContextProps {
     password: string,
     is_admin: boolean
   ) => Promise<boolean>;
+  update: (email: string, password: string) => Promise<boolean>;
 }
 
 export const UserContext = React.createContext<UserContextProps | null>(null);
