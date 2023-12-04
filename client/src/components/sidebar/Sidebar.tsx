@@ -6,6 +6,7 @@ import DropdownMenu from "../dropdownMenu/dropdownMenu";
 import IBotUser from "../../interfaces/ibotUser";
 import DateInput from "../dateInput/DateInput";
 import SearchIcon from "@mui/icons-material/Search";
+import AddCommentIcon from '@mui/icons-material/AddComment';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import { TailSpin } from "react-loading-icons";
@@ -39,6 +40,7 @@ interface SidebarProps {
   unreadConversations?: Array<number>;
   onMarkAsUnread?: (conversationId: number) => void;
   onMarkAsRead?: (conversationId: number) => void;
+  onNewConversation?: () => void;
 }
 
 function Sidebar(props: SidebarProps) {
@@ -179,6 +181,11 @@ function Sidebar(props: SidebarProps) {
             className="sidebar-search-bar"
             ref={inputRef}
           />
+           <CustomIconButton
+           className="start-new-conversation-button"
+           onClick={props.onNewConversation}>
+              <AddCommentIcon/>
+          </CustomIconButton>
           {isSearchingUsers !== null && (
             <div className="right-icon-container">
               {isSearchingUsers ? (
