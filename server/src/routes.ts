@@ -23,6 +23,8 @@ router.get(
 
 router.post("/api/users/login", userController.login.bind(userController));
 
+router.patch("/api/users/update-password", authenticate, userController.updateUser.bind(userController));
+
 router.post(
   "/api/users/createuser",
   authenticate,

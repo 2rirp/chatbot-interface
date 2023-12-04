@@ -14,6 +14,8 @@ export default function SignUpModal(props: SignUpModalProps) {
   const [passwordValue, setPasswordValue] = useState("");
   const [confirmPasswordValue, setConfirmPasswordValue] = useState("");
   const [adminValue, setAdminValue] = useState(false);
+  const [attendantValue, setAttendantValue] = useState(false);
+  const [lecturerValue, setLecturerValue] = useState(false);
   
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +35,14 @@ export default function SignUpModal(props: SignUpModalProps) {
     setConfirmPasswordValue(e.target.value);
   };
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAdminValue(e.target.checked);
+    switch(e.target.name) {
+      case "admin-checkbox": setAdminValue(e.target.checked);
+    break;
+      case "lecturer-checkbox": setLecturerValue(e.target.checked);
+    break;
+      case "attendant-checkbox": setAttendantValue(e.target.checked);
+    break;
+    }
   };
 
   function stopPropagation(e: React.MouseEvent<HTMLDivElement>) {
@@ -48,6 +57,8 @@ export default function SignUpModal(props: SignUpModalProps) {
     const password = passwordValue.trim();
     const confirmPassword = confirmPasswordValue.trim();
     const admin = adminValue;
+    const attendant = attendantValue;
+    const lecturer = lecturerValue;
     if (
       name === "" ||
       email === "" ||
@@ -62,13 +73,17 @@ export default function SignUpModal(props: SignUpModalProps) {
           email: email,
           password: password,
           is_admin: admin,
+          is_attendant: attendant,
+          is_lecturer: lecturer
         };
 
         await userContext?.register(
           String(newUser.name!),
           String(newUser.email!),
           String(newUser.password!),
-          newUser.is_admin!
+          newUser.is_admin!,
+          newUser.is_attendant!,
+          newUser.is_lecturer!
         );
         setIsFetching(false);
       } else alert("As senhas devem ser iguais.");
@@ -109,12 +124,26 @@ export default function SignUpModal(props: SignUpModalProps) {
               name="confirm-password-input"
               onChange={handleConfirmPasswordChange}
             />
-            <label htmlFor="admin-checkbox">Admin?</label>
-            <input
-              type="checkbox"
-              name="admin-checkbox"
-              onChange={handleCheckboxChange}
-            />
+            <div className="checkbox-container">
+              <label htmlFor="admin-checkbox">Admin?</label>
+              <input className="default-checkbox"
+                type="checkbox"
+                name="admin-checkbox"
+                onChange={handleCheckboxChange}
+              />
+              <label htmlFor="attendant-checkbox">Atendente?</label>
+              <input className="default-checkbox"
+                type="checkbox"
+                name="attendant-checkbox"
+                onChange={handleCheckboxChange}
+              />
+              <label htmlFor="lecturer-checkbox">Conferente/qualificador?</label>
+              <input className="default-checkbox"
+                type="checkbox"
+                name="lecturer-checkbox"
+                onChange={handleCheckboxChange}
+              />
+            </div>
           </div>
           <div className="button-container">
             <button

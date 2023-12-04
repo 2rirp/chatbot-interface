@@ -72,6 +72,32 @@ export default class UserController {
     }
   }
 
+  async updateUser(req: Request, res: Response, next: NextFunction) : Promise<void> {
+    try {
+      
+      const email = req.body.email;
+      const password = req.body.password;
+      const updatedUser = await UserServices.updateUserPassword(email, password)
+      if(updatedUser?.status === 201) {
+        res.clearCookie("session");
+        const user = {
+          email : updatedUser.data.email,
+          password: updatedUser.data.password
+        }
+        const jwt = jwtLib.sign(user, process.env.JWTSECRET || "tulinho");
+        res.cookie("session", jwt);
+        res.status(201).json({
+          error: null,
+          data: user,
+        });
+        return updatedUser.data;
+      }
+      
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const user = req.user;

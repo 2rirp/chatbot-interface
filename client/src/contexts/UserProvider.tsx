@@ -62,11 +62,36 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const update = async (email: string, password: string) => {
+    try {
+      const response = await fetch("/api/users/update-password", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      if(response.ok) { 
+        return true;
+      } else {
+        throw data.error;
+      }
+    } catch (error: any) {
+      console.error(error.name, error.message);
+      if(error.message === "A nova senha não deve ser igual a senha previamente cadastrada!") {
+        alert(`${error.message}`);
+      }
+      return false;
+    }
+  }
   const register = async (
     name: string,
     email: string,
     password: string,
-    is_admin: boolean
+    is_admin: boolean,
+    is_attendant: boolean,
+    is_lecturer: boolean,
   ) => {
     try {
       const response = await fetch("/api/users/createuser", {
@@ -79,6 +104,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           email,
           password,
           is_admin,
+          is_attendant,
+          is_lecturer
         }),
       });
 
@@ -107,7 +134,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   }; */
 
   return (
-    <UserContext.Provider value={{ user, setUser, login, register }}>
+    <UserContext.Provider value={{ user, setUser, login, register, update }}>
       {children}
       {/* <AlertDialog
         open={openDialog}

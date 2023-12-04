@@ -6,4 +6,5 @@ export default interface IUser {
   is_admin: boolean;
   is_attendant: boolean;
   is_lecturer: boolean;
+  updated_at: string;
 }
