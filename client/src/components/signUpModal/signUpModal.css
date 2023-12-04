@@ -57,3 +57,14 @@
     cursor: pointer;
     background-color: #5252e0;
   }
+
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+  }
+  .default-checkbox {
+    align-self: center;
+    padding: 0;
+    margin: 1.5rem;
+    width: 2rem;
+  }

@@ -4,6 +4,6 @@ export default interface IUser {
   email: string;
   password: string;
   is_admin?: boolean;
-  is_attendant: boolean;
-  is_lecturer: boolean;
+  is_attendant?: boolean;
+  is_lecturer?: boolean;
 }

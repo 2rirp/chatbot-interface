@@ -9,7 +9,9 @@ interface UserContextProps {
     name: string,
     email: string,
     password: string,
-    is_admin: boolean
+    is_admin: boolean,
+    is_attendant: boolean,
+    is_lecturer: boolean,
   ) => Promise<boolean>;
   update: (email: string, password: string) => Promise<boolean>;
 }

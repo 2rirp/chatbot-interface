@@ -41,13 +41,15 @@ export default class UserRepository {
 
   async createNewUser(user: IUser) {
     try {
-      const query = `INSERT INTO attendants (name, email, password, is_admin)
-        VALUES ($1, $2, $3, $4) RETURNING id, email, is_admin`;
+      const query = `INSERT INTO attendants (name, email, password, is_admin, is_attendant, is_lecturer)
+        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, email, is_admin`;
       const result = await this.db.pool.query(query, [
         user.name,
         user.email,
         user.password,
         user.is_admin,
+        user.is_attendant,
+        user.is_lecturer
       ]);
 
       return result.rows[0];

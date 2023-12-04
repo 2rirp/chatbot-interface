@@ -89,7 +89,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     name: string,
     email: string,
     password: string,
-    is_admin: boolean
+    is_admin: boolean,
+    is_attendant: boolean,
+    is_lecturer: boolean,
   ) => {
     try {
       const response = await fetch("/api/users/createuser", {
@@ -102,6 +104,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           email,
           password,
           is_admin,
+          is_attendant,
+          is_lecturer
         }),
       });
 
