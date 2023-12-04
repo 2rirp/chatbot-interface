@@ -26,7 +26,7 @@ interface FetchBotUser {
 interface IData {
   templateName: string;
   userId: string;
-  content: string,
+  content: string;
 }
 
 interface TextAreaData {
@@ -650,14 +650,15 @@ export default function RealTimePage() {
   };
 
   const handleNewConversation = async (data: IData) => {
-    console.log("handleNewConversation: ", data)
+    console.log("handleNewConversation: ", data);
     socketContext?.socket?.emit(
       "startNewConversation",
       data.templateName,
       data.content,
       `55${data.userId}`,
-    )
-  }
+      user.id
+    );
+  };
 
   const handleUnsetCount = () => {
     setNewBotUserMessageCount(undefined);
@@ -872,11 +873,11 @@ export default function RealTimePage() {
         />
         {startConversation ? (
           <StartConversation
-          attendantName={user.username}
-          attendantRole="Atendente"
-          onClick={handleNewConversation}
+            attendantName={user.username}
+            attendantRole="Atendente"
+            onClick={handleNewConversation}
           />
-        ) : ( hasFetchedChatData ? (
+        ) : hasFetchedChatData ? (
           <Chat
             currentPage={currentPage}
             chatData={chatData}
@@ -901,7 +902,7 @@ export default function RealTimePage() {
           <div className="centered-message-container">
             <p className="centered-message">Nenhum usuário selecionado.</p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

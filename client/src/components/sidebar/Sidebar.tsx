@@ -6,7 +6,7 @@ import DropdownMenu from "../dropdownMenu/dropdownMenu";
 import IBotUser from "../../interfaces/ibotUser";
 import DateInput from "../dateInput/DateInput";
 import SearchIcon from "@mui/icons-material/Search";
-import AddCommentIcon from '@mui/icons-material/AddComment';
+import AddCommentIcon from "@mui/icons-material/AddComment";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import { TailSpin } from "react-loading-icons";
@@ -24,8 +24,8 @@ import VideocamIcon from "@mui/icons-material/Videocam";
 import ArticleIcon from "@mui/icons-material/Article";
 import MicIcon from "@mui/icons-material/Mic";
 import UnreadIndicator from "./unreadIndicator/UnreadIndicator";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+/* import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"; */
 
 interface SidebarProps {
   currentPage: keyof PagesType;
@@ -59,13 +59,16 @@ function Sidebar(props: SidebarProps) {
   const [isSearchingUsers, setIsSearchingUsers] = useState<boolean | null>(
     null
   );
-  const [isListVisible, setListVisible] = useState(true);
-  const [listHeight, setListHeight] = useState("auto");
+  /*  const [isListVisible, setListVisible] = useState(true); */
+  /* const [listHeight, setListHeight] = useState("auto"); */
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const user = {
     username: userContext?.user?.name || "",
     id: userContext?.user?.id || "",
+    isAdmin: userContext?.user?.is_admin || "",
+    isAttendant: userContext?.user?.is_attendant || "",
+    isLecturer: userContext?.user?.is_lecturer || "",
   };
 
   async function handleUserClick(botUser: IBotUser) {
@@ -123,9 +126,9 @@ function Sidebar(props: SidebarProps) {
     setIsSearchingUsers(null);
   };
 
-  const toggleListVisibility = () => {
+  /*  const toggleListVisibility = () => {
     setListVisible((prevState) => !prevState);
-  };
+  }; */
 
   useEffect(() => {
     setDisplayUsers(
@@ -147,9 +150,9 @@ function Sidebar(props: SidebarProps) {
     }
   }, [props.botUsersList, props.botUsersListForLecturer]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     setListHeight(isListVisible ? "auto" : "0");
-  }, [isListVisible]);
+  }, [isListVisible]); */
 
   useEffect(() => {
     if (props.botUsersList) {
@@ -217,11 +220,14 @@ function Sidebar(props: SidebarProps) {
             className="sidebar-search-bar"
             ref={inputRef}
           />
-           <CustomIconButton
-           className="start-new-conversation-button"
-           onClick={props.onNewConversation}>
-              <AddCommentIcon/>
-          </CustomIconButton>
+          {user.isLecturer === true && (
+            <CustomIconButton
+              className="start-new-conversation-button"
+              onClick={props.onNewConversation}
+            >
+              <AddCommentIcon />
+            </CustomIconButton>
+          )}
           {isSearchingUsers !== null && (
             <div className="right-icon-container">
               {isSearchingUsers ? (
@@ -245,18 +251,18 @@ function Sidebar(props: SidebarProps) {
             </div>
           )}
         </div>
-        <div className="list-title" onClick={toggleListVisibility}>
+        {/* <div className="list-title" onClick={toggleListVisibility}>
           <span>Caixa de Entrada</span>
           {isListVisible ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-        </div>
+        </div> */}
         {(props.botUsersList && props.botUsersList.length > 0) ||
         (props.botUsersListForLecturer &&
           props.botUsersListForLecturer.length > 0) ? (
           displayUsers.length > 0 ? (
             props.currentPage === "real_time_page" ? (
               <ul
-                className={`collapsible-list ${isListVisible ? "" : "closed"}`}
-                style={{ height: listHeight }}
+              /* className={`collapsible-list ${isListVisible ? "" : "closed"}`} */
+              /* style={{ height: listHeight }} */
               >
                 {displayUsers.map((botUser) => (
                   <li
