@@ -13,9 +13,13 @@ export default class ConversationServices {
     }
   }
 
-  public static async getRedirectedConversations() {
+  public static async getRedirectedConversations(
+    typeOfRedirected: "attendant" | "lecturer"
+  ) {
     try {
-      const conversations = await this.repository.getRedirectedConversations();
+      const conversations = await this.repository.getRedirectedConversations(
+        typeOfRedirected
+      );
 
       return conversations;
     } catch (error) {

@@ -41,7 +41,8 @@ interface SidebarProps {
   onLogoutClick: () => void;
   onReportClick: () => void;
   isActive: boolean;
-  botUsersList: Array<IBotUser>;
+  botUsersList: Array<IBotUser> | null;
+  botUsersListForLecturer?: Array<IBotUser> | null;
   unreadConversations?: Array<number>;
   onMarkAsUnread?: (conversationId: number) => void;
   onMarkAsRead?: (conversationId: number) => void;
@@ -52,9 +53,7 @@ function Sidebar(props: SidebarProps) {
   const userContext = useContext(UserContext);
   const [search, setSearch] = useState("");
   const [filteredUsers, setFilteredUsers] = useState<IBotUser[] | null>(null);
-  const [displayUsers, setDisplayUsers] = useState<IBotUser[]>(
-    props.botUsersList
-  );
+  const [displayUsers, setDisplayUsers] = useState<IBotUser[]>([]);
   const [isSearchingUsers, setIsSearchingUsers] = useState<boolean | null>(
     null
   );
@@ -98,7 +97,10 @@ function Sidebar(props: SidebarProps) {
     setSearch(searchQuery);
     if (searchQuery.trim() !== "") {
       setIsSearchingUsers(true);
-      filterUsers(searchQuery, props.botUsersList);
+      filterUsers(
+        searchQuery,
+        props.botUsersList || props.botUsersListForLecturer || []
+      );
     } else {
       setIsSearchingUsers(false);
     }
@@ -125,22 +127,35 @@ function Sidebar(props: SidebarProps) {
 
   useEffect(() => {
     setDisplayUsers(
-      filteredUsers !== null ? filteredUsers : props.botUsersList
+      filteredUsers !== null
+        ? filteredUsers
+        : props.botUsersList || props.botUsersListForLecturer || []
     );
   }, [filteredUsers, props.botUsersList]);
 
   useEffect(() => {
     if (search.trim() !== "") {
       setIsSearchingUsers(true);
-      filterUsers(search, props.botUsersList);
+      filterUsers(
+        search,
+        props.botUsersList || props.botUsersListForLecturer || []
+      );
     } else {
       setIsSearchingUsers(false);
     }
-  }, [props.botUsersList]);
+  }, [props.botUsersList, props.botUsersListForLecturer]);
 
   useEffect(() => {
     setListHeight(isListVisible ? "auto" : "0");
   }, [isListVisible]);
+
+  useEffect(() => {
+    if (props.botUsersList) {
+      setDisplayUsers(props.botUsersList);
+    } else if (props.botUsersListForLecturer) {
+      setDisplayUsers(props.botUsersListForLecturer);
+    }
+  }, [props.botUsersList, props.botUsersListForLecturer]);
 
   return (
     <div className="sidebar">
@@ -227,7 +242,9 @@ function Sidebar(props: SidebarProps) {
           <span>Caixa de Entrada</span>
           {isListVisible ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
         </div>
-        {props.botUsersList.length > 0 ? (
+        {(props.botUsersList && props.botUsersList.length > 0) ||
+        (props.botUsersListForLecturer &&
+          props.botUsersListForLecturer.length > 0) ? (
           displayUsers.length > 0 ? (
             props.currentPage === "real_time_page" ? (
               <ul

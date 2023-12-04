@@ -26,8 +26,13 @@ export default class ConversationRepository {
     }
   }
 
-  async getRedirectedConversations() {
+  async getRedirectedConversations(typeOfRedirected: "attendant" | "lecturer") {
     try {
+      const conversationStatus =
+        typeOfRedirected === "attendant"
+          ? "talking_to_attendant"
+          : "talking_to_lecturer";
+
       const queryText = `SELECT c.user_id, c.id, c.served_by, m.content, m.created_at, m.sid, m.status, m.media_type
       FROM conversations c
       INNER JOIN (
@@ -36,17 +41,17 @@ export default class ConversationRepository {
         GROUP BY conversation_id
       ) latest_message ON c.id = latest_message.conversation_id
       INNER JOIN messages m ON latest_message.max_id = m.id
-      WHERE c.status = 'talking_to_attendant'
+      WHERE c.status = $1
       ORDER BY m.created_at DESC`;
 
-      const result = await this.db.pool.query(queryText);
+      const result = await this.db.pool.query(queryText, [conversationStatus]);
 
       console.log(result.rows);
 
       return result.rows;
     } catch (error) {
       console.error(
-        "Failed to fetch conversations redirected to attendant: ",
+        `Failed to fetch conversations redirected to ${typeOfRedirected}: `,
         error
       );
       throw error;

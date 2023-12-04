@@ -30,9 +30,10 @@ interface TextAreaData {
 export default function RealTimePage() {
   const socketContext = useContext(SocketContext);
   const userContext = useContext(UserContext);
-  const [botUsersNeedingAttendants, setBotUsersNeedingAttendants] = useState<
-    Array<IBotUser>
-  >([]);
+  const [botUsersRedirectedToAttendant, setBotUsersRedirectedToAttendant] =
+    useState<Array<IBotUser> | null>(null);
+  const [botUsersRedirectedToLecturer, setBotUsersRedirectedToLecturer] =
+    useState<Array<IBotUser> | null>(null);
   const [chatData, setChatData] = useState<Array<IMessage>>([]);
   const [currentConversationId, setCurrentConversationId] =
     useState<number>(NaN);
@@ -60,7 +61,10 @@ export default function RealTimePage() {
   const currentConversationIdRef = useRef(currentConversationId);
   const currentBotUserIdRef = useRef(currentBotUserId);
   const chatDataRef = useRef(chatData);
-  const botUsersNeedingAttendantsRef = useRef(botUsersNeedingAttendants);
+  const botUsersRedirectedToAttendantRef = useRef(
+    botUsersRedirectedToAttendant
+  );
+  const botUsersRedirectedToLecturerRef = useRef(botUsersRedirectedToLecturer);
   // const [deleteUser, setDeleteUser] = useState(false);
 
   const navigate = useNavigate();
@@ -76,9 +80,9 @@ export default function RealTimePage() {
     isLecturer: userContext?.user?.is_lecturer || "",
   };
 
-  async function fetchRedirectedConversations() {
+  async function fetchAttendantRedirectedConversations() {
     try {
-      const response = await fetch(`/api/conversations/redirected`, {
+      const response = await fetch(`/api/conversations/redirected/attendant`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -128,9 +132,60 @@ export default function RealTimePage() {
               lastMessageMediaType: item.media_type,
             }));
           }
-          setBotUsersNeedingAttendants(convertedData);
+          setBotUsersRedirectedToAttendant(convertedData);
         } else {
           console.error("No users data found:", responseObj.data);
+        }
+      } else {
+        throw responseObj.error;
+      }
+    } catch (error: any) {
+      console.error(error.name, error.message);
+    }
+  }
+
+  async function fetchLecturerRedirectedConversations() {
+    try {
+      const response = await fetch(`/api/conversations/redirected/lecturer`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        if (responseObj.data) {
+          let convertedData: IBotUser[] = [];
+          if (user.isAdmin) {
+            convertedData = responseObj.data.map((item: FetchBotUser) => ({
+              botUserId: item.user_id,
+              conversationId: item.id,
+              servedBy: item.served_by,
+              lastMessageContent: item.content,
+              lastMessageCreatedAt: item.created_at,
+              lastMessageSid: item.sid,
+              lastMessageStatus: item.status,
+              lastMessageMediaType: item.media_type,
+            }));
+          } else if (user.isLecturer) {
+            convertedData = responseObj.data
+              .filter((item: FetchBotUser) => item.served_by === user.id)
+              .map((item: FetchBotUser) => ({
+                botUserId: item.user_id,
+                conversationId: item.id,
+                servedBy: item.served_by,
+                lastMessageContent: item.content,
+                lastMessageCreatedAt: item.created_at,
+                lastMessageSid: item.sid,
+                lastMessageStatus: item.status,
+                lastMessageMediaType: item.media_type,
+              }));
+          }
+          setBotUsersRedirectedToLecturer(convertedData);
+        } else {
+          console.error("No users data found for lecturer:", responseObj.data);
         }
       } else {
         throw responseObj.error;
@@ -234,8 +289,11 @@ export default function RealTimePage() {
     async function fetchData() {
       try {
         if (user.isAdmin || user.isAttendant) {
-          await fetchRedirectedConversations();
-        } else if (user.isLecturer) {
+          await fetchAttendantRedirectedConversations();
+        }
+
+        if (user.isLecturer) {
+          await fetchLecturerRedirectedConversations();
         }
       } catch (error) {
         console.error("Error fetching redirected conversations:", error);
@@ -255,17 +313,24 @@ export default function RealTimePage() {
   }, [chatData]);
 
   useEffect(() => {
-    botUsersNeedingAttendantsRef.current = botUsersNeedingAttendants;
-  }, [botUsersNeedingAttendants]);
+    botUsersRedirectedToAttendantRef.current = botUsersRedirectedToAttendant;
+  }, [botUsersRedirectedToAttendant]);
+
+  useEffect(() => {
+    botUsersRedirectedToLecturerRef.current = botUsersRedirectedToLecturer;
+  }, [botUsersRedirectedToLecturer]);
 
   useEffect(() => {
     if (!socketContext?.socket) return;
 
     socketContext.socket.on("botUserNeedsAttendant", (newBotUser: IBotUser) => {
-      setBotUsersNeedingAttendants((prevBotUsers) => [
-        ...prevBotUsers,
-        newBotUser,
-      ]);
+      setBotUsersRedirectedToAttendant((prevBotUsers) => {
+        if (prevBotUsers === null) {
+          return [newBotUser];
+        } else {
+          return [...prevBotUsers, newBotUser];
+        }
+      });
     });
 
     socketContext.socket.on("newBotUserMessage", (newMessageData: IMessage) => {
@@ -280,46 +345,8 @@ export default function RealTimePage() {
         });
       }
 
-      const updatedBotUserList = botUsersNeedingAttendantsRef.current.map(
-        (botUser) => {
-          if (
-            botUser.conversationId === newMessageData.conversation_id &&
-            (newMessageData.status || newMessageData.status === null) &&
-            newMessageData.content &&
-            newMessageData.created_at &&
-            (newMessageData.sid || newMessageData.sid === null) &&
-            (newMessageData.media_type || newMessageData.media_type === null)
-          ) {
-            return {
-              ...botUser,
-              lastMessageStatus: newMessageData.status,
-              lastMessageContent: newMessageData.content,
-              lastMessageCreatedAt: newMessageData.created_at,
-              lastMessageSid: newMessageData.sid,
-              lastMessageMediaType: newMessageData.media_type,
-            };
-          }
-          return botUser;
-        }
-      );
-
-      const orderedBotUserList = updatedBotUserList.sort((a, b) =>
-        a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
-      );
-
-      setBotUsersNeedingAttendants(orderedBotUserList);
-    });
-
-    socketContext.socket.on(
-      "newAttendantMessage",
-      (newMessageData: IMessage) => {
-        if (
-          currentConversationIdRef.current === newMessageData.conversation_id
-        ) {
-          setChatData((prevChatData) => [...prevChatData, newMessageData]);
-        }
-
-        const updatedBotUserList = botUsersNeedingAttendantsRef.current.map(
+      if (botUsersRedirectedToAttendantRef.current) {
+        const updatedBotUserList = botUsersRedirectedToAttendantRef.current.map(
           (botUser) => {
             if (
               botUser.conversationId === newMessageData.conversation_id &&
@@ -346,7 +373,107 @@ export default function RealTimePage() {
           a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
         );
 
-        setBotUsersNeedingAttendants(orderedBotUserList);
+        setBotUsersRedirectedToAttendant(orderedBotUserList);
+      } else if (botUsersRedirectedToLecturerRef.current) {
+        const updatedBotUserList = botUsersRedirectedToLecturerRef.current.map(
+          (botUser) => {
+            if (
+              botUser.conversationId === newMessageData.conversation_id &&
+              (newMessageData.status || newMessageData.status === null) &&
+              newMessageData.content &&
+              newMessageData.created_at &&
+              (newMessageData.sid || newMessageData.sid === null) &&
+              (newMessageData.media_type || newMessageData.media_type === null)
+            ) {
+              return {
+                ...botUser,
+                lastMessageStatus: newMessageData.status,
+                lastMessageContent: newMessageData.content,
+                lastMessageCreatedAt: newMessageData.created_at,
+                lastMessageSid: newMessageData.sid,
+                lastMessageMediaType: newMessageData.media_type,
+              };
+            }
+            return botUser;
+          }
+        );
+
+        const orderedBotUserList = updatedBotUserList.sort((a, b) =>
+          a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
+        );
+
+        setBotUsersRedirectedToLecturer(orderedBotUserList);
+      }
+    });
+
+    socketContext.socket.on(
+      "newAttendantMessage",
+      (newMessageData: IMessage) => {
+        if (
+          currentConversationIdRef.current === newMessageData.conversation_id
+        ) {
+          setChatData((prevChatData) => [...prevChatData, newMessageData]);
+        }
+
+        if (botUsersRedirectedToAttendantRef.current) {
+          const updatedBotUserList =
+            botUsersRedirectedToAttendantRef.current.map((botUser) => {
+              if (
+                botUser.conversationId === newMessageData.conversation_id &&
+                (newMessageData.status || newMessageData.status === null) &&
+                newMessageData.content &&
+                newMessageData.created_at &&
+                (newMessageData.sid || newMessageData.sid === null) &&
+                (newMessageData.media_type ||
+                  newMessageData.media_type === null)
+              ) {
+                return {
+                  ...botUser,
+                  lastMessageStatus: newMessageData.status,
+                  lastMessageContent: newMessageData.content,
+                  lastMessageCreatedAt: newMessageData.created_at,
+                  lastMessageSid: newMessageData.sid,
+                  lastMessageMediaType: newMessageData.media_type,
+                };
+              }
+              return botUser;
+            });
+
+          const orderedBotUserList = updatedBotUserList.sort((a, b) =>
+            a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
+          );
+
+          setBotUsersRedirectedToAttendant(orderedBotUserList);
+        } else if (botUsersRedirectedToLecturerRef.current) {
+          const updatedBotUserList =
+            botUsersRedirectedToLecturerRef.current.map((botUser) => {
+              if (
+                botUser.conversationId === newMessageData.conversation_id &&
+                (newMessageData.status || newMessageData.status === null) &&
+                newMessageData.content &&
+                newMessageData.created_at &&
+                (newMessageData.sid || newMessageData.sid === null) &&
+                (newMessageData.media_type ||
+                  newMessageData.media_type === null)
+              ) {
+                return {
+                  ...botUser,
+                  lastMessageStatus: newMessageData.status,
+                  lastMessageContent: newMessageData.content,
+                  lastMessageCreatedAt: newMessageData.created_at,
+                  lastMessageSid: newMessageData.sid,
+                  lastMessageMediaType: newMessageData.media_type,
+                };
+              }
+              return botUser;
+            });
+
+          const orderedBotUserList = updatedBotUserList.sort((a, b) =>
+            a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
+          );
+
+          setBotUsersRedirectedToLecturer(orderedBotUserList);
+        }
       }
     );
 
@@ -380,9 +507,27 @@ export default function RealTimePage() {
           exitConversation();
         }
 
-        setBotUsersNeedingAttendants((prev) =>
-          prev.filter((user) => user.conversationId !== conversationId)
-        );
+        if (botUsersRedirectedToAttendantRef.current) {
+          setBotUsersRedirectedToAttendant((prev) => {
+            if (prev) {
+              return prev.filter(
+                (user) => user.conversationId !== conversationId
+              );
+            }
+
+            return null;
+          });
+        } else if (botUsersRedirectedToLecturerRef.current) {
+          setBotUsersRedirectedToLecturer((prev) => {
+            if (prev) {
+              return prev.filter(
+                (user) => user.conversationId !== conversationId
+              );
+            }
+
+            return null;
+          });
+        }
       }
     );
 
@@ -404,19 +549,33 @@ export default function RealTimePage() {
           setChatData(updatedMessages);
         }
 
-        const updatedBotUserList = botUsersNeedingAttendantsRef.current.map(
-          (botUser) => {
-            if (
-              botUser.lastMessageSid === messageData.sid &&
-              messageData.status
-            ) {
-              return { ...botUser, lastMessageStatus: messageData.status };
-            }
-            return botUser;
-          }
-        );
+        if (botUsersRedirectedToAttendantRef.current) {
+          const updatedBotUserList =
+            botUsersRedirectedToAttendantRef.current.map((botUser) => {
+              if (
+                botUser.lastMessageSid === messageData.sid &&
+                messageData.status
+              ) {
+                return { ...botUser, lastMessageStatus: messageData.status };
+              }
+              return botUser;
+            });
 
-        setBotUsersNeedingAttendants(updatedBotUserList);
+          setBotUsersRedirectedToAttendant(updatedBotUserList);
+        } else if (botUsersRedirectedToLecturerRef.current) {
+          const updatedBotUserList =
+            botUsersRedirectedToLecturerRef.current.map((botUser) => {
+              if (
+                botUser.lastMessageSid === messageData.sid &&
+                messageData.status
+              ) {
+                return { ...botUser, lastMessageStatus: messageData.status };
+              }
+              return botUser;
+            });
+
+          setBotUsersRedirectedToLecturer(updatedBotUserList);
+        }
       }
     );
 
@@ -433,17 +592,18 @@ export default function RealTimePage() {
           setCurrentBotUserServedBy(attendantId);
         }
 
-        const newBotUserList = botUsersNeedingAttendantsRef.current.map(
-          (botUser) => {
-            if (botUser.conversationId === conversationId) {
-              return { ...botUser, servedBy: attendantId };
+        if (botUsersRedirectedToAttendantRef.current) {
+          const newBotUserList = botUsersRedirectedToAttendantRef.current.map(
+            (botUser) => {
+              if (botUser.conversationId === conversationId) {
+                return { ...botUser, servedBy: attendantId };
+              }
+              return botUser;
             }
-            return botUser;
-          }
-        );
+          );
 
-        console.log(newBotUserList);
-        setBotUsersNeedingAttendants(newBotUserList);
+          setBotUsersRedirectedToAttendant(newBotUserList);
+        }
       }
     );
 
@@ -591,13 +751,17 @@ export default function RealTimePage() {
             setCurrentBotUserServedBy(attendantId);
           }
 
-          setBotUsersNeedingAttendants((prev) => {
-            return prev.map((botUser) => {
-              if (botUser.conversationId === conversationId) {
-                return { ...botUser, servedBy: attendantId };
-              }
-              return botUser;
-            });
+          setBotUsersRedirectedToAttendant((prev) => {
+            if (prev !== null) {
+              return prev.map((botUser) => {
+                if (botUser.conversationId === conversationId) {
+                  return { ...botUser, servedBy: attendantId };
+                }
+                return botUser;
+              });
+            }
+
+            return null;
           });
         }
       } else {
@@ -634,9 +798,14 @@ export default function RealTimePage() {
         }),
       });
       if (deactivatedConversation.ok) {
-        setBotUsersNeedingAttendants((prev) =>
-          prev.filter((user) => user.conversationId !== currentConversationId)
-        );
+        setBotUsersRedirectedToAttendant((prev) => {
+          if (prev !== null) {
+            return prev.filter(
+              (user) => user.conversationId !== currentConversationId
+            );
+          }
+          return null;
+        });
 
         exitConversation();
       } else {
@@ -667,7 +836,8 @@ export default function RealTimePage() {
         <Sidebar
           currentPage={currentPage}
           isActive={activeDropdown}
-          botUsersList={botUsersNeedingAttendants}
+          botUsersList={botUsersRedirectedToAttendant}
+          botUsersListForLecturer={botUsersRedirectedToLecturer}
           fetchChatData={fetchChatData}
           onRegisterClick={openModal}
           onHistoryPageClick={changeRoute}

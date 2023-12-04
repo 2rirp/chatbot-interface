@@ -72,9 +72,19 @@ router.get(
 );
 
 router.get(
-  "/api/conversations/redirected",
+  "/api/conversations/redirected/attendant",
   authenticate,
-  conversationController.getRedirectedConversations.bind(conversationController)
+  conversationController.getAttendantRedirectedConversations.bind(
+    conversationController
+  )
+);
+
+router.get(
+  "/api/conversations/redirected/lecturer",
+  authenticate,
+  conversationController.getLecturerRedirectedConversations.bind(
+    conversationController
+  )
 );
 
 router.post(

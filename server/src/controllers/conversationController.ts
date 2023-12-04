@@ -22,14 +22,32 @@ export default class ConversationController {
     }
   }
 
-  async getRedirectedConversations(
+  async getAttendantRedirectedConversations(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
       const conversations =
-        await ConversationServices.getRedirectedConversations();
+        await ConversationServices.getRedirectedConversations("attendant");
+
+      res.status(200).json({
+        error: null,
+        data: conversations,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getLecturerRedirectedConversations(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const conversations =
+        await ConversationServices.getRedirectedConversations("lecturer");
 
       res.status(200).json({
         error: null,
