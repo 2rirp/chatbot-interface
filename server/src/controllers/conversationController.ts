@@ -70,4 +70,35 @@ export default class ConversationController {
       next(error);
     }
   }
+
+  async applyAttendantToServeConversation(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const conversationId = Number(req.params.conversationId);
+      const attendantId = Number(req.body.attendantId);
+
+      const response =
+        await ConversationServices.applyAttendantToServeConversation(
+          conversationId,
+          attendantId
+        );
+
+      const websocket = Websocket.getIstance();
+      websocket.broadcastToEveryone(
+        "applyAttendantToServe",
+        { conversationId, attendantId },
+        attendantId
+      );
+
+      res.status(200).json({
+        error: null,
+        data: response,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

@@ -23,10 +23,32 @@ export default class ConversationServices {
     }
   }
 
-  public static async deactivateConversation(conversationId: string, userId: string) {
+  public static async deactivateConversation(
+    conversationId: string,
+    userId: string
+  ) {
     try {
-      const conversation = await this.repository.deactivateConversation(conversationId, userId);
+      const conversation = await this.repository.deactivateConversation(
+        conversationId,
+        userId
+      );
       return conversation;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public static async applyAttendantToServeConversation(
+    conversationId: number,
+    attendantId: number
+  ) {
+    try {
+      const response = await this.repository.applyAttendantToServeConversation(
+        conversationId,
+        attendantId
+      );
+
+      return response;
     } catch (error) {
       throw error;
     }

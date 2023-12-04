@@ -13,6 +13,7 @@ interface IProps {
   isAnUnreadConversation: boolean;
   onMarkAsUnread: (conversationId: number) => void;
   onMarkAsRead: (conversationId: number) => void;
+  isItTheAttendantServing?: boolean;
 }
 
 export default function UserDropdownMenu(props: IProps) {
@@ -76,6 +77,7 @@ export default function UserDropdownMenu(props: IProps) {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         {props.currentPage === "real_time_page" &&
+          props.isItTheAttendantServing &&
           !props.isAnUnreadConversation && (
             <MenuItem
               key="mark-as-unread"
@@ -86,6 +88,7 @@ export default function UserDropdownMenu(props: IProps) {
           )}
 
         {props.currentPage === "real_time_page" &&
+          props.isItTheAttendantServing &&
           props.isAnUnreadConversation && (
             <MenuItem
               key="mark-as-read"

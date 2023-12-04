@@ -20,6 +20,7 @@ interface IProps {
     userId: string | null
   ) => void;
   isItToday?: boolean;
+  isItTheAttendantServing?: boolean;
 }
 
 export default function ChatDropdownMenu(props: IProps) {
@@ -78,6 +79,7 @@ export default function ChatDropdownMenu(props: IProps) {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         {props.currentPage === "real_time_page" &&
+          props.isItTheAttendantServing &&
           !props.isAnUnreadConversation?.(props.conversationId || null) &&
           props.onMarkAsUnread &&
           props.conversationId !== undefined && (
@@ -111,11 +113,12 @@ export default function ChatDropdownMenu(props: IProps) {
           </MenuItem>
         )}
 
-        {props.currentPage === "real_time_page" && (
-          <MenuItem key="end-conversation" onClick={props.handleEndChat}>
-            Encerrar Conversa
-          </MenuItem>
-        )}
+        {props.currentPage === "real_time_page" &&
+          props.isItTheAttendantServing && (
+            <MenuItem key="end-conversation" onClick={props.handleEndChat}>
+              Encerrar Conversa
+            </MenuItem>
+          )}
 
         <MenuItem key="close-chat" onClick={props.handleCloseChat}>
           Fechar Chat

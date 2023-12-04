@@ -14,6 +14,7 @@ import PagesType from "../../interfaces/pagesName";
 interface FetchBotUser {
   user_id: string;
   id: number;
+  served_by: number | null;
   content: string;
   created_at: string;
   sid: string;
@@ -36,6 +37,9 @@ export default function RealTimePage() {
   const [currentConversationId, setCurrentConversationId] =
     useState<number>(NaN);
   const [currentBotUserId, setCurrentBotUserId] = useState<string>("");
+  const [currentBotUserServedBy, setCurrentBotUserServedBy] = useState<
+    number | null
+  >(null);
   const [modalIsOpen, setmodalIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [hasFetchedChatData, setHasFetchedChatData] = useState(false);
@@ -65,7 +69,11 @@ export default function RealTimePage() {
     navigate("/chatpage");
   };
   const user = {
+    id: userContext?.user?.id || "",
     username: userContext?.user?.name || "",
+    isAdmin: userContext?.user?.is_admin || "",
+    isAttendant: userContext?.user?.is_attendant || "",
+    isLecturer: userContext?.user?.is_lecturer || "",
   };
 
   async function fetchRedirectedConversations() {
@@ -81,17 +89,45 @@ export default function RealTimePage() {
 
       if (response.ok) {
         if (responseObj.data) {
-          const convertedData: IBotUser[] = responseObj.data.map(
-            (item: FetchBotUser) => ({
+          let convertedData: IBotUser[] = [];
+          if (user.isAdmin) {
+            convertedData = responseObj.data.map((item: FetchBotUser) => ({
               botUserId: item.user_id,
               conversationId: item.id,
+              servedBy: item.served_by,
               lastMessageContent: item.content,
               lastMessageCreatedAt: item.created_at,
               lastMessageSid: item.sid,
               lastMessageStatus: item.status,
               lastMessageMediaType: item.media_type,
-            })
-          );
+            }));
+          } else if (user.isAttendant) {
+            /* convertedData = responseObj.data
+              .filter(
+                (item: FetchBotUser) =>
+                  item.served_by === user.id || item.served_by === null
+              )
+              .map((item: FetchBotUser) => ({
+                botUserId: item.user_id,
+                conversationId: item.id,
+                servedBy: item.served_by,
+                lastMessageContent: item.content,
+                lastMessageCreatedAt: item.created_at,
+                lastMessageSid: item.sid,
+                lastMessageStatus: item.status,
+                lastMessageMediaType: item.media_type,
+              })); */
+            convertedData = responseObj.data.map((item: FetchBotUser) => ({
+              botUserId: item.user_id,
+              conversationId: item.id,
+              servedBy: item.served_by,
+              lastMessageContent: item.content,
+              lastMessageCreatedAt: item.created_at,
+              lastMessageSid: item.sid,
+              lastMessageStatus: item.status,
+              lastMessageMediaType: item.media_type,
+            }));
+          }
           setBotUsersNeedingAttendants(convertedData);
         } else {
           console.error("No users data found:", responseObj.data);
@@ -104,7 +140,11 @@ export default function RealTimePage() {
     }
   }
 
-  async function fetchChatData(conversationId: number, botUserId: string) {
+  async function fetchChatData(
+    conversationId: number,
+    botUserId: string,
+    servedBy: number | null
+  ) {
     try {
       const response = await fetch(`/api/messages/${conversationId}`, {
         method: "GET",
@@ -119,6 +159,7 @@ export default function RealTimePage() {
         if (responseObj.data) {
           setCurrentConversationId(conversationId);
           setCurrentBotUserId(botUserId);
+          setCurrentBotUserServedBy(servedBy);
           setChatData(responseObj.data);
           setNewBotUserMessageCount(undefined);
           setHasFetchedChatData(true);
@@ -192,7 +233,10 @@ export default function RealTimePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        await fetchRedirectedConversations();
+        if (user.isAdmin || user.isAttendant) {
+          await fetchRedirectedConversations();
+        } else if (user.isLecturer) {
+        }
       } catch (error) {
         console.error("Error fetching redirected conversations:", error);
       }
@@ -376,6 +420,33 @@ export default function RealTimePage() {
       }
     );
 
+    socketContext.socket.on(
+      "applyAttendantToServe",
+      ({ conversationId, attendantId }) => {
+        console.log(
+          conversationId,
+          attendantId,
+          currentConversationIdRef.current
+        );
+
+        if (currentConversationIdRef.current === conversationId) {
+          setCurrentBotUserServedBy(attendantId);
+        }
+
+        const newBotUserList = botUsersNeedingAttendantsRef.current.map(
+          (botUser) => {
+            if (botUser.conversationId === conversationId) {
+              return { ...botUser, servedBy: attendantId };
+            }
+            return botUser;
+          }
+        );
+
+        console.log(newBotUserList);
+        setBotUsersNeedingAttendants(newBotUserList);
+      }
+    );
+
     return () => {
       socketContext?.socket?.off("botUserNeedsAttendant");
       socketContext?.socket?.off("newBotUserMessage");
@@ -385,6 +456,7 @@ export default function RealTimePage() {
       socketContext?.socket?.off("removeFromUnreadConversations");
       socketContext?.socket?.off("removeFromAttendance");
       socketContext?.socket?.off("newMessageStatus");
+      socketContext?.socket?.off("applyAttendantToServe");
     };
   }, [socketContext]);
 
@@ -496,6 +568,46 @@ export default function RealTimePage() {
     return initialMessage;
   };
 
+  async function handleStartServing(conversationId: number) {
+    try {
+      const response = await fetch(
+        `/api/conversations/${conversationId}/serve`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ attendantId: userContext?.user?.id }),
+        }
+      );
+
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        if (responseObj.data && userContext?.user?.id) {
+          const attendantId = userContext.user.id;
+
+          if (currentConversationId === conversationId) {
+            setCurrentBotUserServedBy(attendantId);
+          }
+
+          setBotUsersNeedingAttendants((prev) => {
+            return prev.map((botUser) => {
+              if (botUser.conversationId === conversationId) {
+                return { ...botUser, servedBy: attendantId };
+              }
+              return botUser;
+            });
+          });
+        }
+      } else {
+        throw responseObj.error;
+      }
+    } catch (error: any) {
+      console.error(error.name, error.message);
+    }
+  }
+
   /* const moveElement = (array: any, fromIndex: number, toIndex: number) => {
     const element = array.splice(fromIndex, 1)[0];
 
@@ -573,6 +685,7 @@ export default function RealTimePage() {
             onEndConversation={deactivateCurrentConversation}
             userId={currentBotUserId}
             conversationId={currentConversationId}
+            botUserServedBy={currentBotUserServedBy}
             newBotUserMessageCount={newBotUserMessageCount}
             unsetNewBotUserMessageCount={handleUnsetCount}
             onCloseChat={exitConversation}
@@ -583,6 +696,7 @@ export default function RealTimePage() {
             attendantName={user.username}
             loadOlderMessages={fetchChatDataFromThreeDays}
             hasLoadedOlderMessages={hasFetchedOlderMessages}
+            onStartServing={handleStartServing}
           />
         ) : (
           <div className="centered-message-container">

@@ -28,7 +28,7 @@ export default class ConversationRepository {
 
   async getRedirectedConversations() {
     try {
-      const queryText = `SELECT c.user_id, c.id, m.content, m.created_at, m.sid, m.status, m.media_type
+      const queryText = `SELECT c.user_id, c.id, c.served_by, m.content, m.created_at, m.sid, m.status, m.media_type
       FROM conversations c
       INNER JOIN (
         SELECT conversation_id, MAX(id) AS max_id
@@ -66,6 +66,27 @@ export default class ConversationRepository {
       return result.rows[0];
     } catch (error) {
       console.error("Failed to deactivate conversation: ", error);
+      throw error;
+    }
+  }
+
+  async applyAttendantToServeConversation(
+    conversationId: number,
+    attendantId: number
+  ) {
+    try {
+      const result = await this.db.pool.query(
+        `
+            UPDATE conversations
+            SET served_by = $2
+            WHERE id = $1 AND served_by IS NULL
+            RETURNING *`,
+        [conversationId, attendantId]
+      );
+
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Failed to update the served_by in conversation: ", error);
       throw error;
     }
   }

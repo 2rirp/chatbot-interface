@@ -23,10 +23,16 @@ import VideocamIcon from "@mui/icons-material/Videocam";
 import ArticleIcon from "@mui/icons-material/Article";
 import MicIcon from "@mui/icons-material/Mic";
 import UnreadIndicator from "./unreadIndicator/UnreadIndicator";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 interface SidebarProps {
   currentPage: keyof PagesType;
-  fetchChatData?: (conversationId: number, botUserId: string) => Promise<void>;
+  fetchChatData?: (
+    conversationId: number,
+    botUserId: string,
+    servedBy: number | null
+  ) => Promise<void>;
   fetchChatDataByDate?: (userId: string) => Promise<void>;
   onDataChange?: (date: string) => void;
   onRegisterClick: () => void;
@@ -52,10 +58,13 @@ function Sidebar(props: SidebarProps) {
   const [isSearchingUsers, setIsSearchingUsers] = useState<boolean | null>(
     null
   );
+  const [isListVisible, setListVisible] = useState(true);
+  const [listHeight, setListHeight] = useState("auto");
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const user = {
     username: userContext?.user?.name || "",
+    id: userContext?.user?.id || "",
   };
 
   async function handleUserClick(botUser: IBotUser) {
@@ -66,7 +75,11 @@ function Sidebar(props: SidebarProps) {
       userContext?.user?.id
     );
     if (botUser.conversationId) {
-      await props.fetchChatData?.(botUser.conversationId, botUser.botUserId);
+      await props.fetchChatData?.(
+        botUser.conversationId,
+        botUser.botUserId,
+        botUser.servedBy
+      );
     }
   }
 
@@ -91,20 +104,24 @@ function Sidebar(props: SidebarProps) {
     }
   };
 
-  function filterUsers(searchString: string, list: Array<IBotUser>) {
+  const filterUsers = (searchString: string, list: Array<IBotUser>) => {
     const filtered = list.filter((item) =>
       item.botUserId.slice(2).toLowerCase().includes(searchString.toLowerCase())
     );
 
     setIsSearchingUsers(false);
     setFilteredUsers(searchString === "" ? null : filtered);
-  }
+  };
 
-  function cancelSearch() {
+  const cancelSearch = () => {
     setSearch("");
     setFilteredUsers(null);
     setIsSearchingUsers(null);
-  }
+  };
+
+  const toggleListVisibility = () => {
+    setListVisible((prevState) => !prevState);
+  };
 
   useEffect(() => {
     setDisplayUsers(
@@ -120,6 +137,10 @@ function Sidebar(props: SidebarProps) {
       setIsSearchingUsers(false);
     }
   }, [props.botUsersList]);
+
+  useEffect(() => {
+    setListHeight(isListVisible ? "auto" : "0");
+  }, [isListVisible]);
 
   return (
     <div className="sidebar">
@@ -202,10 +223,17 @@ function Sidebar(props: SidebarProps) {
             </div>
           )}
         </div>
+        <div className="list-title" onClick={toggleListVisibility}>
+          <span>Caixa de Entrada</span>
+          {isListVisible ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+        </div>
         {props.botUsersList.length > 0 ? (
           displayUsers.length > 0 ? (
             props.currentPage === "real_time_page" ? (
-              <ul>
+              <ul
+                className={`collapsible-list ${isListVisible ? "" : "closed"}`}
+                style={{ height: listHeight }}
+              >
                 {displayUsers.map((botUser) => (
                   <li
                     key={botUser.botUserId}
@@ -312,7 +340,8 @@ function Sidebar(props: SidebarProps) {
                         {props.currentPage === "real_time_page" &&
                           botUser.conversationId &&
                           props.onMarkAsUnread &&
-                          props.onMarkAsRead && (
+                          props.onMarkAsRead &&
+                          botUser.servedBy === userContext?.user?.id && (
                             <UserDropdownMenu
                               currentPage={props.currentPage}
                               className="user-dropdown-menu"
@@ -327,6 +356,9 @@ function Sidebar(props: SidebarProps) {
                               }
                               onMarkAsUnread={props.onMarkAsUnread}
                               onMarkAsRead={props.onMarkAsRead}
+                              isItTheAttendantServing={
+                                botUser.servedBy === userContext?.user?.id
+                              }
                             />
                           )}
                       </div>

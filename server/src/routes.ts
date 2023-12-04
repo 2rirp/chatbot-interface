@@ -83,6 +83,14 @@ router.post(
   conversationController.deactivateConversation.bind(conversationController)
 );
 
+router.put(
+  "/api/conversations/:conversationId/serve",
+  authenticate,
+  conversationController.applyAttendantToServeConversation.bind(
+    conversationController
+  )
+);
+
 router.get(
   "/api/r/reports/all",
   authenticate,
@@ -94,6 +102,7 @@ router.get(
   authenticate,
   reportsController.getUsersByDate.bind(reportsController)
 );
+
 router.get(
   "/api/reports/:date",
   authenticate,
