@@ -74,15 +74,33 @@ router.get(
 );
 
 router.get(
-  "/api/conversations/redirected",
+  "/api/conversations/redirected/attendant",
   authenticate,
-  conversationController.getRedirectedConversations.bind(conversationController)
+  conversationController.getAttendantRedirectedConversations.bind(
+    conversationController
+  )
+);
+
+router.get(
+  "/api/conversations/redirected/lecturer",
+  authenticate,
+  conversationController.getLecturerRedirectedConversations.bind(
+    conversationController
+  )
 );
 
 router.post(
   "/api/conversations/end",
   authenticate,
   conversationController.deactivateConversation.bind(conversationController)
+);
+
+router.put(
+  "/api/conversations/:conversationId/serve",
+  authenticate,
+  conversationController.applyAttendantToServeConversation.bind(
+    conversationController
+  )
 );
 
 router.get(
@@ -96,6 +114,7 @@ router.get(
   authenticate,
   reportsController.getUsersByDate.bind(reportsController)
 );
+
 router.get(
   "/api/reports/:date",
   authenticate,

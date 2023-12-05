@@ -27,7 +27,7 @@
     
 }
 
-button {
+.main-container button {
   appearance: button;
   background-color: var(--secondary-blue);
   border: 1px solid #83a5fc;
@@ -51,20 +51,20 @@ button {
   width: fit-content;
 }
 
-button:disabled {
+.main-container button:disabled {
   opacity: .5;
 }
 
-button:focus {
+.main-container button:focus {
   outline: 0;
 }
 
-button:hover {
+.main-container button:hover {
   background-color: #4679fa;
   border-color: #0A46E4;
 }
 
-button:active {
+.main-container button:active {
   background-color: #0039D7;
   border-color: #0039D7;
 }

@@ -6,7 +6,7 @@ import DropdownMenu from "../dropdownMenu/dropdownMenu";
 import IBotUser from "../../interfaces/ibotUser";
 import DateInput from "../dateInput/DateInput";
 import SearchIcon from "@mui/icons-material/Search";
-import AddCommentIcon from '@mui/icons-material/AddComment';
+import AddCommentIcon from "@mui/icons-material/AddComment";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import { TailSpin } from "react-loading-icons";
@@ -24,10 +24,16 @@ import VideocamIcon from "@mui/icons-material/Videocam";
 import ArticleIcon from "@mui/icons-material/Article";
 import MicIcon from "@mui/icons-material/Mic";
 import UnreadIndicator from "./unreadIndicator/UnreadIndicator";
+/* import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"; */
 
 interface SidebarProps {
   currentPage: keyof PagesType;
-  fetchChatData?: (conversationId: number, botUserId: string) => Promise<void>;
+  fetchChatData?: (
+    conversationId: number,
+    botUserId: string,
+    servedBy: number | null
+  ) => Promise<void>;
   fetchChatDataByDate?: (userId: string) => Promise<void>;
   onDataChange?: (date: string) => void;
   onRegisterClick: () => void;
@@ -36,7 +42,8 @@ interface SidebarProps {
   onLogoutClick: () => void;
   onReportClick: () => void;
   isActive: boolean;
-  botUsersList: Array<IBotUser>;
+  botUsersList: Array<IBotUser> | null;
+  botUsersListForLecturer?: Array<IBotUser> | null;
   unreadConversations?: Array<number>;
   onMarkAsUnread?: (conversationId: number) => void;
   onMarkAsRead?: (conversationId: number) => void;
@@ -48,16 +55,20 @@ function Sidebar(props: SidebarProps) {
   const userContext = useContext(UserContext);
   const [search, setSearch] = useState("");
   const [filteredUsers, setFilteredUsers] = useState<IBotUser[] | null>(null);
-  const [displayUsers, setDisplayUsers] = useState<IBotUser[]>(
-    props.botUsersList
-  );
+  const [displayUsers, setDisplayUsers] = useState<IBotUser[]>([]);
   const [isSearchingUsers, setIsSearchingUsers] = useState<boolean | null>(
     null
   );
+  /*  const [isListVisible, setListVisible] = useState(true); */
+  /* const [listHeight, setListHeight] = useState("auto"); */
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const user = {
     username: userContext?.user?.name || "",
+    id: userContext?.user?.id || "",
+    isAdmin: userContext?.user?.is_admin || "",
+    isAttendant: userContext?.user?.is_attendant || "",
+    isLecturer: userContext?.user?.is_lecturer || "",
   };
 
   async function handleUserClick(botUser: IBotUser) {
@@ -68,7 +79,11 @@ function Sidebar(props: SidebarProps) {
       userContext?.user?.id
     );
     if (botUser.conversationId) {
-      await props.fetchChatData?.(botUser.conversationId, botUser.botUserId);
+      await props.fetchChatData?.(
+        botUser.conversationId,
+        botUser.botUserId,
+        botUser.servedBy
+      );
     }
   }
 
@@ -87,41 +102,65 @@ function Sidebar(props: SidebarProps) {
     setSearch(searchQuery);
     if (searchQuery.trim() !== "") {
       setIsSearchingUsers(true);
-      filterUsers(searchQuery, props.botUsersList);
+      filterUsers(
+        searchQuery,
+        props.botUsersList || props.botUsersListForLecturer || []
+      );
     } else {
       setIsSearchingUsers(false);
     }
   };
 
-  function filterUsers(searchString: string, list: Array<IBotUser>) {
+  const filterUsers = (searchString: string, list: Array<IBotUser>) => {
     const filtered = list.filter((item) =>
       item.botUserId.slice(2).toLowerCase().includes(searchString.toLowerCase())
     );
 
     setIsSearchingUsers(false);
     setFilteredUsers(searchString === "" ? null : filtered);
-  }
+  };
 
-  function cancelSearch() {
+  const cancelSearch = () => {
     setSearch("");
     setFilteredUsers(null);
     setIsSearchingUsers(null);
-  }
+  };
+
+  /*  const toggleListVisibility = () => {
+    setListVisible((prevState) => !prevState);
+  }; */
 
   useEffect(() => {
     setDisplayUsers(
-      filteredUsers !== null ? filteredUsers : props.botUsersList
+      filteredUsers !== null
+        ? filteredUsers
+        : props.botUsersList || props.botUsersListForLecturer || []
     );
   }, [filteredUsers, props.botUsersList]);
 
   useEffect(() => {
     if (search.trim() !== "") {
       setIsSearchingUsers(true);
-      filterUsers(search, props.botUsersList);
+      filterUsers(
+        search,
+        props.botUsersList || props.botUsersListForLecturer || []
+      );
     } else {
       setIsSearchingUsers(false);
     }
-  }, [props.botUsersList]);
+  }, [props.botUsersList, props.botUsersListForLecturer]);
+
+  /* useEffect(() => {
+    setListHeight(isListVisible ? "auto" : "0");
+  }, [isListVisible]); */
+
+  useEffect(() => {
+    if (props.botUsersList) {
+      setDisplayUsers(props.botUsersList);
+    } else if (props.botUsersListForLecturer) {
+      setDisplayUsers(props.botUsersListForLecturer);
+    }
+  }, [props.botUsersList, props.botUsersListForLecturer]);
 
   return (
     <div className="sidebar">
@@ -181,11 +220,14 @@ function Sidebar(props: SidebarProps) {
             className="sidebar-search-bar"
             ref={inputRef}
           />
-           <CustomIconButton
-           className="start-new-conversation-button"
-           onClick={props.onNewConversation}>
-              <AddCommentIcon/>
-          </CustomIconButton>
+          {user.isLecturer === true && (
+            <CustomIconButton
+              className="start-new-conversation-button"
+              onClick={props.onNewConversation}
+            >
+              <AddCommentIcon />
+            </CustomIconButton>
+          )}
           {isSearchingUsers !== null && (
             <div className="right-icon-container">
               {isSearchingUsers ? (
@@ -209,10 +251,19 @@ function Sidebar(props: SidebarProps) {
             </div>
           )}
         </div>
-        {props.botUsersList.length > 0 ? (
+        {/* <div className="list-title" onClick={toggleListVisibility}>
+          <span>Caixa de Entrada</span>
+          {isListVisible ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+        </div> */}
+        {(props.botUsersList && props.botUsersList.length > 0) ||
+        (props.botUsersListForLecturer &&
+          props.botUsersListForLecturer.length > 0) ? (
           displayUsers.length > 0 ? (
             props.currentPage === "real_time_page" ? (
-              <ul>
+              <ul
+              /* className={`collapsible-list ${isListVisible ? "" : "closed"}`} */
+              /* style={{ height: listHeight }} */
+              >
                 {displayUsers.map((botUser) => (
                   <li
                     key={botUser.botUserId}
@@ -319,7 +370,8 @@ function Sidebar(props: SidebarProps) {
                         {props.currentPage === "real_time_page" &&
                           botUser.conversationId &&
                           props.onMarkAsUnread &&
-                          props.onMarkAsRead && (
+                          props.onMarkAsRead &&
+                          botUser.servedBy === userContext?.user?.id && (
                             <UserDropdownMenu
                               currentPage={props.currentPage}
                               className="user-dropdown-menu"
@@ -334,6 +386,9 @@ function Sidebar(props: SidebarProps) {
                               }
                               onMarkAsUnread={props.onMarkAsUnread}
                               onMarkAsRead={props.onMarkAsRead}
+                              isItTheAttendantServing={
+                                botUser.servedBy === userContext?.user?.id
+                              }
                             />
                           )}
                       </div>

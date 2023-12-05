@@ -26,9 +26,14 @@ export default class ConversationRepository {
     }
   }
 
-  async getRedirectedConversations() {
+  async getRedirectedConversations(typeOfRedirected: "attendant" | "lecturer") {
     try {
-      const queryText = `SELECT c.user_id, c.id, m.content, m.created_at, m.sid, m.status, m.media_type
+      const conversationStatus =
+        typeOfRedirected === "attendant"
+          ? "talking_to_attendant"
+          : "talking_to_lecturer";
+
+      const queryText = `SELECT c.user_id, c.id, c.served_by, m.content, m.created_at, m.sid, m.status, m.media_type
       FROM conversations c
       INNER JOIN (
         SELECT conversation_id, MAX(id) AS max_id
@@ -36,17 +41,17 @@ export default class ConversationRepository {
         GROUP BY conversation_id
       ) latest_message ON c.id = latest_message.conversation_id
       INNER JOIN messages m ON latest_message.max_id = m.id
-      WHERE c.status = 'talking_to_attendant'
+      WHERE c.status = $1
       ORDER BY m.created_at DESC`;
 
-      const result = await this.db.pool.query(queryText);
+      const result = await this.db.pool.query(queryText, [conversationStatus]);
 
       console.log(result.rows);
 
       return result.rows;
     } catch (error) {
       console.error(
-        "Failed to fetch conversations redirected to attendant: ",
+        `Failed to fetch conversations redirected to ${typeOfRedirected}: `,
         error
       );
       throw error;
@@ -66,6 +71,27 @@ export default class ConversationRepository {
       return result.rows[0];
     } catch (error) {
       console.error("Failed to deactivate conversation: ", error);
+      throw error;
+    }
+  }
+
+  async applyAttendantToServeConversation(
+    conversationId: number,
+    attendantId: number
+  ) {
+    try {
+      const result = await this.db.pool.query(
+        `
+            UPDATE conversations
+            SET served_by = $2
+            WHERE id = $1 AND served_by IS NULL
+            RETURNING *`,
+        [conversationId, attendantId]
+      );
+
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Failed to update the served_by in conversation: ", error);
       throw error;
     }
   }

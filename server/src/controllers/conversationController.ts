@@ -22,14 +22,32 @@ export default class ConversationController {
     }
   }
 
-  async getRedirectedConversations(
+  async getAttendantRedirectedConversations(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
       const conversations =
-        await ConversationServices.getRedirectedConversations();
+        await ConversationServices.getRedirectedConversations("attendant");
+
+      res.status(200).json({
+        error: null,
+        data: conversations,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getLecturerRedirectedConversations(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const conversations =
+        await ConversationServices.getRedirectedConversations("lecturer");
 
       res.status(200).json({
         error: null,
@@ -65,6 +83,37 @@ export default class ConversationController {
       res.status(200).json({
         error: null,
         data: conversation,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async applyAttendantToServeConversation(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const conversationId = Number(req.params.conversationId);
+      const attendantId = Number(req.body.attendantId);
+
+      const response =
+        await ConversationServices.applyAttendantToServeConversation(
+          conversationId,
+          attendantId
+        );
+
+      const websocket = Websocket.getIstance();
+      websocket.broadcastToEveryone(
+        "applyAttendantToServe",
+        { conversationId, attendantId },
+        attendantId
+      );
+
+      res.status(200).json({
+        error: null,
+        data: response,
       });
     } catch (error) {
       next(error);

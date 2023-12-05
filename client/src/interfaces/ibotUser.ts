@@ -9,4 +9,5 @@ export default interface IBotUser {
   lastMessageSid: string | null;
   lastMessageStatus: keyof IStatus | null;
   lastMessageMediaType: string | null;
+  servedBy: number | null;
 }

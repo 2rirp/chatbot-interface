@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import "./chat.css";
 import SendIcon from "@mui/icons-material/Send";
 import QuickreplyIcon from "@mui/icons-material/Quickreply";
@@ -22,8 +22,8 @@ import DoneIcon from "@mui/icons-material/Done";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import CloseIcon from "@mui/icons-material/Close";
 import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
-import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { formatDateTime } from "../../utils/dateUtils";
+import { UserContext } from "../../contexts/UserContext";
 
 interface ChatProps {
   currentPage: keyof PagesType;
@@ -32,6 +32,7 @@ interface ChatProps {
   onEndConversation?: () => void;
   userId: string;
   conversationId?: number;
+  botUserServedBy?: number | null;
   newBotUserMessageCount?: number;
   unsetNewBotUserMessageCount?: () => void;
   onCloseChat: () => void;
@@ -48,9 +49,12 @@ interface ChatProps {
   attendantName?: string;
   loadOlderMessages?: (dateLimit: string) => void;
   hasLoadedOlderMessages?: boolean | null;
+  onStartServing?: (conversationId: number) => void;
 }
 
 function Chat(props: ChatProps) {
+  const userContext = useContext(UserContext);
+
   const textareaMaxLength: number = 1550;
   const [message, setMessage] = useState<string>("");
   const [userAtBottom, setUserAtBottom] = useState(true);
@@ -122,6 +126,7 @@ function Chat(props: ChatProps) {
       }
     }
   };
+
   const handleQuickReply = (quickreply: string) => {
     setMessage(quickreply);
   };
@@ -268,6 +273,12 @@ function Chat(props: ChatProps) {
       props.loadOlderMessages(dateLimit);
     }
   };
+
+  const handleStartServing = () => {
+    if (props.onStartServing && props.conversationId)
+      props.onStartServing(props.conversationId);
+  };
+
   /* const handleMatchesCounterChange = () => {
      setTotalOfResults((prevTotal) => prevTotal + 1); 
     console.log("hi");
@@ -357,6 +368,9 @@ function Chat(props: ChatProps) {
                 handleEndChat={openEndChatDialog}
                 onMarkAsUnread={props.onMarkAsUnread}
                 isAnUnreadConversation={props.isAnUnreadConversation}
+                isItTheAttendantServing={
+                  props.botUserServedBy === userContext?.user?.id
+                }
               />
             )}
 
@@ -548,75 +562,94 @@ function Chat(props: ChatProps) {
           )}
         </div>
         {props.currentPage === "real_time_page" &&
-          (isItMoreThan24HoursAgo === false ? (
-            <div className="chat-input-container">
-              {!isQuickreplySidebarOpen && (
-                <CustomIconButton
-                  ariaLabel="Mensagens rápidas"
-                  onClick={openQuickreplySidebar}
-                  className="quick-reply-button"
-                >
-                  <QuickreplyIcon />
-                </CustomIconButton>
-              )}
-              <CustomIconButton
-                className="attach-file-button"
-                onClick={()=>console.log("Anexar arquivo")}>
-              <AttachFileIcon/>
-              </CustomIconButton>
-              <div className="textarea-container">
-                <textarea
-                  placeholder="Digite sua mensagem..."
-                  value={message}
-                  onChange={handleMessageChange}
-                  onKeyDown={handleInputKeyPress}
-                  className="chat-textarea"
-                  rows={1}
-                  ref={textAreaRef}
-                />
-                {message.length < textareaMaxLength ? (
-                  <span className={`textarea-message`}>
-                    {message.length}/{textareaMaxLength}
-                  </span>
-                ) : (
-                  <span className={`textarea-message limit-reached`}>
-                    Você atingiu o limite de caracteres: {message.length}/
-                    {textareaMaxLength}
-                  </span>
+          (props.botUserServedBy === userContext?.user?.id ? (
+            isItMoreThan24HoursAgo === false ? (
+              <div className="chat-input-container">
+                {!isQuickreplySidebarOpen && (
+                  <CustomIconButton
+                    ariaLabel="Mensagens rápidas"
+                    onClick={openQuickreplySidebar}
+                    className="quick-reply-button"
+                  >
+                    <QuickreplyIcon />
+                  </CustomIconButton>
                 )}
+
+                <div className="textarea-container">
+                  <textarea
+                    placeholder="Digite sua mensagem..."
+                    value={message}
+                    onChange={handleMessageChange}
+                    onKeyDown={handleInputKeyPress}
+                    className="chat-textarea"
+                    rows={1}
+                    ref={textAreaRef}
+                  />
+                  {message.length < textareaMaxLength ? (
+                    <span className={`textarea-message`}>
+                      {message.length}/{textareaMaxLength}
+                    </span>
+                  ) : (
+                    <span className={`textarea-message limit-reached`}>
+                      Você atingiu o limite de caracteres: {message.length}/
+                      {textareaMaxLength}
+                    </span>
+                  )}
+                </div>
+                <CustomIconButton
+                  className="send-button"
+                  onClick={() => handleSendMessage()}
+                  disabled={message.length > textareaMaxLength}
+                >
+                  <SendIcon />
+                </CustomIconButton>
               </div>
-              <CustomIconButton
-                className="send-button"
-                onClick={() => handleSendMessage()}
-                disabled={message.length > textareaMaxLength}
-              >
-                <SendIcon />
-              </CustomIconButton>
-            </div>
-            
-          ) : isItMoreThan24HoursAgo ? (
+            ) : isItMoreThan24HoursAgo ? (
+              <div className="chat-content-bottom">
+                <p>
+                  Já faz mais de 24h desde a última vez que esse usuário enviou
+                  uma mensagem.
+                  <br />É necessário provocá-lo para que o mesmo envie uma
+                  mensagem e possamos prosseguir com o atendimento
+                </p>
+                <button
+                  className="pattern-button"
+                  onClick={() => handleProvokeUser()}
+                >
+                  Provocar usuário
+                </button>
+              </div>
+            ) : isItMoreThan24HoursAgo === null ? (
+              <div className="chat-content-bottom">
+                <p>
+                  Este usuário já foi provocado. É necessário aguardar uma
+                  resposta dele para prosseguir com o atendimento.
+                </p>
+              </div>
+            ) : null
+          ) : props.botUserServedBy === null ? (
             <div className="chat-content-bottom">
               <p>
-                Já faz mais de 24h desde a última vez que esse usuário enviou
-                uma mensagem.
-                <br />É necessário provocá-lo para que o mesmo envie uma
-                mensagem e possamos prosseguir com o atendimento
+                Este usuário ainda não está sendo atendido.
+                <br />
+                Você pode iniciar o seu atendimento clicando no botão abaixo.
               </p>
               <button
                 className="pattern-button"
-                onClick={() => handleProvokeUser()}
+                onClick={() => handleStartServing()}
               >
-                Provocar usuário
+                Iniciar o Atendimento
               </button>
             </div>
-          ) : isItMoreThan24HoursAgo === null ? (
+          ) : (
             <div className="chat-content-bottom">
               <p>
-                Este usuário já foi provocado. É necessário aguardar uma
-                resposta dele para prosseguir com o atendimento.
+                Este usuário já está sendo atendido.
+                <br />
+                Você não pode intervir no atendimento.
               </p>
             </div>
-          ) : null)}
+          ))}
       </div>
 
       {props.currentPage === "real_time_page" && props.onEndConversation && (
