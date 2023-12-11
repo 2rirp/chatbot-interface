@@ -225,6 +225,7 @@ export default function RealTimePage() {
           setCurrentBotUserServedBy(servedBy);
           setChatData(responseObj.data);
           setNewBotUserMessageCount(undefined);
+          setStartConversation(false);
           setHasFetchedChatData(true);
           setHasFetchedOlderMessages(false);
         } else {
