@@ -46,17 +46,36 @@ export default class Websocket {
 
     socket.on(
       "redirectToAttendant",
-      (botUserId: string, conversationId: number, message: IMessage) => {
+      (
+        botUserId: string,
+        conversationId: number,
+        servedBy: number | null,
+        message: IMessage
+      ) => {
         try {
-          this.io?.emit("botUserNeedsAttendant", {
-            botUserId,
-            conversationId,
-            lastMessageContent: message.content,
-            lastMessageCreatedAt: message.created_at,
-            lastMessageSid: message.sid,
-            lastMessageStatus: message.status,
-            lastMessageMediaType: message.media_type,
-          });
+          if (servedBy === null) {
+            this.io?.emit("botUserNeedsAttendant", {
+              botUserId,
+              conversationId,
+              servedBy,
+              lastMessageContent: message.content,
+              lastMessageCreatedAt: message.created_at,
+              lastMessageSid: message.sid,
+              lastMessageStatus: message.status,
+              lastMessageMediaType: message.media_type,
+            });
+          } else {
+            this.io?.emit("conversationInitiated", {
+              botUserId,
+              conversationId,
+              servedBy,
+              lastMessageContent: message.content,
+              lastMessageCreatedAt: message.created_at,
+              lastMessageSid: message.sid,
+              lastMessageStatus: message.status,
+              lastMessageMediaType: message.media_type,
+            });
+          }
         } catch (error) {
           console.error("Error redirecting to attendant " + error);
         }
