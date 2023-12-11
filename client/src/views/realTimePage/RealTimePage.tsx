@@ -114,7 +114,7 @@ export default function RealTimePage() {
               lastMessageMediaType: item.media_type,
             }));
           } else if (user.isAttendant) {
-            /* convertedData = responseObj.data
+            convertedData = responseObj.data
               .filter(
                 (item: FetchBotUser) =>
                   item.served_by === user.id || item.served_by === null
@@ -128,8 +128,8 @@ export default function RealTimePage() {
                 lastMessageSid: item.sid,
                 lastMessageStatus: item.status,
                 lastMessageMediaType: item.media_type,
-              })); */
-            convertedData = responseObj.data.map((item: FetchBotUser) => ({
+              }));
+            /* convertedData = responseObj.data.map((item: FetchBotUser) => ({
               botUserId: item.user_id,
               conversationId: item.id,
               servedBy: item.served_by,
@@ -138,7 +138,7 @@ export default function RealTimePage() {
               lastMessageSid: item.sid,
               lastMessageStatus: item.status,
               lastMessageMediaType: item.media_type,
-            }));
+            })); */
           }
           setBotUsersRedirectedToAttendant(convertedData);
         } else {
@@ -301,7 +301,7 @@ export default function RealTimePage() {
           await fetchAttendantRedirectedConversations();
         }
 
-        if (user.isLecturer) {
+        if (user.isAdmin || user.isLecturer) {
           await fetchLecturerRedirectedConversations();
         }
       } catch (error) {
@@ -337,9 +337,24 @@ export default function RealTimePage() {
         if (prevBotUsers === null) {
           return [newBotUser];
         } else {
-          return [...prevBotUsers, newBotUser];
+          return [newBotUser, ...prevBotUsers];
         }
       });
+    });
+
+    socketContext.socket.on("conversationInitiated", (newBotUser: IBotUser) => {
+      if (
+        user.isAdmin ||
+        (user.isLecturer && user.id === newBotUser.servedBy)
+      ) {
+        setBotUsersRedirectedToLecturer((prevBotUsers) => {
+          if (prevBotUsers === null) {
+            return [newBotUser];
+          } else {
+            return [...prevBotUsers, newBotUser];
+          }
+        });
+      }
     });
 
     socketContext.socket.on("newBotUserMessage", (newMessageData: IMessage) => {
@@ -383,7 +398,8 @@ export default function RealTimePage() {
         );
 
         setBotUsersRedirectedToAttendant(orderedBotUserList);
-      } else if (botUsersRedirectedToLecturerRef.current) {
+      }
+      if (botUsersRedirectedToLecturerRef.current) {
         const updatedBotUserList = botUsersRedirectedToLecturerRef.current.map(
           (botUser) => {
             if (
@@ -453,7 +469,8 @@ export default function RealTimePage() {
           );
 
           setBotUsersRedirectedToAttendant(orderedBotUserList);
-        } else if (botUsersRedirectedToLecturerRef.current) {
+        }
+        if (botUsersRedirectedToLecturerRef.current) {
           const updatedBotUserList =
             botUsersRedirectedToLecturerRef.current.map((botUser) => {
               if (
@@ -526,7 +543,8 @@ export default function RealTimePage() {
 
             return null;
           });
-        } else if (botUsersRedirectedToLecturerRef.current) {
+        }
+        if (botUsersRedirectedToLecturerRef.current) {
           setBotUsersRedirectedToLecturer((prev) => {
             if (prev) {
               return prev.filter(
@@ -571,7 +589,8 @@ export default function RealTimePage() {
             });
 
           setBotUsersRedirectedToAttendant(updatedBotUserList);
-        } else if (botUsersRedirectedToLecturerRef.current) {
+        }
+        if (botUsersRedirectedToLecturerRef.current) {
           const updatedBotUserList =
             botUsersRedirectedToLecturerRef.current.map((botUser) => {
               if (
@@ -591,12 +610,6 @@ export default function RealTimePage() {
     socketContext.socket.on(
       "applyAttendantToServe",
       ({ conversationId, attendantId }) => {
-        console.log(
-          conversationId,
-          attendantId,
-          currentConversationIdRef.current
-        );
-
         if (currentConversationIdRef.current === conversationId) {
           setCurrentBotUserServedBy(attendantId);
         }
@@ -618,6 +631,7 @@ export default function RealTimePage() {
 
     return () => {
       socketContext?.socket?.off("botUserNeedsAttendant");
+      socketContext?.socket?.off("conversationInitiated");
       socketContext?.socket?.off("newBotUserMessage");
       socketContext?.socket?.off("newAttendantMessage");
       socketContext?.socket?.off("loadUnreadConversations");
@@ -818,14 +832,26 @@ export default function RealTimePage() {
         }),
       });
       if (deactivatedConversation.ok) {
-        setBotUsersRedirectedToAttendant((prev) => {
-          if (prev !== null) {
-            return prev.filter(
-              (user) => user.conversationId !== currentConversationId
-            );
-          }
-          return null;
-        });
+        if (botUsersRedirectedToAttendant) {
+          setBotUsersRedirectedToAttendant((prev) => {
+            if (prev !== null) {
+              return prev.filter(
+                (user) => user.conversationId !== currentConversationId
+              );
+            }
+            return null;
+          });
+        }
+        if (botUsersRedirectedToLecturer) {
+          setBotUsersRedirectedToLecturer((prev) => {
+            if (prev !== null) {
+              return prev.filter(
+                (user) => user.conversationId !== currentConversationId
+              );
+            }
+            return null;
+          });
+        }
 
         exitConversation();
       } else {

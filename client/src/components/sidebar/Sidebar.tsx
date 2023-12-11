@@ -12,20 +12,10 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { TailSpin } from "react-loading-icons";
 import PhoneNumberFormatter from "../phoneNumberFormatter/PhoneNumberFormatter";
 import CustomIconButton from "../customIconButton/CustomIconButton";
-import UserDropdownMenu from "../userDropdownMenu/userDropdownMenu";
 import PagesType from "../../interfaces/pagesName";
-import TimestampFormatter from "../timestampFormatter/TimestampFormatter";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import DoneIcon from "@mui/icons-material/Done";
-import DoneAllIcon from "@mui/icons-material/DoneAll";
-import CloseIcon from "@mui/icons-material/Close";
-import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
-import VideocamIcon from "@mui/icons-material/Videocam";
-import ArticleIcon from "@mui/icons-material/Article";
-import MicIcon from "@mui/icons-material/Mic";
-import UnreadIndicator from "./unreadIndicator/UnreadIndicator";
-/* import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"; */
+import SidebarList from "./sidebarList/SidebarList";
+import React from "react";
+import CollapsibleComponent from "./collapsibleComponent/CollapsibleComponent";
 
 interface SidebarProps {
   currentPage: keyof PagesType;
@@ -54,11 +44,20 @@ function Sidebar(props: SidebarProps) {
   const socketContext = useContext(SocketContext);
   const userContext = useContext(UserContext);
   const [search, setSearch] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState<IBotUser[] | null>(null);
-  const [displayUsers, setDisplayUsers] = useState<IBotUser[]>([]);
+  const [filteredListOne, setFilteredListOne] = useState<IBotUser[] | null>(
+    null
+  );
+  const [displayListOne, setDisplayListOne] = useState<IBotUser[]>([]);
+  const [filteredListTwo, setFilteredListTwo] = useState<IBotUser[] | null>(
+    null
+  );
+  const [displayListTwo, setDisplayListTwo] = useState<IBotUser[]>([]);
   const [isSearchingUsers, setIsSearchingUsers] = useState<boolean | null>(
     null
   );
+
+  const [sidebarOneHeight, setSidebarOneHeight] = useState<number | null>(null);
+  const [sidebarTwoHeight, setSidebarTwoHeight] = useState<number | null>(null);
   /*  const [isListVisible, setListVisible] = useState(true); */
   /* const [listHeight, setListHeight] = useState("auto"); */
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -66,9 +65,9 @@ function Sidebar(props: SidebarProps) {
   const user = {
     username: userContext?.user?.name || "",
     id: userContext?.user?.id || "",
-    isAdmin: userContext?.user?.is_admin || "",
-    isAttendant: userContext?.user?.is_attendant || "",
-    isLecturer: userContext?.user?.is_lecturer || "",
+    isAdmin: userContext?.user?.is_admin || false,
+    isAttendant: userContext?.user?.is_attendant || false,
+    isLecturer: userContext?.user?.is_lecturer || false,
   };
 
   async function handleUserClick(botUser: IBotUser) {
@@ -102,28 +101,59 @@ function Sidebar(props: SidebarProps) {
     setSearch(searchQuery);
     if (searchQuery.trim() !== "") {
       setIsSearchingUsers(true);
-      filterUsers(
-        searchQuery,
-        props.botUsersList || props.botUsersListForLecturer || []
-      );
+      if (props.botUsersList) filterUsers(searchQuery, props.botUsersList, 1);
+
+      if (props.botUsersListForLecturer)
+        filterUsers(searchQuery, props.botUsersListForLecturer, 2);
     } else {
       setIsSearchingUsers(false);
     }
   };
 
-  const filterUsers = (searchString: string, list: Array<IBotUser>) => {
+  const filterUsers = (
+    searchString: string,
+    list: Array<IBotUser>,
+    whichListSearch: 1 | 2
+  ) => {
     const filtered = list.filter((item) =>
       item.botUserId.slice(2).toLowerCase().includes(searchString.toLowerCase())
     );
 
     setIsSearchingUsers(false);
-    setFilteredUsers(searchString === "" ? null : filtered);
+
+    switch (whichListSearch) {
+      case 1:
+        setFilteredListOne(searchString === "" ? null : filtered);
+        break;
+      case 2:
+        setFilteredListTwo(searchString === "" ? null : filtered);
+        break;
+      default:
+        break;
+    }
   };
 
   const cancelSearch = () => {
     setSearch("");
-    setFilteredUsers(null);
+    setFilteredListOne(null);
+    setFilteredListTwo(null);
     setIsSearchingUsers(null);
+  };
+
+  const changeComponentHeight = (
+    heightValue: number | null,
+    whichListUpdate: 1 | 2
+  ) => {
+    switch (whichListUpdate) {
+      case 1:
+        setSidebarOneHeight(heightValue);
+        break;
+      case 2:
+        setSidebarTwoHeight(heightValue);
+        break;
+      default:
+        break;
+    }
   };
 
   /*  const toggleListVisibility = () => {
@@ -131,20 +161,26 @@ function Sidebar(props: SidebarProps) {
   }; */
 
   useEffect(() => {
-    setDisplayUsers(
-      filteredUsers !== null
-        ? filteredUsers
-        : props.botUsersList || props.botUsersListForLecturer || []
+    setDisplayListOne(
+      filteredListOne !== null ? filteredListOne : props.botUsersList || []
     );
-  }, [filteredUsers, props.botUsersList]);
+  }, [filteredListOne, props.botUsersList]);
+
+  useEffect(() => {
+    setDisplayListTwo(
+      filteredListTwo !== null
+        ? filteredListTwo
+        : props.botUsersListForLecturer || []
+    );
+  }, [filteredListTwo, props.botUsersListForLecturer]);
 
   useEffect(() => {
     if (search.trim() !== "") {
       setIsSearchingUsers(true);
-      filterUsers(
-        search,
-        props.botUsersList || props.botUsersListForLecturer || []
-      );
+      if (props.botUsersList) filterUsers(search, props.botUsersList, 1);
+
+      if (props.botUsersListForLecturer)
+        filterUsers(search, props.botUsersListForLecturer, 2);
     } else {
       setIsSearchingUsers(false);
     }
@@ -156,9 +192,9 @@ function Sidebar(props: SidebarProps) {
 
   useEffect(() => {
     if (props.botUsersList) {
-      setDisplayUsers(props.botUsersList);
+      setDisplayListOne(props.botUsersList);
     } else if (props.botUsersListForLecturer) {
-      setDisplayUsers(props.botUsersListForLecturer);
+      setDisplayListTwo(props.botUsersListForLecturer);
     }
   }, [props.botUsersList, props.botUsersListForLecturer]);
 
@@ -220,7 +256,7 @@ function Sidebar(props: SidebarProps) {
             className="sidebar-search-bar"
             ref={inputRef}
           />
-          {user.isLecturer === true && (
+          {(user.isLecturer || user.isAdmin) && (
             <CustomIconButton
               className="start-new-conversation-button"
               onClick={props.onNewConversation}
@@ -258,148 +294,96 @@ function Sidebar(props: SidebarProps) {
         {(props.botUsersList && props.botUsersList.length > 0) ||
         (props.botUsersListForLecturer &&
           props.botUsersListForLecturer.length > 0) ? (
-          displayUsers.length > 0 ? (
-            props.currentPage === "real_time_page" ? (
-              <ul
-              /* className={`collapsible-list ${isListVisible ? "" : "closed"}`} */
-              /* style={{ height: listHeight }} */
-              >
-                {displayUsers.map((botUser) => (
-                  <li
-                    key={botUser.botUserId}
-                    onClick={() => handleUserClick(botUser)}
-                    /* className={
-                      botUser.conversationId &&
-                      props.unreadConversations?.includes(
-                        botUser.conversationId
-                      )
-                        ? "unread-conversation"
-                        : ""
-                    } */
-                  >
-                    <div className="user-details">
-                      <PhoneNumberFormatter
-                        phoneNumber={`${botUser.botUserId}`}
-                        className="formatted-number"
-                      />
-
-                      {botUser.lastMessageCreatedAt && (
-                        <TimestampFormatter
-                          timestamp={botUser.lastMessageCreatedAt}
-                          returnTime
-                          returnDate
-                          dateDisplayInterval="beforeToday"
-                          removeSomeData={["second", "year"]}
+          displayListOne.length > 0 || displayListTwo.length > 0 ? (
+            props.currentPage === "real_time_page" &&
+            props.unreadConversations &&
+            props.onMarkAsRead &&
+            props.onMarkAsUnread ? (
+              <React.Fragment>
+                {props.botUsersList &&
+                  (props.botUsersList.length > 0 ? (
+                    displayListOne.length > 0 ? (
+                      props.botUsersList && props.botUsersListForLecturer ? (
+                        <CollapsibleComponent
+                          title="Perfil de Atendente"
+                          level={1}
+                          childrenHeight={sidebarOneHeight}
+                        >
+                          <SidebarList
+                            botUserList={displayListOne}
+                            handleLiClick={handleUserClick}
+                            unreadConversations={props.unreadConversations}
+                            onMarkAsRead={props.onMarkAsRead}
+                            onMarkAsUnread={props.onMarkAsUnread}
+                            componentHeight={(heightValue) =>
+                              changeComponentHeight(heightValue, 1)
+                            }
+                          />
+                        </CollapsibleComponent>
+                      ) : (
+                        <SidebarList
+                          botUserList={displayListOne}
+                          handleLiClick={handleUserClick}
+                          unreadConversations={props.unreadConversations}
+                          onMarkAsRead={props.onMarkAsRead}
+                          onMarkAsUnread={props.onMarkAsUnread}
                         />
-                      )}
-                    </div>
+                      )
+                    ) : (
+                      <p className="no-users-message">
+                        Nenhum usuário encontrado
+                      </p>
+                    )
+                  ) : (
+                    <p className="no-users-message">
+                      Não há usuários em atendimento com os atendentes.
+                    </p>
+                  ))}
 
-                    <div className="message-details">
-                      <div className="message-part">
-                        {botUser.lastMessageStatus && (
-                          <div
-                            className={`message-status-badge ${
-                              botUser.lastMessageStatus === "read"
-                                ? "change-message-status-color"
-                                : ""
-                            }`}
-                          >
-                            {botUser.lastMessageStatus === "queued" ? (
-                              <AccessTimeIcon fontSize="inherit" />
-                            ) : botUser.lastMessageStatus === "failed" ? (
-                              <CloseIcon fontSize="inherit" />
-                            ) : botUser.lastMessageStatus === "sent" ? (
-                              <DoneIcon fontSize="inherit" />
-                            ) : botUser.lastMessageStatus === "delivered" ||
-                              botUser.lastMessageStatus === "read" ? (
-                              <DoneAllIcon fontSize="inherit" />
-                            ) : null}
-                          </div>
-                        )}
-
-                        {botUser.lastMessageMediaType && (
-                          <div className="message-media-icon">
-                            {botUser.lastMessageMediaType.startsWith(
-                              "image"
-                            ) ? (
-                              <InsertPhotoIcon fontSize="inherit" />
-                            ) : botUser.lastMessageMediaType.startsWith(
-                                "video"
-                              ) ? (
-                              <VideocamIcon fontSize="inherit" />
-                            ) : botUser.lastMessageMediaType.startsWith(
-                                "audio"
-                              ) ? (
-                              <MicIcon fontSize="inherit" />
-                            ) : botUser.lastMessageMediaType.startsWith(
-                                "document" ||
-                                  botUser.lastMessageMediaType.startsWith(
-                                    "document"
-                                  )
-                              ) ? (
-                              <ArticleIcon fontSize="inherit" />
-                            ) : null}
-                          </div>
-                        )}
-
-                        {botUser.lastMessageContent && (
-                          <span
-                            className="message-preview"
-                            ref={(el) => {
-                              if (el) {
-                                el.style.width =
-                                  el.scrollWidth > el.clientWidth
-                                    ? "90%"
-                                    : "auto";
-                              }
-                            }}
-                          >
-                            {botUser.lastMessageContent}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="icons-part">
-                        {botUser.conversationId &&
-                        props.unreadConversations?.includes(
-                          botUser.conversationId
-                        ) ? (
-                          <UnreadIndicator />
-                        ) : null}
-
-                        {props.currentPage === "real_time_page" &&
-                          botUser.conversationId &&
-                          props.onMarkAsUnread &&
-                          props.onMarkAsRead &&
-                          botUser.servedBy === userContext?.user?.id && (
-                            <UserDropdownMenu
-                              currentPage={props.currentPage}
-                              className="user-dropdown-menu"
-                              conversationId={botUser.conversationId}
-                              isAnUnreadConversation={
-                                botUser.conversationId &&
-                                props.unreadConversations?.includes(
-                                  botUser.conversationId
-                                )
-                                  ? true
-                                  : false
-                              }
-                              onMarkAsUnread={props.onMarkAsUnread}
-                              onMarkAsRead={props.onMarkAsRead}
-                              isItTheAttendantServing={
-                                botUser.servedBy === userContext?.user?.id
-                              }
-                            />
-                          )}
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                {props.botUsersListForLecturer &&
+                  (props.botUsersListForLecturer.length > 0 ? (
+                    displayListTwo.length > 0 ? (
+                      props.botUsersList && props.botUsersListForLecturer ? (
+                        <CollapsibleComponent
+                          title="Perfil de Conferente"
+                          level={1}
+                          childrenHeight={sidebarTwoHeight}
+                        >
+                          <SidebarList
+                            botUserList={displayListTwo}
+                            handleLiClick={handleUserClick}
+                            unreadConversations={props.unreadConversations}
+                            onMarkAsRead={props.onMarkAsRead}
+                            onMarkAsUnread={props.onMarkAsUnread}
+                            componentHeight={(heightValue) =>
+                              changeComponentHeight(heightValue, 2)
+                            }
+                          />
+                        </CollapsibleComponent>
+                      ) : (
+                        <SidebarList
+                          botUserList={displayListTwo}
+                          handleLiClick={handleUserClick}
+                          unreadConversations={props.unreadConversations}
+                          onMarkAsRead={props.onMarkAsRead}
+                          onMarkAsUnread={props.onMarkAsUnread}
+                        />
+                      )
+                    ) : (
+                      <p className="no-users-message">
+                        Nenhum usuário encontrado
+                      </p>
+                    )
+                  ) : (
+                    <p className="no-users-message">
+                      Não há usuários em atendimento na conferência.
+                    </p>
+                  ))}
+              </React.Fragment>
             ) : (
               props.currentPage === "history_page" && (
                 <ul>
-                  {displayUsers.map((botUser) => (
+                  {displayListOne.map((botUser) => (
                     <li
                       key={botUser.botUserId}
                       onClick={() =>
