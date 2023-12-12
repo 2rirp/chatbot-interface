@@ -83,9 +83,9 @@ export default function RealTimePage() {
   const user = {
     id: userContext?.user?.id || "",
     username: userContext?.user?.name || "",
-    isAdmin: userContext?.user?.is_admin || "",
-    isAttendant: userContext?.user?.is_attendant || "",
-    isLecturer: userContext?.user?.is_lecturer || "",
+    isAdmin: userContext?.user?.is_admin || false,
+    isAttendant: userContext?.user?.is_attendant || false,
+    isLecturer: userContext?.user?.is_lecturer || false,
   };
 
   async function fetchAttendantRedirectedConversations() {
@@ -333,13 +333,15 @@ export default function RealTimePage() {
     if (!socketContext?.socket) return;
 
     socketContext.socket.on("botUserNeedsAttendant", (newBotUser: IBotUser) => {
-      setBotUsersRedirectedToAttendant((prevBotUsers) => {
-        if (prevBotUsers === null) {
-          return [newBotUser];
-        } else {
-          return [newBotUser, ...prevBotUsers];
-        }
-      });
+      if (user.isAdmin || user.isAttendant) {
+        setBotUsersRedirectedToAttendant((prevBotUsers) => {
+          if (prevBotUsers === null) {
+            return [newBotUser];
+          } else {
+            return [newBotUser, ...prevBotUsers];
+          }
+        });
+      }
     });
 
     socketContext.socket.on("conversationInitiated", (newBotUser: IBotUser) => {
@@ -351,7 +353,7 @@ export default function RealTimePage() {
           if (prevBotUsers === null) {
             return [newBotUser];
           } else {
-            return [...prevBotUsers, newBotUser];
+            return [newBotUser, ...prevBotUsers];
           }
         });
       }

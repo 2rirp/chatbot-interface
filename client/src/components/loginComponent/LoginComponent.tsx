@@ -15,6 +15,15 @@ export default function LoginComponent() {
 
   /*  const [modalIsOpen, setmodalIsOpen] = useState(false); */
 
+  const user = {
+    id: userContext?.user?.id || "",
+    username: userContext?.user?.name || "",
+    updatedAt: userContext?.user?.updated_at || null,
+    isAdmin: userContext?.user?.is_admin || false,
+    isAttendant: userContext?.user?.is_attendant || false,
+    isLecturer: userContext?.user?.is_lecturer || false,
+  };
+
   async function formSubmitted(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -40,18 +49,22 @@ export default function LoginComponent() {
       String(credentials.email),
       String(credentials.password)
     );
+
+    console.log(isLoggedIn);
+    console.log(user);
     setIsFetching(false);
-    if (isLoggedIn) {
-      if(passwordExpired() === false)
-        navigate("/");
+    if (isLoggedIn || isLoggedIn === null) {
+      if (passwordExpired(isLoggedIn) === false) navigate("/");
       else {
         setChangePassword(true);
       }
-    } 
+    }
   }
-  const passwordExpired = () => {
-    const lastUpdate = userContext?.user?.updated_at;
-    if(lastUpdate === undefined || lastUpdate === null) {
+  const passwordExpired = (updatedAt: string | null) => {
+    const lastUpdate = updatedAt;
+
+    console.log(lastUpdate);
+    if (lastUpdate === undefined || lastUpdate === null) {
       return true;
     }
     const days = 120;
@@ -61,40 +74,44 @@ export default function LoginComponent() {
     const lastUpdateDate = new Date(lastUpdate);
     today.setHours(0, 0, 0, 0);
     lastUpdateDate.setHours(0, 0, 0, 0);
-    
+
     const timeDifference = today.getTime() - lastUpdateDate.getTime();
     const difference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-    if (difference >= days)
-      return true;
-    else
-      return false;
-  }
+    console.log(today, lastUpdateDate, timeDifference, difference);
+    if (difference >= days) return true;
+    else return false;
+  };
 
   async function newPasswordSubmitted(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if(isFetching === true) return
+    if (isFetching === true) return;
     const data = new FormData(event.currentTarget);
     const password = data.get("password");
     const confirmPassword = data.get("confirmPassword");
     const email = userContext?.user?.email;
-    if(password === null || password === "") {
-      alert("Há dados incompletos, por favor, preencha-os!")
-      return
+    if (password === null || password === "") {
+      alert("Há dados incompletos, por favor, preencha-os!");
+      return;
     }
-    if(confirmPassword === null || confirmPassword === "") {
-      alert("Há dados incompletos, por favor, preencha-os!")
-      return
-    }
-    else if(password === confirmPassword && password !== null && password !== "") {
-      const passwordChanged = await userContext?.update(String(email), String(password))
-       setIsFetching(false);
-      if(passwordChanged) {
+    if (confirmPassword === null || confirmPassword === "") {
+      alert("Há dados incompletos, por favor, preencha-os!");
+      return;
+    } else if (
+      password === confirmPassword &&
+      password !== null &&
+      password !== ""
+    ) {
+      const passwordChanged = await userContext?.update(
+        String(email),
+        String(password)
+      );
+      setIsFetching(false);
+      if (passwordChanged) {
         setChangePassword(false);
-        alert("Senha alterada com sucesso!")
+        alert("Senha alterada com sucesso!");
         navigate("/");
       }
-    }
-    else if (password !== confirmPassword) {
+    } else if (password !== confirmPassword) {
       alert("As senhas devem coincidir. Por favor, confira-as.");
       return;
     }
@@ -113,88 +130,90 @@ export default function LoginComponent() {
   }; */
 
   return (
-    
     <div className="login-container">
       {changePassword ? (
-        <div className="loginBox"> 
+        <div className="loginBox">
           <h1 className="">Trocar senha</h1>
-          
+
           <Box
             component="form"
             onSubmit={newPasswordSubmitted}
             noValidate
             sx={{ mt: 1 }}
           >
-          <TextField
-          margin="normal"
-          required
-          fullWidth
-          name="password"
-          id="password"
-          label="Nova senha"
-          type="password"
-          autoFocus
-        />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          name="confirmPassword"
-          id="confirmPassword"
-          label="Confirmar nova"
-          type="password"          
-        />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          sx={{ mt: 3, mb: 2 }}
-        >
-          Salvar
-        </Button>
-          
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              id="password"
+              label="Nova senha"
+              type="password"
+              autoFocus
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="confirmPassword"
+              id="confirmPassword"
+              label="Confirmar nova"
+              type="password"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Salvar
+            </Button>
           </Box>
-          <p>Seguindo as diretrizes de segurança da Serventia, é necessário a troca de senha dentro de um período de 120 dias. Por favor, mantenha sua senha consigo e segura.</p>
+          <p>
+            Seguindo as diretrizes de segurança da Serventia, é necessário a
+            troca de senha dentro de um período de 120 dias. Por favor, mantenha
+            sua senha consigo e segura.
+          </p>
         </div>
       ) : (
-      <div className="loginBox">
-        <h1 className="loginTitle">Login</h1>
-        <Box
-          component="form"
-          onSubmit={formSubmitted}
-          noValidate
-          sx={{ mt: 1 }}
-        >
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Credenciais de acesso"
-            name="email"
-            autoComplete="email"
-            autoFocus
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Senha"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+        <div className="loginBox">
+          <h1 className="loginTitle">Login</h1>
+          <Box
+            component="form"
+            onSubmit={formSubmitted}
+            noValidate
+            sx={{ mt: 1 }}
           >
-            Login
-          </Button>
-        </Box>
-      </div>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Credenciais de acesso"
+              name="email"
+              autoComplete="email"
+              autoFocus
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Senha"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Login
+            </Button>
+          </Box>
+        </div>
       )}
     </div>
   );
