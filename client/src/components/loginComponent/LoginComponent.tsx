@@ -16,8 +16,9 @@ export default function LoginComponent() {
   /*  const [modalIsOpen, setmodalIsOpen] = useState(false); */
 
   const user = {
-    id: userContext?.user?.id || "",
+    id: userContext?.user?.id || 0,
     username: userContext?.user?.name || "",
+    email: userContext?.user?.email || "",
     updatedAt: userContext?.user?.updated_at || null,
     isAdmin: userContext?.user?.is_admin || false,
     isAttendant: userContext?.user?.is_attendant || false,
@@ -50,8 +51,6 @@ export default function LoginComponent() {
       String(credentials.password)
     );
 
-    console.log(isLoggedIn);
-    console.log(user);
     setIsFetching(false);
     if (isLoggedIn || isLoggedIn === null) {
       if (passwordExpired(isLoggedIn) === false) navigate("/");
@@ -63,7 +62,6 @@ export default function LoginComponent() {
   const passwordExpired = (updatedAt: string | null) => {
     const lastUpdate = updatedAt;
 
-    console.log(lastUpdate);
     if (lastUpdate === undefined || lastUpdate === null) {
       return true;
     }
@@ -88,7 +86,7 @@ export default function LoginComponent() {
     const data = new FormData(event.currentTarget);
     const password = data.get("password");
     const confirmPassword = data.get("confirmPassword");
-    const email = userContext?.user?.email;
+    const email = user.email;
     if (password === null || password === "") {
       alert("Há dados incompletos, por favor, preencha-os!");
       return;

@@ -81,7 +81,7 @@ export default function RealTimePage() {
     navigate("/chatpage");
   };
   const user = {
-    id: userContext?.user?.id || "",
+    id: userContext?.user?.id || 0,
     username: userContext?.user?.name || "",
     isAdmin: userContext?.user?.is_admin || false,
     isAttendant: userContext?.user?.is_attendant || false,
@@ -611,22 +611,38 @@ export default function RealTimePage() {
 
     socketContext.socket.on(
       "applyAttendantToServe",
-      ({ conversationId, attendantId }) => {
-        if (currentConversationIdRef.current === conversationId) {
-          setCurrentBotUserServedBy(attendantId);
+      ({ conversationId, newServedBy }) => {
+        if (Array.isArray(conversationId)) {
+          if (conversationId.includes(currentConversationIdRef.current)) {
+            setCurrentBotUserServedBy(newServedBy);
+          }
+        } else if (currentConversationIdRef.current === conversationId) {
+          setCurrentBotUserServedBy(newServedBy);
         }
 
         if (botUsersRedirectedToAttendantRef.current) {
-          const newBotUserList = botUsersRedirectedToAttendantRef.current.map(
-            (botUser) => {
-              if (botUser.conversationId === conversationId) {
-                return { ...botUser, servedBy: attendantId };
-              }
-              return botUser;
-            }
-          );
-
-          setBotUsersRedirectedToAttendant(newBotUserList);
+          if (Array.isArray(conversationId)) {
+            setBotUsersRedirectedToAttendant(
+              botUsersRedirectedToAttendantRef.current.map((botUser) => {
+                const foundIndex = conversationId.indexOf(
+                  botUser.conversationId || 0
+                );
+                if (foundIndex !== -1) {
+                  return { ...botUser, servedBy: newServedBy };
+                }
+                return botUser;
+              })
+            );
+          } else {
+            setBotUsersRedirectedToAttendant(
+              botUsersRedirectedToAttendantRef.current.map((botUser) => {
+                if (botUser.conversationId === conversationId) {
+                  return { ...botUser, servedBy: newServedBy };
+                }
+                return botUser;
+              })
+            );
+          }
         }
       }
     );
@@ -764,37 +780,64 @@ export default function RealTimePage() {
     return initialMessage;
   };
 
-  async function handleStartServing(conversationId: number) {
+  const handleSendToInbox = async (
+    conversationsId: number[],
+    newServedBy: null
+  ) => {
+    await changeServedBy(conversationsId, newServedBy);
+  };
+
+  async function changeServedBy(
+    conversationsId: number | number[],
+    newServedBy: null | number
+  ) {
     try {
-      const response = await fetch(
-        `/api/conversations/${conversationId}/serve`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ attendantId: userContext?.user?.id }),
-        }
-      );
+      console.log(`Changing served by: ${conversationsId} - ${newServedBy}`);
+
+      const response = await fetch(`/api/conversations/change-served-by`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          conversationsId: conversationsId,
+          newServedBy: newServedBy,
+          attendantId: user.id,
+        }),
+      });
 
       const responseObj = await response.json();
 
       if (response.ok) {
-        if (responseObj.data && userContext?.user?.id) {
-          const attendantId = userContext.user.id;
-
-          if (currentConversationId === conversationId) {
-            setCurrentBotUserServedBy(attendantId);
+        if (responseObj.data) {
+          if (Array.isArray(conversationsId)) {
+            if (conversationsId.includes(currentConversationId)) {
+              setCurrentBotUserServedBy(newServedBy);
+            }
+          } else if (currentConversationId === conversationsId) {
+            setCurrentBotUserServedBy(newServedBy);
           }
 
           setBotUsersRedirectedToAttendant((prev) => {
             if (prev !== null) {
-              return prev.map((botUser) => {
-                if (botUser.conversationId === conversationId) {
-                  return { ...botUser, servedBy: attendantId };
-                }
-                return botUser;
-              });
+              if (Array.isArray(conversationsId)) {
+                return prev.map((botUser) => {
+                  const foundIndex = conversationsId.indexOf(
+                    botUser.conversationId || 0
+                  );
+                  if (foundIndex !== -1) {
+                    return { ...botUser, servedBy: newServedBy };
+                  }
+                  return botUser;
+                });
+              } else {
+                return prev.map((botUser) => {
+                  if (botUser.conversationId === conversationsId) {
+                    return { ...botUser, servedBy: newServedBy };
+                  }
+                  return botUser;
+                });
+              }
             }
 
             return null;
@@ -899,6 +942,7 @@ export default function RealTimePage() {
           onMarkAsUnread={handleMarkAsUnread}
           onMarkAsRead={handleMarkAsRead}
           onNewConversation={renderNewConversation}
+          onSendToInbox={handleSendToInbox}
         />
         {startConversation ? (
           <StartConversation
@@ -925,7 +969,7 @@ export default function RealTimePage() {
             attendantName={user.username}
             loadOlderMessages={fetchChatDataFromThreeDays}
             hasLoadedOlderMessages={hasFetchedOlderMessages}
-            onStartServing={handleStartServing}
+            onStartServing={changeServedBy}
           />
         ) : (
           <div className="centered-message-container">

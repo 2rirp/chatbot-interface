@@ -75,9 +75,9 @@ export default class ConversationRepository {
     }
   }
 
-  async applyAttendantToServeConversation(
+  async changeConversationServedBy(
     conversationId: number,
-    attendantId: number
+    newServedBy: number | null
   ) {
     try {
       const result = await this.db.pool.query(
@@ -86,12 +86,36 @@ export default class ConversationRepository {
             SET served_by = $2
             WHERE id = $1 AND served_by IS NULL
             RETURNING *`,
-        [conversationId, attendantId]
+        [conversationId, newServedBy]
       );
 
       return result.rowCount > 0;
     } catch (error) {
       console.error("Failed to update the served_by in conversation: ", error);
+      throw error;
+    }
+  }
+
+  async changeMultipleConversationsServedBy(
+    conversationsId: number[],
+    newServedBy: number | null
+  ) {
+    try {
+      const result = await this.db.pool.query(
+        `
+            UPDATE conversations
+            SET served_by = $2
+            WHERE id IN (SELECT unnest($1::int[]))
+            RETURNING *`,
+        [conversationsId, newServedBy]
+      );
+
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error(
+        "Failed to update the served_by in multiple conversations: ",
+        error
+      );
       throw error;
     }
   }

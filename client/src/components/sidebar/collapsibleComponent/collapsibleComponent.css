@@ -10,6 +10,10 @@
     justify-content: space-between;
     padding: 0 10px; 
 }
+.collapsible-title-icons{
+    display: flex;
+    align-items: center;
+}
 
 .collapsible-title:hover{
     cursor: pointer;

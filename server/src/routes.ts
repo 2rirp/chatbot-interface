@@ -23,7 +23,11 @@ router.get(
 
 router.post("/api/users/login", userController.login.bind(userController));
 
-router.patch("/api/users/update-password", authenticate, userController.updateUser.bind(userController));
+router.patch(
+  "/api/users/update-password",
+  authenticate,
+  userController.updateUser.bind(userController)
+);
 
 router.post(
   "/api/users/createuser",
@@ -96,11 +100,9 @@ router.post(
 );
 
 router.put(
-  "/api/conversations/:conversationId/serve",
+  "/api/conversations/change-served-by",
   authenticate,
-  conversationController.applyAttendantToServeConversation.bind(
-    conversationController
-  )
+  conversationController.changeConversationServedBy.bind(conversationController)
 );
 
 router.get(

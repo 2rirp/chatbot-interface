@@ -42,15 +42,23 @@ export default class ConversationServices {
     }
   }
 
-  public static async applyAttendantToServeConversation(
-    conversationId: number,
-    attendantId: number
+  public static async changeConversationServedBy(
+    conversationsId: number | number[],
+    newServedBy: number | null
   ) {
     try {
-      const response = await this.repository.applyAttendantToServeConversation(
-        conversationId,
-        attendantId
-      );
+      let response = false;
+      if (Array.isArray(conversationsId)) {
+        response = await this.repository.changeMultipleConversationsServedBy(
+          conversationsId,
+          newServedBy
+        );
+      } else {
+        response = await this.repository.changeConversationServedBy(
+          conversationsId,
+          newServedBy
+        );
+      }
 
       return response;
     } catch (error) {

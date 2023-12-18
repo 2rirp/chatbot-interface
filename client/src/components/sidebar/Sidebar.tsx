@@ -38,6 +38,10 @@ interface SidebarProps {
   onMarkAsUnread?: (conversationId: number) => void;
   onMarkAsRead?: (conversationId: number) => void;
   onNewConversation?: () => void;
+  onSendToInbox?: (
+    conversationsId: number[],
+    newServedBy: null
+  ) => Promise<void>;
 }
 
 function Sidebar(props: SidebarProps) {
@@ -305,16 +309,20 @@ function Sidebar(props: SidebarProps) {
                     displayListOne.length > 0 ? (
                       props.botUsersList && props.botUsersListForLecturer ? (
                         <CollapsibleComponent
+                          currentPage={props.currentPage}
                           title="Perfil de Atendente"
                           level={1}
                           childrenHeight={sidebarOneHeight}
                         >
                           <SidebarList
+                            currentPage={props.currentPage}
                             botUserList={displayListOne}
+                            typeOfService="attendant"
                             handleLiClick={handleUserClick}
                             unreadConversations={props.unreadConversations}
                             onMarkAsRead={props.onMarkAsRead}
                             onMarkAsUnread={props.onMarkAsUnread}
+                            onSendToInbox={props.onSendToInbox}
                             componentHeight={(heightValue) =>
                               changeComponentHeight(heightValue, 1)
                             }
@@ -322,11 +330,14 @@ function Sidebar(props: SidebarProps) {
                         </CollapsibleComponent>
                       ) : (
                         <SidebarList
+                          currentPage={props.currentPage}
                           botUserList={displayListOne}
+                          typeOfService="attendant"
                           handleLiClick={handleUserClick}
                           unreadConversations={props.unreadConversations}
                           onMarkAsRead={props.onMarkAsRead}
                           onMarkAsUnread={props.onMarkAsUnread}
+                          onSendToInbox={props.onSendToInbox}
                         />
                       )
                     ) : (
@@ -345,12 +356,15 @@ function Sidebar(props: SidebarProps) {
                     displayListTwo.length > 0 ? (
                       props.botUsersList && props.botUsersListForLecturer ? (
                         <CollapsibleComponent
+                          currentPage={props.currentPage}
                           title="Perfil de Conferente"
                           level={1}
                           childrenHeight={sidebarTwoHeight}
                         >
                           <SidebarList
+                            currentPage={props.currentPage}
                             botUserList={displayListTwo}
+                            typeOfService="lecturer"
                             handleLiClick={handleUserClick}
                             unreadConversations={props.unreadConversations}
                             onMarkAsRead={props.onMarkAsRead}
@@ -358,11 +372,14 @@ function Sidebar(props: SidebarProps) {
                             componentHeight={(heightValue) =>
                               changeComponentHeight(heightValue, 2)
                             }
+                            onSendToInbox={props.onSendToInbox}
                           />
                         </CollapsibleComponent>
                       ) : (
                         <SidebarList
+                          currentPage={props.currentPage}
                           botUserList={displayListTwo}
+                          typeOfService="lecturer"
                           handleLiClick={handleUserClick}
                           unreadConversations={props.unreadConversations}
                           onMarkAsRead={props.onMarkAsRead}
