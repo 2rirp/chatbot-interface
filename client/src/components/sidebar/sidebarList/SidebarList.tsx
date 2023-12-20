@@ -27,7 +27,7 @@ interface SidebarListProps {
   onMarkAsRead: (conversationId: number) => void;
   componentHeight?: (heightValue: number | null) => void;
   onSendToInbox?: (
-    conversationsId: number[],
+    conversationsId: number | number[],
     newServedBy: null
   ) => Promise<void>;
 }
@@ -93,8 +93,11 @@ export default function SidebarList(props: SidebarListProps) {
     }
   };
 
-  const handleOnSendToInbox = () => {
-    props.onSendToInbox?.(conversationsIdServedByAttendant, null);
+  const handleOnSendToInbox = (conversationId?: number) => {
+    props.onSendToInbox?.(
+      conversationId ? conversationId : conversationsIdServedByAttendant,
+      null
+    );
   };
 
   useEffect(() => {
@@ -259,7 +262,8 @@ export default function SidebarList(props: SidebarListProps) {
                       props.onMarkAsRead &&
                       botUser.servedBy === user.id && (
                         <UserDropdownMenu
-                          currentPage={"real_time_page"}
+                          currentPage={props.currentPage}
+                          typeOfService={props.typeOfService}
                           className="user-dropdown-menu"
                           conversationId={botUser.conversationId}
                           isAnUnreadConversation={
@@ -273,6 +277,9 @@ export default function SidebarList(props: SidebarListProps) {
                           onMarkAsUnread={props.onMarkAsUnread}
                           onMarkAsRead={props.onMarkAsRead}
                           isItTheAttendantServing={botUser.servedBy === user.id}
+                          onSendToInbox={() =>
+                            handleOnSendToInbox(botUser.conversationId)
+                          }
                         />
                       )}
                   </div>

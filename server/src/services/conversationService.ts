@@ -44,7 +44,8 @@ export default class ConversationServices {
 
   public static async changeConversationServedBy(
     conversationsId: number | number[],
-    newServedBy: number | null
+    newServedBy: number | null,
+    attendantId: number
   ) {
     try {
       let response = false;
@@ -56,7 +57,8 @@ export default class ConversationServices {
       } else {
         response = await this.repository.changeConversationServedBy(
           conversationsId,
-          newServedBy
+          newServedBy,
+          attendantId
         );
       }
 

@@ -77,16 +77,17 @@ export default class ConversationRepository {
 
   async changeConversationServedBy(
     conversationId: number,
-    newServedBy: number | null
+    newServedBy: number | null,
+    attendantId: number
   ) {
     try {
       const result = await this.db.pool.query(
         `
             UPDATE conversations
             SET served_by = $2
-            WHERE id = $1 AND served_by IS NULL
+            WHERE id = $1 AND (served_by IS NULL OR served_by = $3)
             RETURNING *`,
-        [conversationId, newServedBy]
+        [conversationId, newServedBy, attendantId]
       );
 
       return result.rowCount > 0;

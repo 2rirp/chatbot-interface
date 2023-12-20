@@ -334,6 +334,7 @@ export default function RealTimePage() {
 
     socketContext.socket.on("botUserNeedsAttendant", (newBotUser: IBotUser) => {
       if (user.isAdmin || user.isAttendant) {
+        console.log(newBotUser);
         setBotUsersRedirectedToAttendant((prevBotUsers) => {
           if (prevBotUsers === null) {
             return [newBotUser];
@@ -781,7 +782,7 @@ export default function RealTimePage() {
   };
 
   const handleSendToInbox = async (
-    conversationsId: number[],
+    conversationsId: number | number[],
     newServedBy: null
   ) => {
     await changeServedBy(conversationsId, newServedBy);

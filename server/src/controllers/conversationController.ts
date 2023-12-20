@@ -101,7 +101,8 @@ export default class ConversationController {
 
       const response = await ConversationServices.changeConversationServedBy(
         conversationId,
-        newServedBy
+        newServedBy,
+        attendantId
       );
 
       const websocket = Websocket.getIstance();

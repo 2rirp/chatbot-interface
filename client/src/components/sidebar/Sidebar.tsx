@@ -39,7 +39,7 @@ interface SidebarProps {
   onMarkAsRead?: (conversationId: number) => void;
   onNewConversation?: () => void;
   onSendToInbox?: (
-    conversationsId: number[],
+    conversationsId: number | number[],
     newServedBy: null
   ) => Promise<void>;
 }

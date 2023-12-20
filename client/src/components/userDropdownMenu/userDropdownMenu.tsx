@@ -8,12 +8,14 @@ import PagesType from "../../interfaces/pagesName";
 
 interface IProps {
   currentPage: keyof PagesType;
+  typeOfService: "attendant" | "lecturer";
   className?: string;
   conversationId: number;
   isAnUnreadConversation: boolean;
   onMarkAsUnread: (conversationId: number) => void;
   onMarkAsRead: (conversationId: number) => void;
   isItTheAttendantServing?: boolean;
+  onSendToInbox: () => void;
 }
 
 export default function UserDropdownMenu(props: IProps) {
@@ -95,6 +97,14 @@ export default function UserDropdownMenu(props: IProps) {
               onClick={() => props.onMarkAsRead(props.conversationId)}
             >
               Marcar como lida
+            </MenuItem>
+          )}
+
+        {props.currentPage === "real_time_page" &&
+          props.typeOfService === "attendant" &&
+          props.isItTheAttendantServing && (
+            <MenuItem key="redirect-to-inbox" onClick={props.onSendToInbox}>
+              Redirecionar para a Caixa
             </MenuItem>
           )}
       </Menu>
