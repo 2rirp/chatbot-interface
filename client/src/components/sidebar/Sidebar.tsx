@@ -10,7 +10,6 @@ import AddCommentIcon from "@mui/icons-material/AddComment";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import { TailSpin } from "react-loading-icons";
-import PhoneNumberFormatter from "../phoneNumberFormatter/PhoneNumberFormatter";
 import CustomIconButton from "../customIconButton/CustomIconButton";
 import PagesType from "../../interfaces/pagesName";
 import SidebarList from "./sidebarList/SidebarList";
@@ -74,7 +73,9 @@ function Sidebar(props: SidebarProps) {
     isLecturer: userContext?.user?.is_lecturer || false,
   };
 
-  async function handleUserClick(botUser: IBotUser) {
+  async function handleUserClick(botUser: IBotUser | string) {
+    if (typeof botUser === "string") return;
+
     socketContext?.socket?.emit(
       "enterConversation",
       botUser.botUserId,
@@ -90,7 +91,8 @@ function Sidebar(props: SidebarProps) {
     }
   }
 
-  async function selectBotUserToSeeHistory(botUserId: string) {
+  async function selectBotUserToSeeHistory(botUserId: string | IBotUser) {
+    if (typeof botUserId !== "string") return;
     await props.fetchChatDataByDate?.(botUserId);
   }
 
@@ -399,20 +401,11 @@ function Sidebar(props: SidebarProps) {
               </React.Fragment>
             ) : (
               props.currentPage === "history_page" && (
-                <ul>
-                  {displayListOne.map((botUser) => (
-                    <li
-                      key={botUser.botUserId}
-                      onClick={() =>
-                        selectBotUserToSeeHistory(botUser.botUserId)
-                      }
-                    >
-                      <PhoneNumberFormatter
-                        phoneNumber={`${botUser.botUserId}`}
-                      />
-                    </li>
-                  ))}
-                </ul>
+                <SidebarList
+                  currentPage={props.currentPage}
+                  botUserList={displayListOne}
+                  handleLiClick={selectBotUserToSeeHistory}
+                />
               )
             )
           ) : (

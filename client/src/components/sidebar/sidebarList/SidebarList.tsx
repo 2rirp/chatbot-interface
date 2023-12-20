@@ -20,11 +20,11 @@ import PagesType from "../../../interfaces/pagesName";
 interface SidebarListProps {
   currentPage: keyof PagesType;
   botUserList: IBotUser[];
-  typeOfService: "attendant" | "lecturer";
-  handleLiClick: (botUser: IBotUser) => Promise<void>;
-  unreadConversations: number[];
-  onMarkAsUnread: (conversationId: number) => void;
-  onMarkAsRead: (conversationId: number) => void;
+  typeOfService?: "attendant" | "lecturer";
+  handleLiClick: (botUser: IBotUser | string) => Promise<void>;
+  unreadConversations?: number[];
+  onMarkAsUnread?: (conversationId: number) => void;
+  onMarkAsRead?: (conversationId: number) => void;
   componentHeight?: (heightValue: number | null) => void;
   onSendToInbox?: (
     conversationsId: number | number[],
@@ -173,7 +173,13 @@ export default function SidebarList(props: SidebarListProps) {
             {botUsers.map((botUser) => (
               <li
                 key={botUser.botUserId}
-                onClick={() => props.handleLiClick(botUser)}
+                onClick={() =>
+                  props.handleLiClick(
+                    props.currentPage === "real_time_page"
+                      ? botUser
+                      : botUser.botUserId
+                  )
+                }
               >
                 <div className="user-details">
                   <PhoneNumberFormatter
@@ -260,7 +266,8 @@ export default function SidebarList(props: SidebarListProps) {
                     {botUser.conversationId &&
                       props.onMarkAsUnread &&
                       props.onMarkAsRead &&
-                      botUser.servedBy === user.id && (
+                      botUser.servedBy === user.id &&
+                      props.onSendToInbox && (
                         <UserDropdownMenu
                           currentPage={props.currentPage}
                           typeOfService={props.typeOfService}

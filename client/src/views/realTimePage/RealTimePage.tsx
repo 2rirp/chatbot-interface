@@ -397,7 +397,11 @@ export default function RealTimePage() {
         );
 
         const orderedBotUserList = updatedBotUserList.sort((a, b) =>
-          a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
+          a.lastMessageCreatedAt &&
+          b.lastMessageCreatedAt &&
+          a.lastMessageCreatedAt > b.lastMessageCreatedAt
+            ? -1
+            : 1
         );
 
         setBotUsersRedirectedToAttendant(orderedBotUserList);
@@ -427,7 +431,11 @@ export default function RealTimePage() {
         );
 
         const orderedBotUserList = updatedBotUserList.sort((a, b) =>
-          a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
+          a.lastMessageCreatedAt &&
+          b.lastMessageCreatedAt &&
+          a.lastMessageCreatedAt > b.lastMessageCreatedAt
+            ? -1
+            : 1
         );
 
         setBotUsersRedirectedToLecturer(orderedBotUserList);
@@ -468,7 +476,11 @@ export default function RealTimePage() {
             });
 
           const orderedBotUserList = updatedBotUserList.sort((a, b) =>
-            a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
+            a.lastMessageCreatedAt &&
+            b.lastMessageCreatedAt &&
+            a.lastMessageCreatedAt > b.lastMessageCreatedAt
+              ? -1
+              : 1
           );
 
           setBotUsersRedirectedToAttendant(orderedBotUserList);
@@ -498,7 +510,11 @@ export default function RealTimePage() {
             });
 
           const orderedBotUserList = updatedBotUserList.sort((a, b) =>
-            a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
+            a.lastMessageCreatedAt &&
+            b.lastMessageCreatedAt &&
+            a.lastMessageCreatedAt > b.lastMessageCreatedAt
+              ? -1
+              : 1
           );
 
           setBotUsersRedirectedToLecturer(orderedBotUserList);

@@ -8,7 +8,7 @@ import PagesType from "../../interfaces/pagesName";
 
 interface IProps {
   currentPage: keyof PagesType;
-  typeOfService: "attendant" | "lecturer";
+  typeOfService?: "attendant" | "lecturer";
   className?: string;
   conversationId: number;
   isAnUnreadConversation: boolean;
