@@ -27,9 +27,12 @@ interface IData {
   templateName: string;
   userId: string;
   content: string;
-  variables: {
-    name: string,
-    prenotation: string } | undefined;
+  variables:
+    | {
+        name: string;
+        prenotation: string;
+      }
+    | undefined;
 }
 
 interface TextAreaData {
@@ -707,10 +710,10 @@ export default function RealTimePage() {
     socketContext?.socket?.emit(
       "startNewConversation",
       data.templateName,
+      `55${data.userId}`,
       data.content,
       data.variables,
-      `55${data.userId}`,
-      user.id,
+      user.id
     );
   };
 
