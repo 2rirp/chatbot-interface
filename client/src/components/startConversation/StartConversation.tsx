@@ -6,7 +6,8 @@ import { useState } from "react"
 interface IData {
     templateName: string;
     userId: string;
-    content: string,
+    content: string;
+    variables: {name: string, prenotation: string} | undefined;
 }
 
 interface newConversationProps {
@@ -18,27 +19,36 @@ function StartConversation(props: newConversationProps) {
      const [userName, setUserName] = useState("");
      const [prenotation, setPrenotation] = useState("");
      const [documents, setDocuments] = useState("");
-    const [data, setData] = useState({ 
+    // const [data, setData] = useState({ 
+    //         templateName: '',
+    //         userId: '',
+    //         content: '',
+    //     }
+        const [data, setData] = useState<IData>({
             templateName: '',
             userId: '',
-            content: '' 
-        }
-    );
+            content: '',
+            variables: {name: "", prenotation: ""},
+        })
+    ;
     
 const handleSubmit = (event: any) => {
     if(data.userId.trim() !== '' ) {
         switch(event.target.name) {
             case 'default':
                 data.templateName = 'default';
-                data.content = 'Deseja falar conosco para esclarecimentos e informações sobre seu registro ou certidões?'
+                data.content = `Olá! Sou ${props.attendantName} do Segundo Registro de Imóveis. Sinta-se à vontade para esclarecer as suas dúvidas comigo relacionadas às exigências da prenotação nº ${prenotation}.`;
+                data.variables = {name: props.attendantName, prenotation: prenotation}
                 break;
             case 'waiting_for_documents':
                 data.templateName = 'waiting_for_documents'
                 data.content = `${userName}, sou ${props.attendantName}, atendente do 2º Registro de Imóveis.\nPrenotação nº ${prenotation}.\nPara continuar a análise do seu título, preciso que me envie ${documents}.\nPara adiantar, envie a informação ou foto de boa qualidade do documento para eu verificar se será suficiente.`;
+                data.variables = undefined
                 break;
             case 'waiting_payment_1':
                 data.templateName = 'waiting_payment_1'
                 data.content = `${userName},\n\nPrenotação nº ${prenotation}.\n\nEstamos esperando o pagamento do boleto/pix enviado para concluir o registro do seu título. Desconsidere essa mensagem caso já tenha feito o pagamento. 2º Oficial de Registro de Imóveis de Ribeirão Preto.`;
+                data.variables = undefined
                 break;
         }
         console.log(data)
@@ -77,7 +87,13 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             <div className="secondary-container">
                 <div className="default-container">
                     <label htmlFor="">Mensagem padrão</label>
-                    <p>Deseja falar conosco para esclarecimentos e informações sobre seu registro ou certidões?</p>
+                    <p>Olá! Sou {props.attendantName} do Segundo Registro de Imóveis. Sinta-se à vontade para esclarecer as suas dúvidas comigo relacionadas às exigências da prenotação nº
+                    <Input placeholder="Numero Prenotação"
+                    type="number"
+                    value={prenotation}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        setPrenotation(event.target.value);
+                  }}/>.</p>
                     <button name="default" onClick={handleSubmit}>Enviar</button>
                 </div>
              <div className="default-container">
