@@ -140,13 +140,14 @@ export default class Websocket {
 
     socket.on(
       "startNewConversation",
-      (templateName, userId, content, attendantId) => {
+      (templateName, userId, content, variables, attendantId) => {
         this.io?.emit(
           "startNewConversation",
           templateName,
           userId,
           content,
-          attendantId
+          variables,
+          attendantId,
         );
         console.log(`WEBSOCKET: testando nova conversa`, userId, content);
       }
