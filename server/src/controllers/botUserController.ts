@@ -10,8 +10,7 @@ export default class BotUserController {
   ): Promise<void> {
     try {
       const date: string = req.params.date;
-      const users: UsersArray =
-        await BotUserService.orderUsersByLastConversation(date);
+      const users = await BotUserService.orderUsersByLastConversation(date);
 
       res.status(200).json({
         error: null,

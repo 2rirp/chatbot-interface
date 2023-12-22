@@ -236,86 +236,102 @@ function Sidebar(props: SidebarProps) {
         )}
       </div>
       <div className="sidebar-container">
-        <div className="search-input-container">
-          <div className="left-icon-container">
-            {search === "" ? (
-              <CustomIconButton
-                className="input-icon input-icon-left"
-                onClick={() => inputRef.current?.focus()}
-              >
-                <SearchIcon />
-              </CustomIconButton>
-            ) : (
-              <CustomIconButton
-                className="input-icon input-icon-left"
-                onClick={cancelSearch}
-              >
-                <ArrowBackIcon />
-              </CustomIconButton>
-            )}
-          </div>
-          <input
-            type="text"
-            placeholder="Pesquise um usuário"
-            value={search}
-            onChange={handleSearchBarChange}
-            className="sidebar-search-bar"
-            ref={inputRef}
-          />
-          {(user.isLecturer || user.isAdmin) && (
-            <CustomIconButton
-              className="start-new-conversation-button"
-              onClick={props.onNewConversation}
-            >
-              <AddCommentIcon />
-            </CustomIconButton>
-          )}
-          {isSearchingUsers !== null && (
-            <div className="right-icon-container">
-              {isSearchingUsers ? (
-                <TailSpin
-                  stroke="#000"
-                  strokeOpacity={0.54}
-                  height={30}
-                  className="input-icon input-icon-right"
-                />
+        <div className="sidebar-icons-container">
+          <div className="search-input-container">
+            <div className="left-icon-container">
+              {search === "" ? (
+                <CustomIconButton
+                  className="input-icon input-icon-left"
+                  onClick={() => inputRef.current?.focus()}
+                >
+                  <SearchIcon />
+                </CustomIconButton>
               ) : (
-                !isSearchingUsers &&
-                search !== "" && (
-                  <CustomIconButton
-                    className="input-icon input-icon-right"
-                    onClick={cancelSearch}
-                  >
-                    <ClearIcon />
-                  </CustomIconButton>
-                )
+                <CustomIconButton
+                  className="input-icon input-icon-left"
+                  onClick={cancelSearch}
+                >
+                  <ArrowBackIcon />
+                </CustomIconButton>
               )}
             </div>
-          )}
+            <input
+              type="text"
+              placeholder="Pesquise um usuário"
+              value={search}
+              onChange={handleSearchBarChange}
+              className="sidebar-search-bar"
+              ref={inputRef}
+            />
+
+            {isSearchingUsers !== null && (
+              <div className="right-icon-container">
+                {isSearchingUsers ? (
+                  <TailSpin
+                    stroke="#000"
+                    strokeOpacity={0.54}
+                    height={30}
+                    className="input-icon input-icon-right"
+                  />
+                ) : (
+                  !isSearchingUsers &&
+                  search !== "" && (
+                    <CustomIconButton
+                      className="input-icon input-icon-right"
+                      onClick={cancelSearch}
+                    >
+                      <ClearIcon />
+                    </CustomIconButton>
+                  )
+                )}
+              </div>
+            )}
+          </div>
+          {props.currentPage === "real_time_page" &&
+            (user.isLecturer || user.isAdmin) && (
+              <CustomIconButton
+                className="start-new-conversation-button"
+                onClick={props.onNewConversation}
+              >
+                <AddCommentIcon />
+              </CustomIconButton>
+            )}
         </div>
-        {/* <div className="list-title" onClick={toggleListVisibility}>
-          <span>Caixa de Entrada</span>
-          {isListVisible ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-        </div> */}
-        {(props.botUsersList && props.botUsersList.length > 0) ||
-        (props.botUsersListForLecturer &&
-          props.botUsersListForLecturer.length > 0) ? (
-          displayListOne.length > 0 || displayListTwo.length > 0 ? (
-            props.currentPage === "real_time_page" &&
-            props.unreadConversations &&
-            props.onMarkAsRead &&
-            props.onMarkAsUnread ? (
-              <React.Fragment>
-                {props.botUsersList &&
-                  (props.botUsersList.length > 0 ? (
-                    displayListOne.length > 0 ? (
-                      props.botUsersList && props.botUsersListForLecturer ? (
-                        <CollapsibleComponent
-                          currentPage={props.currentPage}
-                          title="Perfil de Atendente"
-                          level={1}
-                          childrenHeight={sidebarOneHeight}
-                        >
+        <div className="sidebar-content">
+          {(props.botUsersList && props.botUsersList.length > 0) ||
+          (props.botUsersListForLecturer &&
+            props.botUsersListForLecturer.length > 0) ? (
+            displayListOne.length > 0 || displayListTwo.length > 0 ? (
+              props.currentPage === "real_time_page" &&
+              props.unreadConversations &&
+              props.onMarkAsRead &&
+              props.onMarkAsUnread ? (
+                <React.Fragment>
+                  {props.botUsersList &&
+                    (props.botUsersList.length > 0 ? (
+                      displayListOne.length > 0 ? (
+                        props.botUsersList && props.botUsersListForLecturer ? (
+                          <CollapsibleComponent
+                            currentPage={props.currentPage}
+                            title="Perfil de Atendente"
+                            level={1}
+                            childrenHeight={sidebarOneHeight}
+                          >
+                            <SidebarList
+                              currentPage={props.currentPage}
+                              botUserList={displayListOne}
+                              typeOfService="attendant"
+                              handleLiClick={handleUserClick}
+                              unreadConversations={props.unreadConversations}
+                              onMarkAsRead={props.onMarkAsRead}
+                              onMarkAsUnread={props.onMarkAsUnread}
+                              onSendToInbox={props.onSendToInbox}
+                              componentHeight={(heightValue) =>
+                                changeComponentHeight(heightValue, 1)
+                              }
+                            />
+                          </CollapsibleComponent>
+                        ) : (
                           <SidebarList
                             currentPage={props.currentPage}
                             botUserList={displayListOne}
@@ -325,44 +341,44 @@ function Sidebar(props: SidebarProps) {
                             onMarkAsRead={props.onMarkAsRead}
                             onMarkAsUnread={props.onMarkAsUnread}
                             onSendToInbox={props.onSendToInbox}
-                            componentHeight={(heightValue) =>
-                              changeComponentHeight(heightValue, 1)
-                            }
                           />
-                        </CollapsibleComponent>
+                        )
                       ) : (
-                        <SidebarList
-                          currentPage={props.currentPage}
-                          botUserList={displayListOne}
-                          typeOfService="attendant"
-                          handleLiClick={handleUserClick}
-                          unreadConversations={props.unreadConversations}
-                          onMarkAsRead={props.onMarkAsRead}
-                          onMarkAsUnread={props.onMarkAsUnread}
-                          onSendToInbox={props.onSendToInbox}
-                        />
+                        <p className="no-users-message">
+                          Nenhum usuário encontrado
+                        </p>
                       )
                     ) : (
                       <p className="no-users-message">
-                        Nenhum usuário encontrado
+                        Não há usuários em atendimento com os atendentes.
                       </p>
-                    )
-                  ) : (
-                    <p className="no-users-message">
-                      Não há usuários em atendimento com os atendentes.
-                    </p>
-                  ))}
+                    ))}
 
-                {props.botUsersListForLecturer &&
-                  (props.botUsersListForLecturer.length > 0 ? (
-                    displayListTwo.length > 0 ? (
-                      props.botUsersList && props.botUsersListForLecturer ? (
-                        <CollapsibleComponent
-                          currentPage={props.currentPage}
-                          title="Perfil de Conferente"
-                          level={1}
-                          childrenHeight={sidebarTwoHeight}
-                        >
+                  {props.botUsersListForLecturer &&
+                    (props.botUsersListForLecturer.length > 0 ? (
+                      displayListTwo.length > 0 ? (
+                        props.botUsersList && props.botUsersListForLecturer ? (
+                          <CollapsibleComponent
+                            currentPage={props.currentPage}
+                            title="Perfil de Conferente"
+                            level={1}
+                            childrenHeight={sidebarTwoHeight}
+                          >
+                            <SidebarList
+                              currentPage={props.currentPage}
+                              botUserList={displayListTwo}
+                              typeOfService="lecturer"
+                              handleLiClick={handleUserClick}
+                              unreadConversations={props.unreadConversations}
+                              onMarkAsRead={props.onMarkAsRead}
+                              onMarkAsUnread={props.onMarkAsUnread}
+                              componentHeight={(heightValue) =>
+                                changeComponentHeight(heightValue, 2)
+                              }
+                              onSendToInbox={props.onSendToInbox}
+                            />
+                          </CollapsibleComponent>
+                        ) : (
                           <SidebarList
                             currentPage={props.currentPage}
                             botUserList={displayListTwo}
@@ -371,49 +387,35 @@ function Sidebar(props: SidebarProps) {
                             unreadConversations={props.unreadConversations}
                             onMarkAsRead={props.onMarkAsRead}
                             onMarkAsUnread={props.onMarkAsUnread}
-                            componentHeight={(heightValue) =>
-                              changeComponentHeight(heightValue, 2)
-                            }
-                            onSendToInbox={props.onSendToInbox}
                           />
-                        </CollapsibleComponent>
+                        )
                       ) : (
-                        <SidebarList
-                          currentPage={props.currentPage}
-                          botUserList={displayListTwo}
-                          typeOfService="lecturer"
-                          handleLiClick={handleUserClick}
-                          unreadConversations={props.unreadConversations}
-                          onMarkAsRead={props.onMarkAsRead}
-                          onMarkAsUnread={props.onMarkAsUnread}
-                        />
+                        <p className="no-users-message">
+                          Nenhum usuário encontrado
+                        </p>
                       )
                     ) : (
                       <p className="no-users-message">
-                        Nenhum usuário encontrado
+                        Não há usuários em atendimento na conferência.
                       </p>
-                    )
-                  ) : (
-                    <p className="no-users-message">
-                      Não há usuários em atendimento na conferência.
-                    </p>
-                  ))}
-              </React.Fragment>
-            ) : (
-              props.currentPage === "history_page" && (
-                <SidebarList
-                  currentPage={props.currentPage}
-                  botUserList={displayListOne}
-                  handleLiClick={selectBotUserToSeeHistory}
-                />
+                    ))}
+                </React.Fragment>
+              ) : (
+                props.currentPage === "history_page" && (
+                  <SidebarList
+                    currentPage={props.currentPage}
+                    botUserList={displayListOne}
+                    handleLiClick={selectBotUserToSeeHistory}
+                  />
+                )
               )
+            ) : (
+              <p className="no-users-message">Nenhum usuário encontrado</p>
             )
           ) : (
-            <p className="no-users-message">Nenhum usuário encontrado</p>
-          )
-        ) : (
-          <p className="no-users-message">Não há usuários em atendimento.</p>
-        )}
+            <p className="no-users-message">Não há usuários em atendimento.</p>
+          )}
+        </div>
       </div>
     </div>
   );

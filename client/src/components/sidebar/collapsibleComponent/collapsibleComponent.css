@@ -27,7 +27,7 @@
   }
 
 .collapsible-title.level-2 {
-    height: 36px;
+    min-height: 36px;
     background-color: var(--tertiary-gray);
     color: var(--secondary-text-color);
   }

@@ -4,7 +4,7 @@ export default interface IBotUser {
   botUserId: string;
   conversationId?: number;
   servedBy: number | null;
-  last_conversation_created_at?: string;
+  lastConversationCreatedAt?: string;
   lastMessageContent?: string;
   lastMessageCreatedAt?: string;
   lastMessageSid?: string | null;

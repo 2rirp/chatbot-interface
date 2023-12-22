@@ -10,6 +10,12 @@ import IMessage from "../../interfaces/imessage";
 import { SocketContext } from "../../contexts/SocketContext";
 import PagesType from "../../interfaces/pagesName";
 
+interface FetchUserHistoryPage {
+  user_id: string;
+  served_by: number | null;
+  last_conversation_created_at: string;
+}
+
 export default function ChatPage() {
   const [chatData, setChatData] = useState<Array<IMessage>>([]);
   const [modalIsOpen, setmodalIsOpen] = useState(false);
@@ -57,11 +63,18 @@ export default function ChatPage() {
       });
 
       const responseObj = await response.json();
-      console.log(responseObj);
 
       if (response.ok) {
         if (responseObj.data) {
-          setUserList(responseObj.data);
+          console.log(responseObj.data);
+          let convertedData: IBotUser[] = responseObj.data.map(
+            (item: FetchUserHistoryPage) => ({
+              botUserId: item.user_id,
+              lastConversationCreatedAt: item.last_conversation_created_at,
+              servedBy: item.served_by,
+            })
+          );
+          setUserList(convertedData);
         } else {
           console.error("No user list data found:", responseObj.data);
         }
@@ -153,7 +166,6 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (selectedDate !== "") {
-      console.log(selectedDate);
       fetchUserListByDate(selectedDate);
     }
   }, [selectedDate]);

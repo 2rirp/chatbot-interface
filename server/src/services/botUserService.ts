@@ -6,11 +6,9 @@ import UsersArray from "../interfaces/usersArray";
 export default class BotUserService {
   private static repository = new BotUserRepository();
 
-  public static async orderUsersByLastConversation(
-    date: string
-  ): Promise<UsersArray> {
+  public static async orderUsersByLastConversation(date: string) {
     try {
-      const users: UsersArray = await this.repository.getConversations(date);
+      const users = await this.repository.getConversations(date);
       /* console.log(users); */
 
       return users;

@@ -156,7 +156,9 @@ export default function SidebarList(props: SidebarListProps) {
           currentPage={props.currentPage}
           title={`${
             servedBy === "0"
-              ? "Caixa de Entrada"
+              ? props.currentPage === "real_time_page"
+                ? "Caixa de Entrada"
+                : "Atendido pelo Bot/Na Caixa de Entrada"
               : parseInt(servedBy) === user.id
               ? "Atendido por mim"
               : `Atendido por ${servedBy}`
