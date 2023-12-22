@@ -27,6 +27,9 @@ interface IData {
   templateName: string;
   userId: string;
   content: string;
+  variables: {
+    name: string,
+    prenotation: string } | undefined;
 }
 
 interface TextAreaData {
@@ -705,8 +708,9 @@ export default function RealTimePage() {
       "startNewConversation",
       data.templateName,
       data.content,
+      data.variables,
       `55${data.userId}`,
-      user.id
+      user.id,
     );
   };
 

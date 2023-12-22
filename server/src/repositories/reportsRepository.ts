@@ -97,6 +97,45 @@ ORDER BY data;`;
     }
   }
 
+  async getAllLecturerConversations() {
+    try {
+      const queryText = `SELECT
+      TO_CHAR(DATE_TRUNC('day', c.created_at), 'YYYY-MM-DD') AS data,
+      COUNT(*) AS iniciadas,
+      COUNT(CASE WHEN c.status = 'inactive' THEN 1 END) AS encerradas
+   FROM
+       conversations c
+   JOIN
+       attendants a ON c.served_by = a.id
+   WHERE
+       a.is_attendant = false AND a.is_lecturer = true AND a.is_admin = false
+   GROUP BY
+       data
+   ORDER BY
+       data;   
+  `
+    } catch (error) {
+      console.error("failed to get lecturer conversations reports: ", error);
+      throw error;
+    }
+  }
+  /*SELECT
+    a.name AS conferente,
+    TO_CHAR(DATE_TRUNC('day', c.created_at), 'YYYY-MM-DD') AS data,
+    COUNT(*) AS iniciadas,
+    COUNT(CASE WHEN c.status = 'inactive' THEN 1 END) AS encerradas
+FROM
+    conversations c
+JOIN
+    attendants a ON c.served_by = a.id
+WHERE
+    a.is_attendant = false AND a.is_lecturer = true AND a.is_admin = false
+GROUP BY
+    data, conferente
+ORDER BY
+    data, conferente;
+*/
+
   async getRegistrations(date: string) {
     try {
       const queryText = `SELECT TO_CHAR(DATE_TRUNC('day', created_at), 'YYYY-MM-DD') AS data, 
