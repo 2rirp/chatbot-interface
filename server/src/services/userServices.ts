@@ -1,5 +1,5 @@
 import ErrorHandler from "../errors";
-import IUser from "../interfaces/iuser";
+import IUser, { IUserResponse } from "../interfaces/iuser";
 import bcrypt from "bcrypt";
 import UserRepository from "../repositories/userRepository";
 
@@ -54,6 +54,27 @@ export default class UsersServices {
     }
   }
 
+  public static async getAllAttendants() {
+    try {
+      const users = await this.repository.getAllAttendants();
+      if(users) {
+        const filtered = users.map(attendants => ({
+          id: attendants.id,
+          name: attendants.name,
+          email: attendants.email,
+        }))
+        return filtered;
+      }
+      else
+        throw ErrorHandler.createError(
+          "InternalServerError",
+          "Something went wrong..."
+      );
+    } catch (error) {
+      
+    }
+  }
+
   public static async updateUserPassword(email: string, newPassword: string) {
     try {
       const user: IUser = await this.repository.getUserByEmail(email);
@@ -70,6 +91,23 @@ export default class UsersServices {
       );
       
       
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public static async resetAttendantPassword(userId: number) {
+    const defaultPassword = 'mudarsenha';
+    const passwordHash = await bcrypt.hash(defaultPassword, 10);
+    try {
+      const response = await this.repository.resetAttendantPasswordById(passwordHash, userId)
+      if(response)
+        return response 
+          else
+        throw ErrorHandler.createError(
+          "InternalServerError",
+          "Something went wrong..."
+      );
     } catch (error) {
       throw error;
     }

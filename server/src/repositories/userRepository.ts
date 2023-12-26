@@ -98,4 +98,34 @@ export default class UserRepository {
       return res;
     }
   }
+
+  public async getAllAttendants() {
+    try {
+      const queryText = `SELECT * FROM ATTENDANTS;`;
+      const result = await this.db.pool.query(queryText);
+      if(result) {
+        return result.rows;
+      }
+    } catch (error) {
+      console.error("Failed to GET ALL attendant: ", error)
+      throw error;
+    }
+  }
+
+  public async resetAttendantPasswordById(defaultPassword: string, userId: number) {
+    try {
+      const queryText = `UPDATE attendants set password = $1, updated_at = NULL WHERE id = $2;`;
+      const result = await this.db.pool.query(queryText, [defaultPassword, userId])
+      if(result.rowCount === 1) {
+        const res: IResponse<IUser> = {
+          status: 201,
+          data: result.rows[0]
+        };
+        return res;
+      }
+    } catch (error) {
+      console.error("Failed to RESET attendant password: ", error)
+      throw error;
+    }
+  }
 }

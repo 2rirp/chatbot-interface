@@ -1,0 +1,24 @@
+ 
+  .main-container {
+    height: 100vh;
+    width: 100vw;
+    /* max-width: 1080px; */
+    align-items: center;
+    
+    padding: 20px;
+    background-image: radial-gradient(
+    ellipse at top center,
+    #eef2d9,
+    rgba(217, 217, 242, 0)
+    ),
+    radial-gradient(circle at bottom left, #d9d9f2, rgba(217, 217, 242, 0)),
+    radial-gradient(circle at bottom right, #91b3fc, rgba(217, 217, 242, 0));
+    box-shadow: rgba(58, 45, 133, 0.2) 0px 60px 40px -7px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    color: #2e2e2e;
+    font-size: 1.6rem;
+    font-family: 'Lato', sans-serif;
+  }
+  
+  

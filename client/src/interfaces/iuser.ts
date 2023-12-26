@@ -8,3 +8,10 @@ export default interface IUser {
   is_lecturer: boolean;
   updated_at: string;
 }
+
+
+export interface IAttendant {
+  id?: number;
+  name: string;
+  email: string;
+}

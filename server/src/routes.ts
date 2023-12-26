@@ -20,6 +20,11 @@ router.get(
   authenticate,
   userController.getMe.bind(userController)
 );
+router.get(
+  "/api/users/all",
+  authenticate,
+  userController.getAll.bind(userController)
+);
 
 router.post("/api/users/login", userController.login.bind(userController));
 

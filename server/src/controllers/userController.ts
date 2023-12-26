@@ -4,6 +4,7 @@ import IResponse from "../interfaces/iresponse";
 import IUser from "../interfaces/iuser";
 import jwtLib from "jsonwebtoken";
 import ErrorHandler from "../errors";
+import UsersServices from "../services/userServices";
 
 export default class UserController {
   public async getMe(
@@ -17,6 +18,23 @@ export default class UserController {
       res.status(200).json({
         error: null,
         data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async getAll(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const attendants =
+        await UsersServices.getAllAttendants();
+
+      res.status(200).json({
+        error: null,
+        data: attendants,
       });
     } catch (error) {
       next(error);
@@ -97,6 +115,7 @@ export default class UserController {
       next(error);
     }
   }
+  
 
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
