@@ -18,6 +18,7 @@ import React from "react";
 import CollapsibleComponent from "./collapsibleComponent/CollapsibleComponent";
 
 interface SidebarProps {
+  onAdminClick: () => void;
   currentPage: keyof PagesType;
   fetchChatData?: (
     conversationId: number,
@@ -205,6 +206,7 @@ function Sidebar(props: SidebarProps) {
 
         {props.currentPage === "real_time_page" && (
           <DropdownMenu
+            handleAdminPage={props.onAdminClick}
             currentPage={props.currentPage}
             isActive={props.isActive}
             handleRegister={props.onRegisterClick}
@@ -224,6 +226,7 @@ function Sidebar(props: SidebarProps) {
             isActive={props.isActive}
             handleRegister={props.onRegisterClick}
             handleChatpage={props.onChatPageClick}
+            handleAdminPage={props.onAdminClick}
             handleReportPage={props.onReportClick}
             handleLogout={props.onLogoutClick}
           />

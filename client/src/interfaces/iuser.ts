@@ -14,4 +14,5 @@ export interface IAttendant {
   id?: number;
   name: string;
   email: string;
+  updated_at: Date | null;
 }

@@ -2,6 +2,7 @@ import ErrorHandler from "../errors";
 import IUser, { IUserResponse } from "../interfaces/iuser";
 import bcrypt from "bcrypt";
 import UserRepository from "../repositories/userRepository";
+import IResponse from "../interfaces/iresponse";
 
 export default class UsersServices {
   private static repository = new UserRepository();
@@ -57,22 +58,20 @@ export default class UsersServices {
   public static async getAllAttendants() {
     try {
       const users = await this.repository.getAllAttendants();
-      if(users) {
-        const filtered = users.map(attendants => ({
+      if (users) {
+        const filtered = users.map((attendants) => ({
           id: attendants.id,
           name: attendants.name,
           email: attendants.email,
-        }))
+          updated_at: attendants.updated_at,
+        }));
         return filtered;
-      }
-      else
+      } else
         throw ErrorHandler.createError(
           "InternalServerError",
           "Something went wrong..."
-      );
-    } catch (error) {
-      
-    }
+        );
+    } catch (error) {}
   }
 
   public static async updateUserPassword(email: string, newPassword: string) {
@@ -81,7 +80,10 @@ export default class UsersServices {
       const compare = await bcrypt.compare(newPassword, user.password);
       if (!compare) {
         const passwordHash = await bcrypt.hash(newPassword, 10);
-        const response = await this.repository.updateUserPassword(email, passwordHash);
+        const response = await this.repository.updateUserPassword(
+          email,
+          passwordHash
+        );
 
         return response;
       }
@@ -89,25 +91,30 @@ export default class UsersServices {
         "ForbiddenError",
         "A nova senha não deve ser igual a senha previamente cadastrada!"
       );
-      
-      
     } catch (error) {
       throw error;
     }
   }
 
   public static async resetAttendantPassword(userId: number) {
-    const defaultPassword = 'mudarsenha';
+    const defaultPassword = "mudarsenha";
     const passwordHash = await bcrypt.hash(defaultPassword, 10);
     try {
-      const response = await this.repository.resetAttendantPasswordById(passwordHash, userId)
-      if(response)
-        return response 
-          else
+      const response = await this.repository.resetAttendantPasswordById(
+        passwordHash,
+        userId
+      );
+      if (response) {
+        const res: IResponse<IUser> = {
+          status: 200,
+          data: response,
+        };
+        return res;
+      } else
         throw ErrorHandler.createError(
           "InternalServerError",
           "Something went wrong..."
-      );
+        );
     } catch (error) {
       throw error;
     }

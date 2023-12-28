@@ -11,12 +11,14 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import Logout from "@mui/icons-material/Logout";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { UserContext } from "../../contexts/UserContext";
 import { useContext } from "react";
 import Box from "@mui/material/Box";
 import PagesType from "../../interfaces/pagesName";
 
 interface IProps {
+  handleAdminPage: ()=> void;
   currentPage: keyof PagesType;
   handleRegister: () => void;
   handleChatpage?: () => void;
@@ -126,6 +128,14 @@ export default function DropdownMenu(props: IProps) {
               <AssessmentIcon fontSize="small" />
             </ListItemIcon>
             Relatório
+          </MenuItem>
+        )}
+        {userContext?.user?.is_admin && (
+          <MenuItem key="adminPage" onClick={props.handleAdminPage}>
+            <ListItemIcon>
+              <AdminPanelSettingsIcon fontSize="small"/>
+            </ListItemIcon>
+            Painel de controle
           </MenuItem>
         )}
 

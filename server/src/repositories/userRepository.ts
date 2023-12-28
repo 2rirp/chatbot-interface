@@ -1,7 +1,7 @@
 import { Query, QueryResult } from "pg";
 import dbConnect from "../database/dbConnect";
 import IResponse from "../interfaces/iresponse";
-import IUser from "../interfaces/iuser";
+import IUser, { IUserResponse } from "../interfaces/iuser";
 
 export default class UserRepository {
   private db: dbConnect;
@@ -49,7 +49,7 @@ export default class UserRepository {
         user.password,
         user.is_admin,
         user.is_attendant,
-        user.is_lecturer
+        user.is_lecturer,
       ]);
 
       return result.rows[0];
@@ -77,54 +77,59 @@ export default class UserRepository {
     try {
       const options = { timeZone: "America/Sao_Paulo" };
       const date = new Date().toLocaleString("en-US", options);
-      
-      const queryText = `UPDATE attendants SET password = $2, updated_at = $3 WHERE email = $1 RETURNING email;`;
-      const result = await this.db.pool.query(queryText, [email, newPassword, date]);
-        if(result.rowCount === 1) {
-          const res: IResponse<IUser> = {
-            status: 201,
-            data: result.rows[0],
-          };
-          return res;
-        }
-        return null;
 
+      const queryText = `UPDATE attendants SET password = $2, updated_at = $3 WHERE email = $1 RETURNING email;`;
+      const result = await this.db.pool.query(queryText, [
+        email,
+        newPassword,
+        date,
+      ]);
+      if (result.rowCount === 1) {
+        const res: IResponse<IUser> = {
+          status: 200,
+          data: result.rows[0],
+        };
+        return res;
+      }
+      return null;
     } catch (error) {
       const res: IResponse<any> = {
         status: 500,
         errors: String(error),
-      }
-      console.error("Failed to UPDATE attendant: ", error)
+      };
+      console.error("Failed to UPDATE attendant: ", error);
       return res;
     }
   }
 
   public async getAllAttendants() {
     try {
-      const queryText = `SELECT * FROM ATTENDANTS;`;
+      const queryText = `SELECT * FROM ATTENDANTS ORDER BY id;`;
       const result = await this.db.pool.query(queryText);
-      if(result) {
+      if (result) {
         return result.rows;
       }
     } catch (error) {
-      console.error("Failed to GET ALL attendant: ", error)
+      console.error("Failed to GET ALL attendant: ", error);
       throw error;
     }
   }
 
-  public async resetAttendantPasswordById(defaultPassword: string, userId: number) {
+  public async resetAttendantPasswordById(
+    defaultPassword: string,
+    userId: number
+  ) {
     try {
-      const queryText = `UPDATE attendants set password = $1, updated_at = NULL WHERE id = $2;`;
-      const result = await this.db.pool.query(queryText, [defaultPassword, userId])
-      if(result.rowCount === 1) {
-        const res: IResponse<IUser> = {
-          status: 201,
-          data: result.rows[0]
-        };
-        return res;
+      const queryText = `UPDATE attendants set password = $1, updated_at = NULL WHERE id = $2 RETURNING id`;
+      const result = await this.db.pool.query(queryText, [
+        defaultPassword,
+        userId,
+      ]);
+      if (result.rowCount === 1) {
+        return result.rows[0];
       }
     } catch (error) {
-      console.error("Failed to RESET attendant password: ", error)
+      console.error("Failed to RESET attendant password: ", error);
       throw error;
     }
   }
