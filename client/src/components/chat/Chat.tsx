@@ -466,17 +466,17 @@ function Chat(props: ChatProps) {
                             </p>
                           </object>
 
-                          <IconButton>
-                            Baixar arquivo
-                            <a
-                              href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              download
-                            >
+                          <a
+                            href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download
+                          >
+                            <IconButton>
+                              Baixar arquivo
                               <DownloadIcon />
-                            </a>
-                          </IconButton>
+                            </IconButton>
+                          </a>
                         </div>
                       ) : message.media_type.startsWith("audio") ? (
                         <audio controls>
