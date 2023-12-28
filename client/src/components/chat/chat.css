@@ -155,6 +155,9 @@ object {
 .media-container a {
   color: inherit;
   text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .media-container div {

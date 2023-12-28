@@ -20,7 +20,12 @@
   overflow: auto;
 }
 
+.sidebar-icons-container{
+  display: flex;
+}
+
 .search-input-container {
+  flex: 1;
   position: relative;
   display: flex;
   align-items: center;
@@ -42,16 +47,12 @@
   right: 20px;
 }
 
-/* .unread-conversation::after {
-  content: "";
-  display: inline-block;
-  position: absolute;
-  right: 42px;
-  width: 10px;
-  height: 10px;
-  background-color: #00be1c;
-  border-radius: 50%;
-} */
+.sidebar-content{
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  overflow: auto;
+}
 
 .sidebar-header {
   display: flex;

@@ -49,7 +49,7 @@ interface ChatProps {
   attendantName?: string;
   loadOlderMessages?: (dateLimit: string) => void;
   hasLoadedOlderMessages?: boolean | null;
-  onStartServing?: (conversationId: number) => void;
+  onStartServing?: (conversationId: number, attendantId: number) => void;
 }
 
 function Chat(props: ChatProps) {
@@ -78,6 +78,14 @@ function Chat(props: ChatProps) {
   const lastMessage = props.chatData[props.chatData.length - 1];
   const provocationMessage =
     'Deseja continuar este atendimento? Para continuar, envie "Sim".';
+
+  const user = {
+    username: userContext?.user?.name || "",
+    id: userContext?.user?.id || 0,
+    isAdmin: userContext?.user?.is_admin || false,
+    isAttendant: userContext?.user?.is_attendant || false,
+    isLecturer: userContext?.user?.is_lecturer || false,
+  };
 
   const handleMessageChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
@@ -275,8 +283,8 @@ function Chat(props: ChatProps) {
   };
 
   const handleStartServing = () => {
-    if (props.onStartServing && props.conversationId)
-      props.onStartServing(props.conversationId);
+    if (props.onStartServing && props.conversationId && user.id !== 0)
+      props.onStartServing(props.conversationId, user.id);
   };
 
   /* const handleMatchesCounterChange = () => {
@@ -458,17 +466,17 @@ function Chat(props: ChatProps) {
                             </p>
                           </object>
 
-                          <IconButton>
-                            Baixar arquivo
-                            <a
-                              href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              download
-                            >
+                          <a
+                            href={`/media/${props.userId}/${message.conversation_id}/${message.media_url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download
+                          >
+                            <IconButton>
+                              Baixar arquivo
                               <DownloadIcon />
-                            </a>
-                          </IconButton>
+                            </IconButton>
+                          </a>
                         </div>
                       ) : message.media_type.startsWith("audio") ? (
                         <audio controls>

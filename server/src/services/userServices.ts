@@ -2,6 +2,7 @@ import ErrorHandler from "../errors";
 import IUser from "../interfaces/iuser";
 import bcrypt from "bcrypt";
 import UserRepository from "../repositories/userRepository";
+import { response } from "express";
 
 export default class UsersServices {
   private static repository = new UserRepository();
@@ -60,7 +61,10 @@ export default class UsersServices {
       const compare = await bcrypt.compare(newPassword, user.password);
       if (!compare) {
         const passwordHash = await bcrypt.hash(newPassword, 10);
-        const response = await this.repository.updateUserPassword(email, passwordHash);
+        const response = await this.repository.updateUserPassword(
+          email,
+          passwordHash
+        );
 
         return response;
       }
@@ -68,8 +72,19 @@ export default class UsersServices {
         "ForbiddenError",
         "A nova senha não deve ser igual a senha previamente cadastrada!"
       );
-      
-      
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public static async getAttendantsName(attendantsId: number[]) {
+    try {
+      let response = null;
+      if (attendantsId.length > 0) {
+        response = await this.repository.getAttendantsName(attendantsId);
+      }
+
+      return response;
     } catch (error) {
       throw error;
     }

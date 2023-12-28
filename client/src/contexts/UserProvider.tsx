@@ -46,17 +46,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       const responseObj = await response.json();
       if (response.ok) {
         setUser(responseObj.data);
-        return true;
+        const updatedAt: string | null = responseObj.data.updated_at;
+        console.log(updatedAt, responseObj.data);
+        return updatedAt;
       } else {
         throw responseObj.error;
       }
     } catch (error: any) {
       console.error(error.name, error.message);
-      if(error.message === "Incorrect e-mail and/or password") {
+      if (error.message === "Incorrect e-mail and/or password") {
         alert("Credenciais incorretas.");
-      }
-      else {
-        alert(`Erro não identificado: ${error}`)
+      } else {
+        alert(`Erro não identificado: ${error}`);
       }
       return false;
     }
@@ -72,26 +73,29 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
-      if(response.ok) { 
+      if (response.ok) {
         return true;
       } else {
         throw data.error;
       }
     } catch (error: any) {
       console.error(error.name, error.message);
-      if(error.message === "A nova senha não deve ser igual a senha previamente cadastrada!") {
+      if (
+        error.message ===
+        "A nova senha não deve ser igual a senha previamente cadastrada!"
+      ) {
         alert(`${error.message}`);
       }
       return false;
     }
-  }
+  };
   const register = async (
     name: string,
     email: string,
     password: string,
     is_admin: boolean,
     is_attendant: boolean,
-    is_lecturer: boolean,
+    is_lecturer: boolean
   ) => {
     try {
       const response = await fetch("/api/users/createuser", {
@@ -105,7 +109,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           password,
           is_admin,
           is_attendant,
-          is_lecturer
+          is_lecturer,
         }),
       });
 
@@ -120,7 +124,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } catch (error: any) {
       console.error(error.name, error.message);
-      if(error.message === 'Email já está em uso!') {
+      if (error.message === "Email já está em uso!") {
         alert(error.message);
       } else {
         alert(`Erro não identificado: ${error}`);
