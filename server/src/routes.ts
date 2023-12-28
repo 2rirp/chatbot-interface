@@ -41,6 +41,12 @@ router.delete(
   userController.logout.bind(userController)
 );
 
+router.post(
+  "/api/users/get-names",
+  authenticate,
+  userController.getAttendantsName.bind(userController)
+);
+
 router.get(
   "/api/:date",
   authenticate,

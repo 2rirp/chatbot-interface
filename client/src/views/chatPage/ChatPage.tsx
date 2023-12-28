@@ -31,6 +31,10 @@ export default function ChatPage() {
   const [conversationStatus, setConversationStatus] = useState<string | null>(
     null
   );
+  const [attendantsIdAndNames, setAttendantsIdAndNames] = useState<
+    Record<number, string | null>
+  >({});
+  const [shouldFetchNames, setShouldFetchNames] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
@@ -66,7 +70,6 @@ export default function ChatPage() {
 
       if (response.ok) {
         if (responseObj.data) {
-          console.log(responseObj.data);
           let convertedData: IBotUser[] = responseObj.data.map(
             (item: FetchUserHistoryPage) => ({
               botUserId: item.user_id,
@@ -74,6 +77,17 @@ export default function ChatPage() {
               servedBy: item.served_by,
             })
           );
+
+          convertedData.forEach((item) => {
+            setAttendantsIdAndNames((prev) => {
+              if (item.servedBy) {
+                if (prev[item.servedBy] === undefined) {
+                  return { ...prev, [item.servedBy]: null };
+                }
+              }
+              return prev;
+            });
+          });
           setUserList(convertedData);
         } else {
           console.error("No user list data found:", responseObj.data);
@@ -109,6 +123,42 @@ export default function ChatPage() {
         } else {
           console.error("No chat data found:", responseObj.data);
         }
+      } else {
+        throw responseObj.error;
+      }
+    } catch (error: any) {
+      console.error(error.name, error.message);
+    }
+  }
+
+  async function fetchAttendantsNames(attendantsId: number[]) {
+    try {
+      const response = await fetch(`/api/users/get-names`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          attendantsId: attendantsId,
+        }),
+      });
+
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        if (responseObj.data) {
+          responseObj.data.forEach(
+            ({ id, name }: { id: number; name: string }) => {
+              if (attendantsIdAndNames.hasOwnProperty(id)) {
+                setAttendantsIdAndNames((prev) => ({
+                  ...prev,
+                  [id]: name,
+                }));
+              }
+            }
+          );
+        } else {
+          console.warn("No attendants name retrieved:", responseObj.data);
+        }
+        setShouldFetchNames((prev) => !prev);
       } else {
         throw responseObj.error;
       }
@@ -165,10 +215,34 @@ export default function ChatPage() {
   };
 
   useEffect(() => {
-    if (selectedDate !== "") {
-      fetchUserListByDate(selectedDate);
+    async function fetchData() {
+      try {
+        const promises = [];
+
+        if (selectedDate !== "") {
+          promises.push(fetchUserListByDate(selectedDate));
+
+          await Promise.all(promises);
+
+          setShouldFetchNames((prev) => !prev);
+        }
+      } catch (error) {
+        console.error("Error fetching conversations by date:", error);
+      }
     }
+
+    fetchData();
   }, [selectedDate]);
+
+  useEffect(() => {
+    if (shouldFetchNames) {
+      const attendantsId = Object.keys(attendantsIdAndNames).map(Number);
+
+      if (attendantsId.length > 0) {
+        fetchAttendantsNames(attendantsId);
+      }
+    }
+  }, [shouldFetchNames]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPressed);
@@ -216,6 +290,7 @@ export default function ChatPage() {
           onChatPageClick={changeRoute}
           onReportClick={() => navigate("/relatorio")}
           onLogoutClick={logout}
+          attendantsIdAndNames={attendantsIdAndNames}
         />
 
         {hasFetchedChatData ? (

@@ -41,6 +41,7 @@ interface SidebarProps {
     conversationsId: number | number[],
     newServedBy: null
   ) => Promise<void>;
+  attendantsIdAndNames: Record<number, string | null>;
 }
 
 function Sidebar(props: SidebarProps) {
@@ -329,6 +330,7 @@ function Sidebar(props: SidebarProps) {
                               componentHeight={(heightValue) =>
                                 changeComponentHeight(heightValue, 1)
                               }
+                              attendantsIdAndNames={props.attendantsIdAndNames}
                             />
                           </CollapsibleComponent>
                         ) : (
@@ -341,6 +343,7 @@ function Sidebar(props: SidebarProps) {
                             onMarkAsRead={props.onMarkAsRead}
                             onMarkAsUnread={props.onMarkAsUnread}
                             onSendToInbox={props.onSendToInbox}
+                            attendantsIdAndNames={props.attendantsIdAndNames}
                           />
                         )
                       ) : (
@@ -376,6 +379,7 @@ function Sidebar(props: SidebarProps) {
                                 changeComponentHeight(heightValue, 2)
                               }
                               onSendToInbox={props.onSendToInbox}
+                              attendantsIdAndNames={props.attendantsIdAndNames}
                             />
                           </CollapsibleComponent>
                         ) : (
@@ -387,6 +391,7 @@ function Sidebar(props: SidebarProps) {
                             unreadConversations={props.unreadConversations}
                             onMarkAsRead={props.onMarkAsRead}
                             onMarkAsUnread={props.onMarkAsUnread}
+                            attendantsIdAndNames={props.attendantsIdAndNames}
                           />
                         )
                       ) : (
@@ -406,6 +411,7 @@ function Sidebar(props: SidebarProps) {
                     currentPage={props.currentPage}
                     botUserList={displayListOne}
                     handleLiClick={selectBotUserToSeeHistory}
+                    attendantsIdAndNames={props.attendantsIdAndNames}
                   />
                 )
               )

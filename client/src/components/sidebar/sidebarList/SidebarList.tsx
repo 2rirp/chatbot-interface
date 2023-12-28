@@ -30,6 +30,7 @@ interface SidebarListProps {
     conversationsId: number | number[],
     newServedBy: null
   ) => Promise<void>;
+  attendantsIdAndNames: Record<number, string | null>;
 }
 
 interface GroupedBotUsers {
@@ -79,7 +80,6 @@ export default function SidebarList(props: SidebarListProps) {
         .map(([servedBy, botUsers]) => {
           if (parseInt(servedBy) === user.id) {
             return botUsers.map((botUser) => {
-              console.log("Teste: ", botUser);
               return botUser.conversationId ? botUser.conversationId : 0;
             });
           }
@@ -161,7 +161,9 @@ export default function SidebarList(props: SidebarListProps) {
                 : "Atendido pelo Bot/Na Caixa de Entrada"
               : parseInt(servedBy) === user.id
               ? "Atendido por mim"
-              : `Atendido por ${servedBy}`
+              : `Atendido por ${
+                  props.attendantsIdAndNames[parseInt(servedBy)] || servedBy
+                }`
           }`}
           showDropdownMenu={
             parseInt(servedBy) === user.id &&

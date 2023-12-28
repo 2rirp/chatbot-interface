@@ -98,6 +98,7 @@ export default class ConversationController {
       const conversationId: number | number[] = req.body.conversationsId;
       const newServedBy: number | null = req.body.newServedBy;
       const attendantId: number = req.body.attendantId;
+      const attendantName: string = req.body.attendantName;
 
       const response = await ConversationServices.changeConversationServedBy(
         conversationId,
@@ -108,7 +109,7 @@ export default class ConversationController {
       const websocket = Websocket.getIstance();
       websocket.broadcastToEveryone(
         "applyAttendantToServe",
-        { conversationId, newServedBy },
+        { conversationId, newServedBy, attendantName },
         attendantId
       );
 
