@@ -102,6 +102,7 @@ export default class UserRepository {
     }
   }
 
+
   public async getAllAttendants() {
     try {
       const queryText = `SELECT * FROM ATTENDANTS ORDER BY id;`;
@@ -130,6 +131,17 @@ export default class UserRepository {
       }
     } catch (error) {
       console.error("Failed to RESET attendant password: ", error);
+    }
+  }
+
+  public async getAttendantsName(attendantsId: number[]) {
+    try {
+      const queryText = `SELECT id, name FROM attendants WHERE id IN (SELECT unnest($1::int[]))`;
+      const result = await this.db.pool.query(queryText, [attendantsId]);
+
+      return result.rows;
+    } catch (error) {
+      console.error("Failed to get attendants names: ", error);
       throw error;
     }
   }

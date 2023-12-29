@@ -89,26 +89,32 @@ export default class ConversationController {
     }
   }
 
-  async applyAttendantToServeConversation(
+  async changeConversationServedBy(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const conversationId = Number(req.params.conversationId);
-      const attendantId = Number(req.body.attendantId);
+      const conversationId: number | number[] = req.body.conversationsId;
+      const newServedBy: number | null = req.body.newServedBy;
+      const attendantId: number = req.body.attendantId;
+      const attendantName: string = req.body.attendantName;
 
-      const response =
-        await ConversationServices.applyAttendantToServeConversation(
-          conversationId,
-          attendantId
-        );
+      const response = await ConversationServices.changeConversationServedBy(
+        conversationId,
+        newServedBy,
+        attendantId
+      );
 
       const websocket = Websocket.getIstance();
       websocket.broadcastToEveryone(
         "applyAttendantToServe",
-        { conversationId, attendantId },
+        { conversationId, newServedBy, attendantName },
         attendantId
+      );
+
+      console.log(
+        `Attendant with ID ${attendantId} set served by = ${newServedBy} to conversations ${conversationId} `
       );
 
       res.status(200).json({

@@ -27,9 +27,12 @@ interface IData {
   templateName: string;
   userId: string;
   content: string;
-  variables: {
-    name: string,
-    prenotation: string } | undefined;
+  variables:
+    | {
+        name: string;
+        prenotation: string;
+      }
+    | undefined;
 }
 
 interface TextAreaData {
@@ -67,6 +70,10 @@ export default function RealTimePage() {
     boolean | null
   >(false);
   const [startConversation, setStartConversation] = useState(false);
+  const [attendantsIdAndNames, setAttendantsIdAndNames] = useState<
+    Record<number, string | null>
+  >({});
+  const [shouldFetchNames, setShouldFetchNames] = useState<boolean>(false);
 
   const currentPage: keyof PagesType = "real_time_page";
   const currentConversationIdRef = useRef(currentConversationId);
@@ -84,11 +91,11 @@ export default function RealTimePage() {
     navigate("/chatpage");
   };
   const user = {
-    id: userContext?.user?.id || "",
+    id: userContext?.user?.id || 0,
     username: userContext?.user?.name || "",
-    isAdmin: userContext?.user?.is_admin || "",
-    isAttendant: userContext?.user?.is_attendant || "",
-    isLecturer: userContext?.user?.is_lecturer || "",
+    isAdmin: userContext?.user?.is_admin || false,
+    isAttendant: userContext?.user?.is_attendant || false,
+    isLecturer: userContext?.user?.is_lecturer || false,
   };
 
   async function fetchAttendantRedirectedConversations() {
@@ -116,6 +123,26 @@ export default function RealTimePage() {
               lastMessageStatus: item.status,
               lastMessageMediaType: item.media_type,
             }));
+
+            convertedData.forEach((item) => {
+              setAttendantsIdAndNames((prev) => {
+                if (item.servedBy) {
+                  if (prev[item.servedBy] === undefined) {
+                    return { ...prev, [item.servedBy]: null };
+                  }
+                }
+                return prev;
+              });
+
+              /* setAttendantsId((prev) => {
+                if (item.servedBy) {
+                  if (prev && !prev.includes(item.servedBy)) {
+                    return [...prev, item.servedBy];
+                  }
+                }
+                return prev;
+              }); */
+            });
           } else if (user.isAttendant) {
             convertedData = responseObj.data
               .filter(
@@ -132,16 +159,6 @@ export default function RealTimePage() {
                 lastMessageStatus: item.status,
                 lastMessageMediaType: item.media_type,
               }));
-            /* convertedData = responseObj.data.map((item: FetchBotUser) => ({
-              botUserId: item.user_id,
-              conversationId: item.id,
-              servedBy: item.served_by,
-              lastMessageContent: item.content,
-              lastMessageCreatedAt: item.created_at,
-              lastMessageSid: item.sid,
-              lastMessageStatus: item.status,
-              lastMessageMediaType: item.media_type,
-            })); */
           }
           setBotUsersRedirectedToAttendant(convertedData);
         } else {
@@ -180,6 +197,26 @@ export default function RealTimePage() {
               lastMessageStatus: item.status,
               lastMessageMediaType: item.media_type,
             }));
+
+            convertedData.forEach((item) => {
+              setAttendantsIdAndNames((prev) => {
+                if (item.servedBy) {
+                  if (prev[item.servedBy] === undefined) {
+                    return { ...prev, [item.servedBy]: null };
+                  }
+                }
+                return prev;
+              });
+
+              /* setAttendantsId((prev) => {
+                if (item.servedBy) {
+                  if (prev && !prev.includes(item.servedBy)) {
+                    return [...prev, item.servedBy];
+                  }
+                }
+                return prev;
+              }); */
+            });
           } else if (user.isLecturer) {
             convertedData = responseObj.data
               .filter((item: FetchBotUser) => item.served_by === user.id)
@@ -198,6 +235,42 @@ export default function RealTimePage() {
         } else {
           console.error("No users data found for lecturer:", responseObj.data);
         }
+      } else {
+        throw responseObj.error;
+      }
+    } catch (error: any) {
+      console.error(error.name, error.message);
+    }
+  }
+
+  async function fetchAttendantsNames(attendantsId: number | number[]) {
+    try {
+      const response = await fetch(`/api/users/get-names`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          attendantsId: attendantsId,
+        }),
+      });
+
+      const responseObj = await response.json();
+
+      if (response.ok) {
+        if (responseObj.data) {
+          responseObj.data.forEach(
+            ({ id, name }: { id: number; name: string }) => {
+              if (attendantsIdAndNames.hasOwnProperty(id)) {
+                setAttendantsIdAndNames((prev) => ({
+                  ...prev,
+                  [id]: name,
+                }));
+              }
+            }
+          );
+        } else {
+          console.warn("No attendants name retrieved:", responseObj.data);
+        }
+        setShouldFetchNames((prev) => !prev);
       } else {
         throw responseObj.error;
       }
@@ -300,13 +373,21 @@ export default function RealTimePage() {
   useEffect(() => {
     async function fetchData() {
       try {
+        const promises = [];
+
         if (user.isAdmin || user.isAttendant) {
-          await fetchAttendantRedirectedConversations();
+          promises.push(fetchAttendantRedirectedConversations());
         }
 
         if (user.isAdmin || user.isLecturer) {
-          await fetchLecturerRedirectedConversations();
+          promises.push(fetchLecturerRedirectedConversations());
         }
+
+        console.log("Start promise");
+        await Promise.all(promises);
+        console.log("Finish promise");
+
+        setShouldFetchNames((prev) => !prev);
       } catch (error) {
         console.error("Error fetching redirected conversations:", error);
       }
@@ -314,6 +395,12 @@ export default function RealTimePage() {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (shouldFetchNames) {
+      handleFetchAttendantsNames();
+    }
+  }, [shouldFetchNames]);
 
   useEffect(() => {
     currentConversationIdRef.current = currentConversationId;
@@ -336,13 +423,16 @@ export default function RealTimePage() {
     if (!socketContext?.socket) return;
 
     socketContext.socket.on("botUserNeedsAttendant", (newBotUser: IBotUser) => {
-      setBotUsersRedirectedToAttendant((prevBotUsers) => {
-        if (prevBotUsers === null) {
-          return [newBotUser];
-        } else {
-          return [newBotUser, ...prevBotUsers];
-        }
-      });
+      if (user.isAdmin || user.isAttendant) {
+        console.log(newBotUser);
+        setBotUsersRedirectedToAttendant((prevBotUsers) => {
+          if (prevBotUsers === null) {
+            return [newBotUser];
+          } else {
+            return [newBotUser, ...prevBotUsers];
+          }
+        });
+      }
     });
 
     socketContext.socket.on("conversationInitiated", (newBotUser: IBotUser) => {
@@ -354,7 +444,7 @@ export default function RealTimePage() {
           if (prevBotUsers === null) {
             return [newBotUser];
           } else {
-            return [...prevBotUsers, newBotUser];
+            return [newBotUser, ...prevBotUsers];
           }
         });
       }
@@ -397,7 +487,11 @@ export default function RealTimePage() {
         );
 
         const orderedBotUserList = updatedBotUserList.sort((a, b) =>
-          a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
+          a.lastMessageCreatedAt &&
+          b.lastMessageCreatedAt &&
+          a.lastMessageCreatedAt > b.lastMessageCreatedAt
+            ? -1
+            : 1
         );
 
         setBotUsersRedirectedToAttendant(orderedBotUserList);
@@ -427,7 +521,11 @@ export default function RealTimePage() {
         );
 
         const orderedBotUserList = updatedBotUserList.sort((a, b) =>
-          a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
+          a.lastMessageCreatedAt &&
+          b.lastMessageCreatedAt &&
+          a.lastMessageCreatedAt > b.lastMessageCreatedAt
+            ? -1
+            : 1
         );
 
         setBotUsersRedirectedToLecturer(orderedBotUserList);
@@ -468,7 +566,11 @@ export default function RealTimePage() {
             });
 
           const orderedBotUserList = updatedBotUserList.sort((a, b) =>
-            a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
+            a.lastMessageCreatedAt &&
+            b.lastMessageCreatedAt &&
+            a.lastMessageCreatedAt > b.lastMessageCreatedAt
+              ? -1
+              : 1
           );
 
           setBotUsersRedirectedToAttendant(orderedBotUserList);
@@ -498,7 +600,11 @@ export default function RealTimePage() {
             });
 
           const orderedBotUserList = updatedBotUserList.sort((a, b) =>
-            a.lastMessageCreatedAt > b.lastMessageCreatedAt ? -1 : 1
+            a.lastMessageCreatedAt &&
+            b.lastMessageCreatedAt &&
+            a.lastMessageCreatedAt > b.lastMessageCreatedAt
+              ? -1
+              : 1
           );
 
           setBotUsersRedirectedToLecturer(orderedBotUserList);
@@ -612,23 +718,41 @@ export default function RealTimePage() {
 
     socketContext.socket.on(
       "applyAttendantToServe",
-      ({ conversationId, attendantId }) => {
-        if (currentConversationIdRef.current === conversationId) {
-          setCurrentBotUserServedBy(attendantId);
+      ({ conversationId, newServedBy, attendantName }) => {
+        if (
+          (Array.isArray(conversationId) &&
+            conversationId.includes(currentConversationIdRef.current)) ||
+          currentConversationIdRef.current === conversationId
+        ) {
+          setCurrentBotUserServedBy(newServedBy);
         }
 
         if (botUsersRedirectedToAttendantRef.current) {
-          const newBotUserList = botUsersRedirectedToAttendantRef.current.map(
-            (botUser) => {
-              if (botUser.conversationId === conversationId) {
-                return { ...botUser, servedBy: attendantId };
-              }
-              return botUser;
-            }
-          );
-
-          setBotUsersRedirectedToAttendant(newBotUserList);
+          if (Array.isArray(conversationId)) {
+            setBotUsersRedirectedToAttendant(
+              botUsersRedirectedToAttendantRef.current.map((botUser) => {
+                const foundIndex = conversationId.indexOf(
+                  botUser.conversationId || 0
+                );
+                if (foundIndex !== -1) {
+                  return { ...botUser, servedBy: newServedBy };
+                }
+                return botUser;
+              })
+            );
+          } else {
+            setBotUsersRedirectedToAttendant(
+              botUsersRedirectedToAttendantRef.current.map((botUser) => {
+                if (botUser.conversationId === conversationId) {
+                  return { ...botUser, servedBy: newServedBy };
+                }
+                return botUser;
+              })
+            );
+          }
         }
+
+        newServedBy && updateAttendantsNameState(newServedBy, attendantName);
       }
     );
 
@@ -672,10 +796,10 @@ export default function RealTimePage() {
     socketContext?.socket?.emit(
       "startNewConversation",
       data.templateName,
+      `55${data.userId}`,
       data.content,
       data.variables,
-      `55${data.userId}`,
-      user.id,
+      user.id
     );
   };
 
@@ -766,37 +890,85 @@ export default function RealTimePage() {
     return initialMessage;
   };
 
-  async function handleStartServing(conversationId: number) {
+  const handleSendToInbox = async (
+    conversationsId: number | number[],
+    newServedBy: null
+  ) => {
+    await changeServedBy(conversationsId, newServedBy);
+  };
+
+  const handleFetchAttendantsNames = async () => {
+    const attendantsId = Object.keys(attendantsIdAndNames).map(Number);
+
+    if (user.isAdmin && attendantsId.length > 0) {
+      await fetchAttendantsNames(attendantsId);
+    }
+  };
+
+  const updateAttendantsNameState = (
+    newAttendantId: number,
+    newAttendantName: string
+  ) => {
+    setAttendantsIdAndNames((prev) => {
+      if (!prev.hasOwnProperty(newAttendantId)) {
+        return { ...prev, [newAttendantId]: newAttendantName };
+      }
+      return prev;
+    });
+  };
+
+  async function changeServedBy(
+    conversationsId: number | number[],
+    newServedBy: null | number
+  ) {
     try {
-      const response = await fetch(
-        `/api/conversations/${conversationId}/serve`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ attendantId: userContext?.user?.id }),
-        }
-      );
+      console.log(`Changing served by: ${conversationsId} - ${newServedBy}`);
+
+      const response = await fetch(`/api/conversations/change-served-by`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          conversationsId: conversationsId,
+          newServedBy: newServedBy,
+          attendantId: user.id,
+          attendantName: user.username,
+        }),
+      });
 
       const responseObj = await response.json();
 
       if (response.ok) {
-        if (responseObj.data && userContext?.user?.id) {
-          const attendantId = userContext.user.id;
-
-          if (currentConversationId === conversationId) {
-            setCurrentBotUserServedBy(attendantId);
+        if (responseObj.data) {
+          if (Array.isArray(conversationsId)) {
+            if (conversationsId.includes(currentConversationId)) {
+              setCurrentBotUserServedBy(newServedBy);
+            }
+          } else if (currentConversationId === conversationsId) {
+            setCurrentBotUserServedBy(newServedBy);
           }
 
           setBotUsersRedirectedToAttendant((prev) => {
             if (prev !== null) {
-              return prev.map((botUser) => {
-                if (botUser.conversationId === conversationId) {
-                  return { ...botUser, servedBy: attendantId };
-                }
-                return botUser;
-              });
+              if (Array.isArray(conversationsId)) {
+                return prev.map((botUser) => {
+                  const foundIndex = conversationsId.indexOf(
+                    botUser.conversationId || 0
+                  );
+                  if (foundIndex !== -1) {
+                    return { ...botUser, servedBy: newServedBy };
+                  }
+                  return botUser;
+                });
+              } else {
+                return prev.map((botUser) => {
+                  if (botUser.conversationId === conversationsId) {
+                    return { ...botUser, servedBy: newServedBy };
+                  }
+                  return botUser;
+                });
+              }
             }
 
             return null;
@@ -902,6 +1074,8 @@ export default function RealTimePage() {
           onMarkAsUnread={handleMarkAsUnread}
           onMarkAsRead={handleMarkAsRead}
           onNewConversation={renderNewConversation}
+          onSendToInbox={handleSendToInbox}
+          attendantsIdAndNames={attendantsIdAndNames}
         />
         {startConversation ? (
           <StartConversation
@@ -928,7 +1102,7 @@ export default function RealTimePage() {
             attendantName={user.username}
             loadOlderMessages={fetchChatDataFromThreeDays}
             hasLoadedOlderMessages={hasFetchedOlderMessages}
-            onStartServing={handleStartServing}
+            onStartServing={changeServedBy}
           />
         ) : (
           <div className="centered-message-container">

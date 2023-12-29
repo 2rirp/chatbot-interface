@@ -115,6 +115,7 @@ export default class UserController {
       next(error);
     }
   }
+  
   async resetUserPassword(
     req: Request,
     res: Response,
@@ -150,6 +151,21 @@ export default class UserController {
       res.clearCookie("session");
       return res.status(200).json({
         message: `User '${username}' logged out successfully`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAttendantsName(req: Request, res: Response, next: NextFunction) {
+    try {
+      const attendantsId: number[] = req.body.attendantsId;
+
+      const response = await UserServices.getAttendantsName(attendantsId);
+
+      res.status(200).json({
+        error: null,
+        data: response,
       });
     } catch (error) {
       next(error);

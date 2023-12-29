@@ -43,6 +43,12 @@ router.delete(
   userController.logout.bind(userController)
 );
 
+router.post(
+  "/api/users/get-names",
+  authenticate,
+  userController.getAttendantsName.bind(userController)
+);
+
 router.get(
   "/api/:date",
   authenticate,
@@ -102,11 +108,9 @@ router.post(
 );
 
 router.put(
-  "/api/conversations/:conversationId/serve",
+  "/api/conversations/change-served-by",
   authenticate,
-  conversationController.applyAttendantToServeConversation.bind(
-    conversationController
-  )
+  conversationController.changeConversationServedBy.bind(conversationController)
 );
 
 router.get(

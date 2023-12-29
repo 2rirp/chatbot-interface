@@ -2,12 +2,17 @@ import "./collapsibleComponent.css";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useEffect, useRef, useState } from "react";
+import CollapsibleComponentDropdownMenu from "./collapsibleComponentDropdownMenu/collapsibleComponentDropdownMenu";
+import PagesType from "../../../interfaces/pagesName";
 
 interface CollapsibleComponentProps {
+  currentPage: keyof PagesType;
   title: string;
   level: 1 | 2;
+  showDropdownMenu?: boolean;
   children: React.ReactNode;
   childrenHeight: number | null;
+  onSendToInbox?: () => void;
 }
 
 export default function CollapsibleComponent(props: CollapsibleComponentProps) {
@@ -20,12 +25,12 @@ export default function CollapsibleComponent(props: CollapsibleComponentProps) {
   };
 
   useEffect(() => {
-    console.log(
+    /*  console.log(
       `I heard the height was updated for children of ${props.title}, ${contentRef.current?.scrollHeight}, ${contentRef.current?.clientHeight}, ${props.childrenHeight}`
-    );
+    ); */
     if (contentRef.current) {
       /* setContentHeight(contentRef.current.scrollHeight); */
-      console.log("Got here");
+      /* console.log("Got here"); */
     }
   }, [props.childrenHeight]);
 
@@ -36,7 +41,18 @@ export default function CollapsibleComponent(props: CollapsibleComponentProps) {
         onClick={toggle}
       >
         {props.title}
-        {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+        <div className="collapsible-title-icons">
+          {props.currentPage === "real_time_page" &&
+            props.level === 2 &&
+            props.showDropdownMenu &&
+            props.onSendToInbox && (
+              <CollapsibleComponentDropdownMenu
+                currentPage={props.currentPage}
+                onSendToInbox={props.onSendToInbox}
+              />
+            )}
+          {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+        </div>
       </div>
       <div
         className="collapsible-content-parent"

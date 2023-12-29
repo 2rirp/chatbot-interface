@@ -15,14 +15,22 @@ import MicIcon from "@mui/icons-material/Mic";
 import { UserContext } from "../../../contexts/UserContext";
 import { useContext, useEffect, useRef, useState } from "react";
 import CollapsibleComponent from "../collapsibleComponent/CollapsibleComponent";
+import PagesType from "../../../interfaces/pagesName";
 
 interface SidebarListProps {
+  currentPage: keyof PagesType;
   botUserList: IBotUser[];
-  handleLiClick: (botUser: IBotUser) => Promise<void>;
-  unreadConversations: number[];
-  onMarkAsUnread: (conversationId: number) => void;
-  onMarkAsRead: (conversationId: number) => void;
+  typeOfService?: "attendant" | "lecturer";
+  handleLiClick: (botUser: IBotUser | string) => Promise<void>;
+  unreadConversations?: number[];
+  onMarkAsUnread?: (conversationId: number) => void;
+  onMarkAsRead?: (conversationId: number) => void;
   componentHeight?: (heightValue: number | null) => void;
+  onSendToInbox?: (
+    conversationsId: number | number[],
+    newServedBy: null
+  ) => Promise<void>;
+  attendantsIdAndNames: Record<number, string | null>;
 }
 
 interface GroupedBotUsers {
@@ -34,6 +42,10 @@ export default function SidebarList(props: SidebarListProps) {
   const [groupedByServedBy, setGroupedByServedBy] = useState<GroupedBotUsers>(
     {}
   );
+  const [
+    conversationsIdServedByAttendant,
+    setConversationsIdServedByAttendant,
+  ] = useState<number[]>([]);
   const [listHeight, setListHeight] = useState<number | null>(null);
 
   const listRef = useRef<HTMLUListElement | null>(null);
@@ -41,28 +53,60 @@ export default function SidebarList(props: SidebarListProps) {
 
   const user = {
     username: userContext?.user?.name || "",
-    id: userContext?.user?.id || "",
+    id: userContext?.user?.id || 0,
     isAdmin: userContext?.user?.is_admin || false,
     isAttendant: userContext?.user?.is_attendant || false,
     isLecturer: userContext?.user?.is_lecturer || false,
   };
 
   const groupByServedBy = () => {
-    return props.botUserList.reduce((groups: GroupedBotUsers, botUser) => {
-      const { servedBy } = botUser;
+    const listGroupedByServedBy = props.botUserList.reduce(
+      (groups: GroupedBotUsers, botUser) => {
+        const { servedBy } = botUser;
 
-      const key = servedBy === null ? "0" : `${servedBy}`;
-      if (!groups[key]) {
-        groups[key] = [];
-      }
-      groups[key].push(botUser);
+        const key = servedBy === null ? "0" : `${servedBy}`;
+        if (!groups[key]) {
+          groups[key] = [];
+        }
+        groups[key].push(botUser);
 
-      return groups;
-    }, {});
+        return groups;
+      },
+      {}
+    );
+
+    if (props.typeOfService === "attendant") {
+      const conversationsId = Object.entries(listGroupedByServedBy)
+        .map(([servedBy, botUsers]) => {
+          if (parseInt(servedBy) === user.id) {
+            return botUsers.map((botUser) => {
+              return botUser.conversationId ? botUser.conversationId : 0;
+            });
+          }
+          return [];
+        })
+        .flat();
+
+      return { listGroupedByServedBy, conversationsId };
+    } else {
+      return { listGroupedByServedBy };
+    }
+  };
+
+  const handleOnSendToInbox = (conversationId?: number) => {
+    props.onSendToInbox?.(
+      conversationId ? conversationId : conversationsIdServedByAttendant,
+      null
+    );
   };
 
   useEffect(() => {
-    setGroupedByServedBy(groupByServedBy);
+    const groupedData = groupByServedBy();
+    setGroupedByServedBy(groupedData.listGroupedByServedBy);
+
+    if (groupedData.conversationsId) {
+      setConversationsIdServedByAttendant(groupedData.conversationsId);
+    }
   }, [props.botUserList]);
 
   useEffect(() => {
@@ -71,14 +115,14 @@ export default function SidebarList(props: SidebarListProps) {
         if (entry.target === listRef.current) {
           /* const listHeight = entry.contentRect.height; */
           listRef.current && setListHeight(entry.contentRect.height);
-          console.log(`Changed list height ${entry.contentRect.height}`);
+          /* console.log(`Changed list height ${entry.contentRect.height}`); */
         } else if (entry.target === componentRef.current) {
           /*  const componentHeight = entry.contentRect.height; */
           props.componentHeight &&
             componentRef.current &&
             props.componentHeight(entry.contentRect.height);
 
-          console.log(`Changed component height ${entry.contentRect.height}`);
+          /* console.log(`Changed component height ${entry.contentRect.height}`); */
         }
       }
     });
@@ -109,21 +153,37 @@ export default function SidebarList(props: SidebarListProps) {
           }`}</span> */
 
         <CollapsibleComponent
+          currentPage={props.currentPage}
           title={`${
             servedBy === "0"
-              ? "Caixa de Entrada"
+              ? props.currentPage === "real_time_page"
+                ? "Caixa de Entrada"
+                : "Atendido pelo Bot/Na Caixa de Entrada"
               : parseInt(servedBy) === user.id
               ? "Atendido por mim"
-              : `Atendido por ${servedBy}`
+              : `Atendido por ${
+                  props.attendantsIdAndNames[parseInt(servedBy)] || servedBy
+                }`
           }`}
+          showDropdownMenu={
+            parseInt(servedBy) === user.id &&
+            props.typeOfService === "attendant"
+          }
           level={2}
           childrenHeight={listHeight}
+          onSendToInbox={handleOnSendToInbox}
         >
           <ul className="sidebar-list" ref={listRef}>
             {botUsers.map((botUser) => (
               <li
                 key={botUser.botUserId}
-                onClick={() => props.handleLiClick(botUser)}
+                onClick={() =>
+                  props.handleLiClick(
+                    props.currentPage === "real_time_page"
+                      ? botUser
+                      : botUser.botUserId
+                  )
+                }
               >
                 <div className="user-details">
                   <PhoneNumberFormatter
@@ -210,9 +270,11 @@ export default function SidebarList(props: SidebarListProps) {
                     {botUser.conversationId &&
                       props.onMarkAsUnread &&
                       props.onMarkAsRead &&
-                      botUser.servedBy === user.id && (
+                      botUser.servedBy === user.id &&
+                      props.onSendToInbox && (
                         <UserDropdownMenu
-                          currentPage={"real_time_page"}
+                          currentPage={props.currentPage}
+                          typeOfService={props.typeOfService}
                           className="user-dropdown-menu"
                           conversationId={botUser.conversationId}
                           isAnUnreadConversation={
@@ -226,6 +288,9 @@ export default function SidebarList(props: SidebarListProps) {
                           onMarkAsUnread={props.onMarkAsUnread}
                           onMarkAsRead={props.onMarkAsRead}
                           isItTheAttendantServing={botUser.servedBy === user.id}
+                          onSendToInbox={() =>
+                            handleOnSendToInbox(botUser.conversationId)
+                          }
                         />
                       )}
                   </div>

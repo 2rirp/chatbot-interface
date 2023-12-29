@@ -3,6 +3,8 @@ import IUser, { IUserResponse } from "../interfaces/iuser";
 import bcrypt from "bcrypt";
 import UserRepository from "../repositories/userRepository";
 import IResponse from "../interfaces/iresponse";
+import { response } from "express";
+
 
 export default class UsersServices {
   private static repository = new UserRepository();
@@ -71,7 +73,9 @@ export default class UsersServices {
           "InternalServerError",
           "Something went wrong..."
         );
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   }
 
   public static async updateUserPassword(email: string, newPassword: string) {
@@ -110,11 +114,26 @@ export default class UsersServices {
           data: response,
         };
         return res;
-      } else
+      } else{
         throw ErrorHandler.createError(
           "InternalServerError",
           "Something went wrong..."
         );
+      }
+    } catch(error){
+    throw error;
+    }
+  }
+      
+  public static async getAttendantsName(attendantsId: number[]) {
+    try {
+      let response = null;
+      if (attendantsId.length > 0) {
+        response = await this.repository.getAttendantsName(attendantsId);
+      }
+
+      return response;
+
     } catch (error) {
       throw error;
     }
