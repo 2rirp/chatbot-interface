@@ -20,14 +20,16 @@ router.get(
   authenticate,
   userController.getMe.bind(userController)
 );
+router.get(
+  "/api/users/all",
+  authenticate,
+  userController.getAll.bind(userController)
+);
 
 router.post("/api/users/login", userController.login.bind(userController));
 
-router.patch(
-  "/api/users/update-password",
-  authenticate,
-  userController.updateUser.bind(userController)
-);
+router.patch("/api/users/update-password", authenticate, userController.updateUser.bind(userController));
+router.patch("/api/users/reset-password", authenticate, userController.resetUserPassword.bind(userController))
 
 router.post(
   "/api/users/createuser",

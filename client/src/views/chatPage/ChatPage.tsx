@@ -288,6 +288,7 @@ export default function ChatPage() {
           fetchChatDataByDate={fetchChatDataByDate}
           onRegisterClick={openModal}
           onChatPageClick={changeRoute}
+          onAdminClick={()=>navigate("/admin")}
           onReportClick={() => navigate("/relatorio")}
           onLogoutClick={logout}
           attendantsIdAndNames={attendantsIdAndNames}

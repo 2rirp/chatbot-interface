@@ -7,3 +7,10 @@ export default interface IUser {
   is_attendant?: boolean;
   is_lecturer?: boolean;
 }
+
+export interface IUserResponse {
+  id?: number;
+  name: string;
+  email: string;
+  updated_at: Date | null;
+}

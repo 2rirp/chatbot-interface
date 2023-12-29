@@ -1,7 +1,7 @@
 import { Query, QueryResult } from "pg";
 import dbConnect from "../database/dbConnect";
 import IResponse from "../interfaces/iresponse";
-import IUser from "../interfaces/iuser";
+import IUser, { IUserResponse } from "../interfaces/iuser";
 
 export default class UserRepository {
   private db: dbConnect;
@@ -86,7 +86,7 @@ export default class UserRepository {
       ]);
       if (result.rowCount === 1) {
         const res: IResponse<IUser> = {
-          status: 201,
+          status: 200,
           data: result.rows[0],
         };
         return res;
@@ -99,6 +99,38 @@ export default class UserRepository {
       };
       console.error("Failed to UPDATE attendant: ", error);
       return res;
+    }
+  }
+
+
+  public async getAllAttendants() {
+    try {
+      const queryText = `SELECT * FROM ATTENDANTS ORDER BY id;`;
+      const result = await this.db.pool.query(queryText);
+      if (result) {
+        return result.rows;
+      }
+    } catch (error) {
+      console.error("Failed to GET ALL attendant: ", error);
+      throw error;
+    }
+  }
+
+  public async resetAttendantPasswordById(
+    defaultPassword: string,
+    userId: number
+  ) {
+    try {
+      const queryText = `UPDATE attendants set password = $1, updated_at = NULL WHERE id = $2 RETURNING id`;
+      const result = await this.db.pool.query(queryText, [
+        defaultPassword,
+        userId,
+      ]);
+      if (result.rowCount === 1) {
+        return result.rows[0];
+      }
+    } catch (error) {
+      console.error("Failed to RESET attendant password: ", error);
     }
   }
 

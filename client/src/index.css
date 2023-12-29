@@ -19,6 +19,8 @@
   --tertiary-gray: #b6b6b6dc;
   --quaternary-gray: #75757581;
   --primary-green: #00be1c;
+  --shadow-box: rgba(61, 29, 29, 0.12) 20px 2px 4px 2px,
+  rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
 }
 
 .pattern-header{

@@ -1060,6 +1060,7 @@ export default function RealTimePage() {
       {modalIsOpen && <SignUpModal onClose={closeModal} />}
       <div className="page-container">
         <Sidebar
+          onAdminClick={()=>navigate("/admin")}
           currentPage={currentPage}
           isActive={activeDropdown}
           botUsersList={botUsersRedirectedToAttendant}

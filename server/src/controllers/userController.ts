@@ -1,9 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response, response } from "express";
 import UserServices from "../services/userServices";
 import IResponse from "../interfaces/iresponse";
 import IUser from "../interfaces/iuser";
 import jwtLib from "jsonwebtoken";
 import ErrorHandler from "../errors";
+import UsersServices from "../services/userServices";
 
 export default class UserController {
   public async getMe(
@@ -17,6 +18,18 @@ export default class UserController {
       res.status(200).json({
         error: null,
         data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const attendants = await UsersServices.getAllAttendants();
+
+      res.status(200).json({
+        error: null,
+        data: attendants,
       });
     } catch (error) {
       next(error);
@@ -97,6 +110,26 @@ export default class UserController {
           data: user,
         });
         return updatedUser.data;
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+  
+  async resetUserPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const id: number = req.body.id;
+      const updatedUser = await UserServices.resetAttendantPassword(id);
+      if (updatedUser.status === 200) {
+        res.status(200).json({
+          error: null,
+          data: null,
+        });
+        return;
       }
     } catch (error) {
       next(error);

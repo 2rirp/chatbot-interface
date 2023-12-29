@@ -6,6 +6,8 @@ import { RequireAuth } from "./components/AuthComponents/RequireAuth";
 import RealTimePage from "./views/realTimePage/RealTimePage";
 import { RequireAdminAuth } from "./components/AuthComponents/RequireAdminAuth";
 import ReportPage from "./views/reportPage/ReportPage";
+import AdminPage from "./views/adminPage/AdminPage";
+
 
 export default function App() {
   const router = createBrowserRouter([
@@ -41,6 +43,16 @@ export default function App() {
         </RequireAuth>
       ),
     },
+    {
+      path: "/admin",
+      element: (
+        <RequireAuth>
+          <RequireAdminAuth>
+            <AdminPage/>
+          </RequireAdminAuth>
+        </RequireAuth>
+      )
+    }
   ]);
 
   return <RouterProvider router={router} />;
